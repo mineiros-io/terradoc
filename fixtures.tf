@@ -13,7 +13,7 @@
 
 variable "name" {
   type        = string
-  description = "(Required) The name of the user pool."
+  description = "(Required) The name of the user pool. (Forces new resource)"
 }
 
 # ------------------------------------------------------------------------------
@@ -112,7 +112,7 @@ variable "email_from_address" {
 
 variable "mfa_configuration" {
   type        = string
-  description = "Multi-Factor Authentication (MFA) configuration for the User Pool. Valid values: 'ON', 'OFF' or 'OPTIONAL'. 'ON' and 'OPTIONAL' require at least one of 'sms_configuration' or 'software_token_mfa_configuration' to be configured."
+  description = "(Optional) Multi-Factor Authentication (MFA) configuration for the User Pool. Valid values: 'ON', 'OFF' or 'OPTIONAL'. 'ON' and 'OPTIONAL' require at least one of 'sms_configuration' or 'software_token_mfa_configuration' to be configured."
   default     = "OPTIONAL"
 }
 
@@ -266,9 +266,7 @@ variable "schema_attributes" {
 variable "sms_configuration" {
   description = "(Optional) The `sms_configuration` with the `external_id` parameter used in iam role trust relationships and the `sns_caller_arn` parameter to set he arn of the amazon sns caller. this is usually the iam role that you've given cognito permission to assume."
   type = object({
-    # The external ID used in IAM role trust relationships. For more information about using external IDs, see https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-user_externalid.html
     external_id = string
-    # The ARN of the Amazon SNS caller. This is usually the IAM role that you've given Cognito permission to assume.
     sns_caller_arn = string
   })
   default = null

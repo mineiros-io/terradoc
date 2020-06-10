@@ -2,6 +2,10 @@ package config
 
 import "github.com/hashicorp/hcl/v2"
 
+const (
+	variableBlock = "variable"
+)
+
 var rootSchema = &hcl.BodySchema{
 	Blocks: []hcl.BlockHeaderSchema{
 		{
@@ -9,7 +13,7 @@ var rootSchema = &hcl.BodySchema{
 			LabelNames: nil,
 		},
 		{
-			Type:       "variable",
+			Type:       variableBlock,
 			LabelNames: []string{"name"},
 		},
 		{
