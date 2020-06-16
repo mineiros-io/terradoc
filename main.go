@@ -2,35 +2,26 @@ package main
 
 import (
 	"fmt"
-	"regexp"
-	"strings"
 
 	"github.com/mineiros-io/terradoc/config"
+	"gopkg.in/alecthomas/kingpin.v2"
+)
+
+var (
+	fileName = kingpin.Arg("file", "The .tf or .hcl file that contains the variable blocks that should be parsed").Required().String()
 )
 
 func main() {
+	kingpin.Version("0.0.1")
+	kingpin.Parse()
 
-	module := config.ParseVariables("fixtures.tf")
+	module := config.ParseVariables(*fileName)
+	outputBuffer := config.Format(module)
 
-	// 	- **`name`**: *(Required `string`, Forces new resource)*
-	// 	The name of the user pool.
-
-	//   - **`advanced_security_mode`**: *(Optional `string`)*
-	// 	The mode for advanced security, must be one of `OFF`, `AUDIT` or `ENFORCED`. Additional pricing applies for Amazon Cognito advanced security features. For details see https://aws.amazon.com/cognito/pricing/.
-	// 	Default is `OFF`.
-
-	for _, v := range module.Variables {
-		// please don't complain about hacky naming yet :D
-		re := regexp.MustCompile("^\\((.*?)\\)")
-		a := re.FindStringSubmatch(v.Description)
-
-		// Shadowing the same variable inside the same scrope doesn't work in go
-		re = regexp.MustCompile("\\n")
-		variableType := re.ReplaceAllString(v.Type, "")
-
-		fmt.Printf("**`%s`**: *(%s `%s`, Forces new resource)*\n", v.Name, a[1], variableType)
-		fmt.Printf("%s", strings.TrimLeft(v.Description, a[0]))
-		fmt.Print("\n\n")
-
-	}
+	// Write buffer as a string to stdout
+	fmt.Print(outputBuffer.String())
 }
+
+// - **`region`**: *(Optional `string`)*
+// If specified, the AWS region this bucket should reside in.
+// Default is the region used by the callee.

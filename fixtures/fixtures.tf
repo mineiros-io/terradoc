@@ -24,8 +24,10 @@ variable "name" {
 variable "advanced_security_mode" {
   type        = string
   description = "(Optional) The mode for advanced security, must be one of `OFF`, `AUDIT` or `ENFORCED`. Additional pricing applies for Amazon Cognito advanced security features. For details see https://aws.amazon.com/cognito/pricing/"
-  default     = "OFF"
+  default             = "OFF"
+  creates_new_resource = true
 }
+
 
 variable "alias_attributes" {
   type        = set(string)
