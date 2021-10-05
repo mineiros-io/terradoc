@@ -16,3 +16,6 @@ vendor/
 
 # Vscode
 .vscode/
+
+bin/*
+tmp/*

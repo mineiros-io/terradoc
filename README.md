@@ -6,5 +6,5 @@ HCL syntax.
 ## How to test
 
 ```bash
-go run main.go fixtures/fixtures.hcl
+go run ./cmd/terradoc generate all fixtures/input.tfdoc.hcl -d OUTPUT_FOLDER
 ```
