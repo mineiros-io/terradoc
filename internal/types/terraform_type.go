@@ -5,22 +5,26 @@ type TerraformType int
 
 //go:generate stringer -type=TerraformType -linecomment
 const (
-	TerraformInvalidType TerraformType = iota // invalid
-	TerraformBool                             // bool
-	TerraformString                           // string
-	TerraformNumber                           // number
-	TerraformDynamic                          // dynamic
-	TerraformList                             // list
-	TerraformObject                           // object
-	TerraformTuple                            // tuple
+	TerraformEmptyType TerraformType = iota // empty
+	TerraformBool                           // bool
+	TerraformString                         // string
+	TerraformNumber                         // number
+	TerraformAny                            // any
+	TerraformList                           // list
+	TerraformSet                            // set
+	TerraformMap                            // map
+	TerraformObject                         // object
+	TerraformTuple                          // tuple
 )
 
 var TerraformTypes = map[string]TerraformType{
-	TerraformBool.String():    TerraformBool,
-	TerraformString.String():  TerraformString,
-	TerraformNumber.String():  TerraformNumber,
-	TerraformDynamic.String(): TerraformDynamic,
-	TerraformList.String():    TerraformList,
-	TerraformObject.String():  TerraformObject,
-	TerraformTuple.String():   TerraformTuple,
+	TerraformBool.String():   TerraformBool,
+	TerraformString.String(): TerraformString,
+	TerraformNumber.String(): TerraformNumber,
+	TerraformAny.String():    TerraformAny,
+	TerraformList.String():   TerraformList,
+	TerraformSet.String():    TerraformSet,
+	TerraformMap.String():    TerraformMap,
+	TerraformObject.String(): TerraformObject,
+	TerraformTuple.String():  TerraformTuple,
 }

@@ -35,7 +35,7 @@ func TestAttributeToString(t *testing.T) {
 
 	t.Run("when value is not convertable to string", func(t *testing.T) {
 		// test that it doesn't trigger cty's panic calls
-		wantErrorMSGContains := fmt.Sprintf("Could not convert value of %q to string", attrName)
+		wantErrorMSGContains := fmt.Sprintf("could not convert %q to string", attrName)
 		exprValue := customdecode.ExpressionVal(&fakeHCLExpression{})
 
 		attr := newMockAttribute(attrName, exprValue)
@@ -76,7 +76,7 @@ func TestAttributeToBool(t *testing.T) {
 
 	t.Run("when value is not convertable to bool", func(t *testing.T) {
 		// test that it doesn't trigger cty's panic calls
-		wantErrorMSGContains := fmt.Sprintf("Could not convert value of %q to bool", attrName)
+		wantErrorMSGContains := fmt.Sprintf("could not convert %q to bool", attrName)
 		exprValue := customdecode.ExpressionVal(&fakeHCLExpression{})
 
 		attr := newMockAttribute(attrName, exprValue)
@@ -172,7 +172,7 @@ func TestAttributeToTerraformTypeValidPrimaryType(t *testing.T) {
 				t.Fatalf("Expected no error. Got %q instead", err)
 			}
 
-			if res != tt.expectedTerraformType {
+			if res.Type != tt.expectedTerraformType {
 				t.Errorf("Expected type to be %q. Got %q instead", tt.expectedTerraformType.String(), res)
 			}
 		})
@@ -223,8 +223,8 @@ func TestAttributeToTerraformTypeInvalidTypes(t *testing.T) {
 				t.Errorf("Expected error to contain %q. Got %q instead", tt.expectedErrorMSG, err.Error())
 			}
 
-			if res != types.TerraformInvalidType {
-				t.Errorf("Expected returned type to be %q. Got %q instead", types.TerraformInvalidType, res)
+			if res.Type != types.TerraformEmptyType {
+				t.Errorf("Expected returned type to be %q. Got %q instead", types.TerraformEmptyType, res)
 			}
 		})
 	}

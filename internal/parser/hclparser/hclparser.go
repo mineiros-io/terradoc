@@ -30,66 +30,66 @@ const (
 )
 
 // Parse reads the content of a io.Reader and returns a Definition entity from its parsed values
-func Parse(r io.Reader, filename string) (*entities.Definition, error) {
+func Parse(r io.Reader, filename string) (entities.Definition, error) {
 	src, err := io.ReadAll(r)
 	if err != nil {
-		return nil, err
+		return entities.Definition{}, err
 	}
 
 	return parseHCL(src, filename)
 }
 
-func parseHCL(src []byte, filename string) (*entities.Definition, error) {
+func parseHCL(src []byte, filename string) (entities.Definition, error) {
 	p := hclparse.NewParser()
 
 	f, diags := p.ParseHCL(src, filename)
 	if diags.HasErrors() {
-		return nil, fmt.Errorf("Error parsing HCL: %v", diags.Errs())
+		return entities.Definition{}, fmt.Errorf("parsing HCL: %v", diags.Errs())
 	}
 
 	return parseDefinition(f)
 }
 
-func parseDefinition(f *hcl.File) (*entities.Definition, error) {
+func parseDefinition(f *hcl.File) (entities.Definition, error) {
+	def := entities.Definition{}
+
 	definitionContent, diags := f.Body.Content(hclschema.RootSchema())
 	if diags.HasErrors() {
-		return nil, fmt.Errorf("Error parsing Terradoc definition: %v", diags.Errs())
+		return entities.Definition{}, fmt.Errorf("parsing Terradoc definition: %v", diags.Errs())
 	}
-
-	def := &entities.Definition{}
 
 	// Root does not have attributes and only has `section` blocks
 	for _, sectionBlock := range definitionContent.Blocks {
 		section, err := parseSection(sectionBlock, rootSubSectionLevel) // initial level
 		if err != nil {
-			return nil, fmt.Errorf("Error parseing sections: %s", err)
+			return entities.Definition{}, fmt.Errorf("parsing sections: %s", err)
 		}
 
-		def.Sections = append(def.Sections, *section)
+		def.Sections = append(def.Sections, section)
 	}
 
 	return def, nil
 }
 
-func parseSection(sectionBlock *hcl.Block, level int) (*entities.Section, error) {
+func parseSection(sectionBlock *hcl.Block, level int) (entities.Section, error) {
 	sectionContent, diags := sectionBlock.Body.Content(hclschema.SectionSchema())
 	if diags.HasErrors() {
-		return nil, fmt.Errorf("Error parsing Terradoc section: %v", diags.Errs())
+		return entities.Section{}, fmt.Errorf("parsing Terradoc section: %v", diags.Errs())
 	}
 
 	section, err := createSectionFromAttributes(sectionContent.Attributes, level)
 	if err != nil {
-		return nil, fmt.Errorf("Error parsing section: %s", err)
+		return entities.Section{}, fmt.Errorf("parsing section: %s", err)
 	}
 
 	// parse `variable` blocks
 	for _, varBlk := range sectionContent.Blocks.OfType(variableBlockName) {
 		variable, err := parseVariable(varBlk)
 		if err != nil {
-			return nil, fmt.Errorf("Error parsing section variable: %s", err)
+			return entities.Section{}, fmt.Errorf("parsing section variable: %s", err)
 		}
 
-		section.Variables = append(section.Variables, *variable)
+		section.Variables = append(section.Variables, variable)
 	}
 
 	subSectionLevel := level + 1
@@ -97,58 +97,58 @@ func parseSection(sectionBlock *hcl.Block, level int) (*entities.Section, error)
 	for _, subSectionBlk := range sectionContent.Blocks.OfType(sectionBlockName) {
 		subSection, err := parseSection(subSectionBlk, subSectionLevel)
 		if err != nil {
-			return nil, fmt.Errorf("Error parsing subsection: %s", err)
+			return entities.Section{}, fmt.Errorf("parsing subsection: %s", err)
 		}
 
-		section.SubSections = append(section.SubSections, *subSection)
+		section.SubSections = append(section.SubSections, subSection)
 	}
 
 	return section, nil
 }
 
-func parseVariable(variableBlock *hcl.Block) (*entities.Variable, error) {
+func parseVariable(variableBlock *hcl.Block) (entities.Variable, error) {
 	variableContent, diags := variableBlock.Body.Content(hclschema.VariableSchema())
 	if diags.HasErrors() {
-		return nil, fmt.Errorf("Error parsing variable: %v", diags.Errs())
+		return entities.Variable{}, fmt.Errorf("parsing variable: %v", diags.Errs())
 	}
 
 	if len(variableBlock.Labels) != 1 {
-		return nil, errors.New("Attribute block does not have a name")
+		return entities.Variable{}, errors.New("variable block does not have a name")
 	}
 
 	name := variableBlock.Labels[0]
-	variable, err := createVariableFromAttributes(variableContent.Attributes, name)
+	variable, err := createVariableFromHCLAttributes(variableContent.Attributes, name)
 	if err != nil {
-		return nil, fmt.Errorf("Error parsing variable: %s", err)
+		return entities.Variable{}, fmt.Errorf("parsing variable: %s", err)
 	}
 
 	// variables have only `attribute` blocks
 	for _, blk := range variableContent.Blocks.OfType(attributeBlockName) {
 		attribute, err := parseAttribute(blk, variableAttributeLevel)
 		if err != nil {
-			return nil, fmt.Errorf("Error parsing variable attributes: %s", err)
+			return entities.Variable{}, fmt.Errorf("parsing variable attributes: %s", err)
 		}
 
-		variable.Attributes = append(variable.Attributes, *attribute)
+		variable.Attributes = append(variable.Attributes, attribute)
 	}
 
 	return variable, nil
 }
 
-func parseAttribute(attrBlock *hcl.Block, level int) (*entities.Attribute, error) {
+func parseAttribute(attrBlock *hcl.Block, level int) (entities.Attribute, error) {
 	attrContent, diags := attrBlock.Body.Content(hclschema.AttributeSchema())
 	if diags.HasErrors() {
-		return nil, fmt.Errorf("Error parsing attribute block: %v", diags.Errs())
+		return entities.Attribute{}, fmt.Errorf("parsing attribute block: %v", diags.Errs())
 	}
 
 	if len(attrBlock.Labels) != 1 {
-		return nil, errors.New("Attribute block does not have a name")
+		return entities.Attribute{}, errors.New("attribute block does not have a name")
 	}
 
 	name := attrBlock.Labels[0]
-	attr, err := createAttributeFromAttributes(attrContent.Attributes, name, level)
+	attr, err := createAttributeFromHCLAttributes(attrContent.Attributes, name, level)
 	if err != nil {
-		return nil, fmt.Errorf("Error parsing attribute: %s", err)
+		return entities.Attribute{}, fmt.Errorf("parsing attribute: %s", err)
 	}
 
 	nestedAttributeLevel := level + 1
@@ -156,29 +156,29 @@ func parseAttribute(attrBlock *hcl.Block, level int) (*entities.Attribute, error
 	for _, blk := range attrContent.Blocks.OfType(attributeBlockName) {
 		nestedAttr, err := parseAttribute(blk, nestedAttributeLevel)
 		if err != nil {
-			return nil, fmt.Errorf("Error parsing nested attribute: %s", err)
+			return entities.Attribute{}, fmt.Errorf("parsing nested attribute: %s", err)
 		}
 
-		attr.Attributes = append(attr.Attributes, *nestedAttr)
+		attr.Attributes = append(attr.Attributes, nestedAttr)
 	}
 
 	return attr, nil
 }
 
-func createSectionFromAttributes(attrs hcl.Attributes, level int) (*entities.Section, error) {
-	section := &entities.Section{Level: level}
+func createSectionFromAttributes(attrs hcl.Attributes, level int) (entities.Section, error) {
+	section := entities.Section{Level: level}
 
 	// title
 	title, err := getAttribute(attrs, titleAttributeName).String()
 	if err != nil {
-		return nil, err
+		return entities.Section{}, err
 	}
 	section.Title = title
 
 	// fetch section description
 	description, err := getAttribute(attrs, descriptionAttributeName).String()
 	if err != nil {
-		return nil, err
+		return entities.Section{}, err
 	}
 
 	section.Description = description
@@ -186,112 +186,98 @@ func createSectionFromAttributes(attrs hcl.Attributes, level int) (*entities.Sec
 	return section, nil
 }
 
-func createVariableFromAttributes(attrs hcl.Attributes, name string) (*entities.Variable, error) {
-	variable := &entities.Variable{Name: name}
-
-	// type
-	varType, err := getAttribute(attrs, typeAttributeName).TerraformType()
-	if err != nil {
-		return nil, err
-	}
-	variable.TerraformType = varType
+func createVariableFromHCLAttributes(attrs hcl.Attributes, name string) (entities.Variable, error) {
+	variable := entities.Variable{Name: name}
 
 	// description
 	description, err := getAttribute(attrs, descriptionAttributeName).String()
 	if err != nil {
-		return nil, err
+		return entities.Variable{}, err
 	}
 	variable.Description = description
-
-	// readme type
-	readmeType, err := getAttribute(attrs, readmeTypeAttributeName).String()
-	if err != nil {
-		return nil, err
-	}
-	variable.ReadmeType = readmeType
 
 	// default
 	varDefault, err := getAttribute(attrs, defaultAttributeName).RawJSON()
 	if err != nil {
-		return nil, err
+		return entities.Variable{}, err
 	}
 	variable.Default = varDefault
 
 	// required
 	required, err := getAttribute(attrs, requiredAttributeName).Bool()
 	if err != nil {
-		return nil, err
+		return entities.Variable{}, err
 	}
 	variable.Required = required
 
 	// forcesRecreation
 	forcesRecreation, err := getAttribute(attrs, forcesRecreationAttributeName).Bool()
 	if err != nil {
-		return nil, err
+		return entities.Variable{}, err
 	}
 	variable.ForcesRecreation = forcesRecreation
 
 	// readme example
 	readmeExample, err := getAttribute(attrs, readmeExampleAttributeName).HCLString()
 	if err != nil {
-		return nil, err
+		return entities.Variable{}, err
 	}
 	variable.ReadmeExample = readmeExample
+
+	// type definition
+	typeDefinition, err := getType(attrs, name)
+	if err != nil {
+		return entities.Variable{}, err
+	}
+	variable.Type = typeDefinition
 
 	return variable, nil
 }
 
-func createAttributeFromAttributes(attrs hcl.Attributes, name string, level int) (*entities.Attribute, error) {
-	attribute := &entities.Attribute{Name: name, Level: level}
-
-	// type
-	attrType, err := getAttribute(attrs, typeAttributeName).TerraformType()
-	if err != nil {
-		return nil, err
-	}
-	attribute.TerraformType = attrType
+func createAttributeFromHCLAttributes(attrs hcl.Attributes, name string, level int) (entities.Attribute, error) {
+	attribute := entities.Attribute{Name: name, Level: level}
 
 	// description
 	description, err := getAttribute(attrs, descriptionAttributeName).String()
 	if err != nil {
-		return nil, err
+		return entities.Attribute{}, err
 	}
 	attribute.Description = description
 
 	// required
 	required, err := getAttribute(attrs, requiredAttributeName).Bool()
 	if err != nil {
-		return nil, err
+		return entities.Attribute{}, err
 	}
 	attribute.Required = required
 
 	// forcesRecreation
 	forcesRecreation, err := getAttribute(attrs, forcesRecreationAttributeName).Bool()
 	if err != nil {
-		return nil, err
+		return entities.Attribute{}, err
 	}
 	attribute.ForcesRecreation = forcesRecreation
 
 	// readme example
 	readmeExample, err := getAttribute(attrs, readmeExampleAttributeName).HCLString()
 	if err != nil {
-		return nil, err
+		return entities.Attribute{}, err
 	}
 	attribute.ReadmeExample = readmeExample
 
-	// readme type
-	readmeType, err := getAttribute(attrs, readmeTypeAttributeName).String()
+	// type definition
+	typeDefinition, err := getType(attrs, name)
 	if err != nil {
-		return nil, err
+		return entities.Attribute{}, err
 	}
-	attribute.ReadmeType = readmeType
+	attribute.Type = typeDefinition
 
 	// default
-	varDefault, err := getAttribute(attrs, defaultAttributeName).RawJSON()
+	attrDefault, err := getAttribute(attrs, defaultAttributeName).RawJSON()
 	if err != nil {
-		return nil, err
+		return entities.Attribute{}, err
 	}
-	attribute.Default = varDefault
+	attribute.Default = attrDefault
 
 	return attribute, nil
 }
@@ -303,4 +289,22 @@ func getAttribute(attrs hcl.Attributes, name string) *hclAttribute {
 	}
 
 	return &hclAttribute{}
+}
+
+func getType(attrs hcl.Attributes, attrName string) (entities.Type, error) {
+	readmeType, err := getAttribute(attrs, readmeTypeAttributeName).String()
+	if err != nil {
+		return entities.Type{}, err
+	}
+
+	terraformType, err := getAttribute(attrs, typeAttributeName).TerraformType()
+	if err != nil {
+		return entities.Type{}, err
+	}
+
+	return entities.Type{
+		TerraformType: terraformType,
+		ReadmeType:    readmeType,
+		Name:          attrName,
+	}, nil
 }

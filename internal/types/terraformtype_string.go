@@ -8,19 +8,21 @@ func _() {
 	// An "invalid array index" compiler error signifies that the constant values have changed.
 	// Re-run the stringer command to generate them again.
 	var x [1]struct{}
-	_ = x[TerraformInvalidType-0]
+	_ = x[TerraformEmptyType-0]
 	_ = x[TerraformBool-1]
 	_ = x[TerraformString-2]
 	_ = x[TerraformNumber-3]
-	_ = x[TerraformDynamic-4]
+	_ = x[TerraformAny-4]
 	_ = x[TerraformList-5]
-	_ = x[TerraformObject-6]
-	_ = x[TerraformTuple-7]
+	_ = x[TerraformSet-6]
+	_ = x[TerraformMap-7]
+	_ = x[TerraformObject-8]
+	_ = x[TerraformTuple-9]
 }
 
-const _TerraformType_name = "invalidboolstringnumberdynamiclistobjecttuple"
+const _TerraformType_name = "emptyboolstringnumberanylistsetmapobjecttuple"
 
-var _TerraformType_index = [...]uint8{0, 7, 11, 17, 23, 30, 34, 40, 45}
+var _TerraformType_index = [...]uint8{0, 5, 9, 15, 21, 24, 28, 31, 34, 40, 45}
 
 func (i TerraformType) String() string {
 	if i < 0 || i >= TerraformType(len(_TerraformType_index)-1) {
