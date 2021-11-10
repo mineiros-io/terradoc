@@ -28,7 +28,7 @@ See [variables.tf] and [examples/] for details and use-cases.
 
   The id of the secret.
 
-- **`members`**: *(Optional `string`)*
+- **`members`**: *(Optional `set`)*
 
   Identities that will be granted the privilege in role. Each entry can have one of the following values:
   - `allUsers`: A special identifier that represents anyone who is on the internet; with or without a Google account.
@@ -106,3 +106,4 @@ See [variables.tf] and [examples/] for details and use-cases.
     - **`description`**: *(Optional `string`)*
 
       An optional description of the expression. This is a longer text which describes the expression, e.g. when hovered over it in a UI.
+

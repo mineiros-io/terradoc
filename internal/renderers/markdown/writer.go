@@ -10,8 +10,7 @@ import (
 )
 
 const (
-	templateName  = "README.md"
-	templatesPath = "templates/markdown/*"
+	templateName = "README.md"
 
 	sectionTemplateName         = "section"
 	variableTemplateName        = "variable"

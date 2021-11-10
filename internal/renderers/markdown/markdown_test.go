@@ -66,7 +66,7 @@ func TestRender(t *testing.T) {
 							{
 								Name: "members",
 								Type: entities.Type{
-									TerraformType: entities.TerraformType{Type: types.TerraformString},
+									TerraformType: entities.TerraformType{Type: types.TerraformSet, NestedType: types.TerraformString},
 								},
 								Description: "Identities that will be granted the privilege in role. Each entry can have one of the following values:\n  - `allUsers`: A special identifier that represents anyone who is on the internet; with or without a Google account.\n  - `allAuthenticatedUsers`: A special identifier that represents anyone who is authenticated with a Google account or a service account.\n  - `user:{emailid}`: An email address that represents a specific Google account. For example, alice@gmail.com or joe@example.com.\n  - `serviceAccount:{emailid}`: An email address that represents a service account. For example, my-other-app@appspot.gserviceaccount.com.\n  - `group:{emailid}`: An email address that represents a Google group. For example, admins@example.com.\n  - `domain:{domain}`: A G Suite domain (primary, instead of alias) name that represents all the users of that domain. For example, google.com or example.com.\n",
 								// Description: fmt.Sprintf(`Identities that will be granted the privilege in role. Each entry can have one of the following values:
@@ -198,8 +198,6 @@ func TestRender(t *testing.T) {
 	want := string(bytes.TrimSpace(wantContent))
 
 	if diff := cmp.Diff(got, want); diff != "" {
-		t.Logf("GOTN: %q", got)
-		t.Logf("WANT: %q", want)
 		t.Errorf("Expected golden file to match result (-want +got):\n%s", diff)
 	}
 }
