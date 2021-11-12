@@ -16,12 +16,12 @@ func TestParse(t *testing.T) {
 	for _, tt := range []struct {
 		desc      string
 		inputFile string
-		want      *entities.Definition
+		want      entities.Definition
 	}{
 		{
 			desc:      "with a valid input",
 			inputFile: "input.tfdoc.hcl",
-			want: &entities.Definition{
+			want: entities.Definition{
 				Sections: []entities.Section{
 					{
 						Level:       1,
@@ -33,10 +33,14 @@ func TestParse(t *testing.T) {
 								Title: "sub section with no description",
 								Variables: []entities.Variable{
 									{
-										Name:          "name",
-										TerraformType: types.TerraformString,
-										Description:   "describes the name of the last person who bothered to change this file",
-										Default:       json.RawMessage("nathan"),
+										Name: "name",
+										Type: entities.Type{
+											TerraformType: entities.TerraformType{
+												Type: types.TerraformString,
+											},
+										},
+										Description: "describes the name of the last person who bothered to change this file",
+										Default:     json.RawMessage("nathan"),
 									},
 								},
 							},
@@ -46,9 +50,13 @@ func TestParse(t *testing.T) {
 								Description: "an excuse to mention alcohol",
 								Variables: []entities.Variable{
 									{
-										Name:             "beers",
-										TerraformType:    types.TerraformDynamic,
-										ReadmeType:       "list(beer)",
+										Name: "beers",
+										Type: entities.Type{
+											TerraformType: entities.TerraformType{
+												Type: types.TerraformAny,
+											},
+											ReadmeType: "list(beer)",
+										},
 										Description:      "a list of beers",
 										Default:          json.RawMessage("[]"),
 										Required:         true,
@@ -56,20 +64,32 @@ func TestParse(t *testing.T) {
 										ReadmeExample:    "",
 										Attributes: []entities.Attribute{
 											{
-												Name:             "name",
-												TerraformType:    types.TerraformString,
+												Name: "name",
+												Type: entities.Type{
+													TerraformType: entities.TerraformType{
+														Type: types.TerraformString,
+													},
+												},
 												Description:      "the name of the beer",
 												ForcesRecreation: false,
 											},
 											{
-												Name:             "type",
-												TerraformType:    types.TerraformString,
+												Name: "type",
+												Type: entities.Type{
+													TerraformType: entities.TerraformType{
+														Type: types.TerraformString,
+													},
+												},
 												Description:      "the type of the beer",
 												ForcesRecreation: true,
 											},
 											{
-												Name:             "abv",
-												TerraformType:    types.TerraformNumber,
+												Name: "abv",
+												Type: entities.Type{
+													TerraformType: entities.TerraformType{
+														Type: types.TerraformNumber,
+													},
+												},
 												Description:      "beer's alcohol by volume content",
 												ForcesRecreation: true,
 											},
@@ -84,10 +104,7 @@ func TestParse(t *testing.T) {
 		},
 	} {
 		t.Run(tt.desc, func(t *testing.T) {
-			r, err := test.OpenFixture(tt.inputFile)
-			if err != nil {
-				t.Fatal(err)
-			}
+			r := test.OpenFixture(t, tt.inputFile)
 			// parsed definition
 			definition, err := hclparser.Parse(r, "foo")
 			if err != nil {
@@ -235,7 +252,7 @@ section {
 	}
 }
 
-func assertEqualDefinitions(t *testing.T, want, got *entities.Definition) {
+func assertEqualDefinitions(t *testing.T, want, got entities.Definition) {
 	t.Helper()
 
 	assertEqualSections(t, want.Sections, got.Sections)
@@ -339,8 +356,8 @@ func assertVariableEquals(t *testing.T, want, got entities.Variable) {
 		t.Errorf("Expected variable description to be %q. Got %q instead", want.Description, got.Description)
 	}
 
-	if want.TerraformType != got.TerraformType {
-		t.Errorf("Expected variable type to be %q. Got %q instead", want.TerraformType, got.TerraformType)
+	if want.Type.TerraformType != got.Type.TerraformType {
+		t.Errorf("Expected variable type to be %q. Got %q instead", want.Type.TerraformType, got.Type.TerraformType)
 	}
 
 	assertEqualAttributes(t, want.Attributes, got.Attributes)
@@ -391,8 +408,8 @@ func assertAttributeEquals(t *testing.T, want, got entities.Attribute) {
 		t.Errorf("Expected attribute description to be %q. Got %q instead", want.Description, got.Description)
 	}
 
-	if want.TerraformType != got.TerraformType {
-		t.Errorf("Expected attribute type to be %q. Got %q instead", want.TerraformType, got.TerraformType)
+	if want.Type.TerraformType != got.Type.TerraformType {
+		t.Errorf("Expected attribute type to be %q. Got %q instead", want.Type.TerraformType, got.Type.TerraformType)
 	}
 
 	assertEqualAttributes(t, want.Attributes, got.Attributes)

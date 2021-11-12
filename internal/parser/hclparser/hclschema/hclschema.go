@@ -98,6 +98,18 @@ func AttributeSchema() *hcl.BodySchema {
 				Name:     "forces_recreation",
 				Required: false,
 			},
+			{
+				Name:     "readme_type",
+				Required: false,
+			},
+			{
+				Name:     "default",
+				Required: false,
+			},
+			{
+				Name:     "readme_example",
+				Required: false,
+			},
 		},
 		Blocks: []hcl.BlockHeaderSchema{
 			{
