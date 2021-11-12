@@ -14,7 +14,6 @@ import (
 
 const (
 	lineBreak = "\n"
-	indent    = " "
 )
 
 func TestWriteSection(t *testing.T) {

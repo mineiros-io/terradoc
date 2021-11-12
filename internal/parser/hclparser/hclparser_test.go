@@ -53,7 +53,8 @@ func TestParse(t *testing.T) {
 										Name: "beers",
 										Type: entities.Type{
 											TerraformType: entities.TerraformType{
-												Type: types.TerraformAny,
+												Type:       types.TerraformList,
+												NestedType: types.TerraformAny,
 											},
 											ReadmeType: "list(beer)",
 										},
@@ -111,7 +112,7 @@ func TestParse(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			assertEqualDefinitions(t, tt.want, definition)
+			assertEqualDefinitions(t, tt.want, definition) //
 		})
 	}
 }

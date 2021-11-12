@@ -17,7 +17,7 @@ section {
     description = "an excuse to mention alcohol"
 
     variable "beers" {
-      type        = any
+      type        = list(any)
       readme_type = "list(beer)"
 
       description = "a list of beers"

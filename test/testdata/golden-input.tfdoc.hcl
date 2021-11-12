@@ -36,7 +36,7 @@ section {
       }
 
       variable "members" {
-        type = string
+        type = set(string)
         default = []
         description = <<END
 Identities that will be granted the privilege in role. Each entry can have one of the following values:

@@ -16,3 +16,6 @@ vendor/
 
 # Vscode
 .vscode/
+
+coverage.txt
+bin/
