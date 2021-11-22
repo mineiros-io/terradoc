@@ -18,11 +18,11 @@ section {
         type = any
         readme_type = "list(dependencies)"
         description = "A list of dependencies. Any object can be _assigned_ to this list to define a hidden external dependency."
-        readme_example = {
-          module_depends_on = [
-            "google_network.network"
-          ]
-        }
+        readme_example = <<END
+module_depends_on = [
+  google_network.network
+]
+END
       }
     }
 
@@ -69,13 +69,12 @@ END
         type = list(any)
         readme_type = "list(policy_bindings)"
         description = "A list of IAM policy bindings."
-        readme_example = {
-          policy_bindings = [{
-            role    = "roles/secretmanager.secretAccessor"
-            members = ["user:member@example.com"]
-          }]
-        }
-
+        readme_example = <<END
+policy_bindings = [{
+  role    = "roles/secretmanager.secretAccessor"
+  members = ["user:member@example.com"]
+}]
+END
 
         attribute "role" {
           description = "The role that should be applied."
@@ -94,12 +93,12 @@ END
           type = any
           readme_type = "object(condition)"
           description = "An IAM Condition for a given binding."
-          readme_example = {
-            condition = {
-              expression = "request.time < timestamp(\"2022-01-01T00:00:00Z\")"
-              title      = "expires_after_2021_12_31"
-            }
-          }
+          readme_example = <<END
+condition = {
+  expression = "request.time < timestamp(\"2022-01-01T00:00:00Z\")"
+  title      = "expires_after_2021_12_31"
+}
+END
 
           attribute "expression" {
             type = string

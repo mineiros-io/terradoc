@@ -234,38 +234,6 @@ func TestAttributeToTerraformTypeValidComplexType(t *testing.T) {
 	t.Skip("I'm not sure how tf I'll test this")
 }
 
-func TestAttributeToHCL(t *testing.T) {
-	t.Run("with valid HCL", func(t *testing.T) {
-		// a block like `readme_example = {values = [{key = "value"}]}`
-		// gets parsed into a cty object like the following
-		objVal := cty.ObjectVal(map[string]cty.Value{
-			"values": cty.ListVal([]cty.Value{
-				cty.ObjectVal(
-					map[string]cty.Value{
-						"key": cty.StringVal("value"),
-					},
-				),
-			}),
-		})
-		// we need to ensure indentation is maintained
-		wantVal := `values = [{
-    key = "value"
-  }]`
-
-		expr := hcltest.MockExprLiteral(objVal)
-		attr := &hclAttribute{&hcl.Attribute{Name: "hcl", Expr: expr}}
-
-		res, err := attr.HCLString()
-		if err != nil {
-			t.Fatalf("Expected no error. Got %q instead", err)
-		}
-
-		if res != wantVal {
-			t.Errorf("Expected result to be %q. Got %q instead", wantVal, res)
-		}
-	})
-}
-
 type fakeHCLExpression struct {
 	value cty.Value
 }

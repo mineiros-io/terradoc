@@ -23,11 +23,13 @@ an excuse to mention alcohol
   Example:
 
   ```terraform
-  beers = [{
-      abv  = 4.2
+  beers = [
+    {
       name = "guinness"
       type = "stout"
-    }]
+      abv  = 4.2
+    }
+  ]
   ```
 
   `list(beer)` is a `list` of `any` with the following attributes:

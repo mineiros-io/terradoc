@@ -45,7 +45,7 @@ func TestRender(t *testing.T) {
 										Description: "A list of dependencies. Any object can be _assigned_ to this list to define a hidden external dependency.",
 										// BUG: this is not correct - google_network.network should not be a string
 										// but it fails right now
-										ReadmeExample: `module_depends_on = ["google_network.network"]`,
+										ReadmeExample: "module_depends_on = [\n  google_network.network\n]",
 									},
 								},
 							},
@@ -109,11 +109,8 @@ func TestRender(t *testing.T) {
 									},
 									ReadmeType: "list(policy_bindings)",
 								},
-								Description: "A list of IAM policy bindings.",
-								ReadmeExample: `policy_bindings = [{
-    members = ["user:member@example.com"]
-    role    = "roles/secretmanager.secretAccessor"
-  }]`,
+								Description:   "A list of IAM policy bindings.",
+								ReadmeExample: "policy_bindings = [{\n  members = [\"user:member@example.com\"]\n  role    = \"roles/secretmanager.secretAccessor\"\n}]",
 								Attributes: []entities.Attribute{
 									{
 										Level:    1,
@@ -143,11 +140,8 @@ func TestRender(t *testing.T) {
 											TerraformType: entities.TerraformType{Type: types.TerraformAny},
 											ReadmeType:    "object(condition)",
 										},
-										Description: "An IAM Condition for a given binding.",
-										ReadmeExample: `condition = {
-    expression = "request.time < timestamp(\"2022-01-01T00:00:00Z\")"
-    title      = "expires_after_2021_12_31"
-  }`,
+										Description:   "An IAM Condition for a given binding.",
+										ReadmeExample: "condition = {\n  expression = \"request.time < timestamp(\\\"2022-01-01T00:00:00Z\\\")\"\n  title      = \"expires_after_2021_12_31\"\n}",
 										Attributes: []entities.Attribute{
 											{
 												Level:    2,

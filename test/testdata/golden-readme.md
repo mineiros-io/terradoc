@@ -19,7 +19,9 @@ See [variables.tf] and [examples/] for details and use-cases.
   Example:
 
   ```terraform
-  module_depends_on = ["google_network.network"]
+  module_depends_on = [
+    google_network.network
+  ]
   ```
 
 ### Main Resource Configuration
@@ -63,9 +65,9 @@ See [variables.tf] and [examples/] for details and use-cases.
 
   ```terraform
   policy_bindings = [{
-      members = ["user:member@example.com"]
-      role    = "roles/secretmanager.secretAccessor"
-    }]
+    members = ["user:member@example.com"]
+    role    = "roles/secretmanager.secretAccessor"
+  }]
   ```
 
   `list(policy_bindings)` is a `list` of `any` with the following attributes:
@@ -88,9 +90,9 @@ See [variables.tf] and [examples/] for details and use-cases.
 
     ```terraform
     condition = {
-        expression = "request.time < timestamp(\"2022-01-01T00:00:00Z\")"
-        title      = "expires_after_2021_12_31"
-      }
+      expression = "request.time < timestamp(\"2022-01-01T00:00:00Z\")"
+      title      = "expires_after_2021_12_31"
+    }
     ```
 
     `object(condition)` is a `any` with the following attributes:
@@ -106,4 +108,3 @@ See [variables.tf] and [examples/] for details and use-cases.
     - **`description`**: *(Optional `string`)*
 
       An optional description of the expression. This is a longer text which describes the expression, e.g. when hovered over it in a UI.
-
