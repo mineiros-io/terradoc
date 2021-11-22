@@ -6,8 +6,78 @@ func RootSchema() *hcl.BodySchema {
 	return &hcl.BodySchema{
 		Blocks: []hcl.BlockHeaderSchema{
 			{
+				Type:       "header",
+				LabelNames: []string{},
+			},
+			{
 				Type:       "section",
 				LabelNames: []string{},
+			},
+			{
+				Type:       "references",
+				LabelNames: []string{},
+			},
+		},
+	}
+}
+
+func ReferencesSchema() *hcl.BodySchema {
+	return &hcl.BodySchema{
+		Blocks: []hcl.BlockHeaderSchema{
+			{
+				Type:       "reference",
+				LabelNames: []string{"name"},
+			},
+		},
+	}
+}
+
+func ReferenceSchema() *hcl.BodySchema {
+	return &hcl.BodySchema{
+		Attributes: []hcl.AttributeSchema{
+			{
+				Name:     "value",
+				Required: true,
+			},
+		},
+	}
+}
+
+func HeaderSchema() *hcl.BodySchema {
+	return &hcl.BodySchema{
+		Attributes: []hcl.AttributeSchema{
+			{
+				Name:     "image",
+				Required: false,
+			},
+			{
+				Name:     "url",
+				Required: false,
+			},
+		},
+		Blocks: []hcl.BlockHeaderSchema{
+			{
+				Type:       "badge",
+				LabelNames: []string{"name"},
+			},
+		},
+	}
+}
+
+func BadgeSchema() *hcl.BodySchema {
+	return &hcl.BodySchema{
+		Attributes: []hcl.AttributeSchema{
+			{
+				Name:     "image",
+				Required: true,
+			},
+			{
+				Name:     "url",
+				Required: true,
+			},
+			{
+				Name:     "text",
+				Required: true,
 			},
 		},
 	}
@@ -33,6 +103,27 @@ func SectionSchema() *hcl.BodySchema {
 			{
 				Type:       "variable",
 				LabelNames: []string{"name"},
+			},
+		},
+	}
+}
+
+func RootSectionSchema() *hcl.BodySchema {
+	return &hcl.BodySchema{
+		Attributes: []hcl.AttributeSchema{
+			{
+				Name:     "title",
+				Required: true,
+			},
+			{
+				Name:     "description",
+				Required: false,
+			},
+		},
+		Blocks: []hcl.BlockHeaderSchema{
+			{
+				Type:       "section",
+				LabelNames: []string{},
 			},
 		},
 	}

@@ -1,7 +1,6 @@
 package hclparser
 
 import (
-	"errors"
 	"fmt"
 	"io"
 
@@ -20,13 +19,22 @@ const (
 	requiredAttributeName         = "required"
 	forcesRecreationAttributeName = "forces_recreation"
 	readmeExampleAttributeName    = "readme_example"
+	imageAttributeName            = "image"
+	urlAttributeName              = "url"
+	textAttributeName             = "text"
+	valueAttributeName            = "value"
+	nameAttributeName             = "name"
 
-	sectionBlockName   = "section"
-	variableBlockName  = "variable"
-	attributeBlockName = "attribute"
+	sectionBlockName    = "section"
+	referencesBlockName = "references"
+	headerBlockName     = "header"
+	variableBlockName   = "variable"
+	attributeBlockName  = "attribute"
+	badgeBlockName      = "badge"
+	referenceBlockName  = "reference"
 
 	variableAttributeLevel = 1
-	rootSubSectionLevel    = 1
+	rootSectionLevel       = 2
 )
 
 // Parse reads the content of a io.Reader and returns a Definition entity from its parsed values
@@ -58,9 +66,20 @@ func parseDefinition(f *hcl.File) (entities.Definition, error) {
 		return entities.Definition{}, fmt.Errorf("parsing Terradoc definition: %v", diags.Errs())
 	}
 
-	// Root does not have attributes and only has `section` blocks
-	for _, sectionBlock := range definitionContent.Blocks {
-		section, err := parseSection(sectionBlock, rootSubSectionLevel) // initial level
+	// parse header
+
+	for _, headerBlock := range definitionContent.Blocks.OfType(headerBlockName) {
+		header, err := parseHeader(headerBlock) // initial level
+		if err != nil {
+			return entities.Definition{}, fmt.Errorf("parsing sections: %s", err)
+		}
+
+		def.Header = header
+	}
+
+	// parse sections
+	for _, sectionBlock := range definitionContent.Blocks.OfType(sectionBlockName) {
+		section, err := parseSection(sectionBlock, rootSectionLevel)
 		if err != nil {
 			return entities.Definition{}, fmt.Errorf("parsing sections: %s", err)
 		}
@@ -68,218 +87,44 @@ func parseDefinition(f *hcl.File) (entities.Definition, error) {
 		def.Sections = append(def.Sections, section)
 	}
 
+	for _, referenceBlock := range definitionContent.Blocks.OfType(referencesBlockName) {
+		references, err := parseReferences(referenceBlock)
+		if err != nil {
+			return entities.Definition{}, fmt.Errorf("parsing sections: %s", err)
+		}
+
+		def.References = references
+	}
+
 	return def, nil
 }
 
-func parseSection(sectionBlock *hcl.Block, level int) (entities.Section, error) {
-	sectionContent, diags := sectionBlock.Body.Content(hclschema.SectionSchema())
+func parseReferences(referenceBlock *hcl.Block) (references []entities.Reference, err error) {
+	referencesContent, diags := referenceBlock.Body.Content(hclschema.ReferencesSchema())
 	if diags.HasErrors() {
-		return entities.Section{}, fmt.Errorf("parsing Terradoc section: %v", diags.Errs())
+		return nil, fmt.Errorf("parsing Terradoc section: %v", diags.Errs())
 	}
 
-	section, err := createSectionFromAttributes(sectionContent.Attributes, level)
-	if err != nil {
-		return entities.Section{}, fmt.Errorf("parsing section: %s", err)
-	}
+	for _, referenceBlock := range referencesContent.Blocks.OfType("reference") {
+		name := referenceBlock.Labels[0]
 
-	// parse `variable` blocks
-	for _, varBlk := range sectionContent.Blocks.OfType(variableBlockName) {
-		variable, err := parseVariable(varBlk)
-		if err != nil {
-			return entities.Section{}, fmt.Errorf("parsing section variable: %s", err)
+		reference := entities.Reference{Name: name}
+
+		referenceContent, diags := referenceBlock.Body.Content(hclschema.ReferenceSchema())
+		if diags.HasErrors() {
+			return nil, fmt.Errorf("parsing Terradoc section: %v", diags.Errs())
 		}
 
-		section.Variables = append(section.Variables, variable)
-	}
-
-	subSectionLevel := level + 1
-	// parse `section` blocks
-	for _, subSectionBlk := range sectionContent.Blocks.OfType(sectionBlockName) {
-		subSection, err := parseSection(subSectionBlk, subSectionLevel)
+		value, err := getAttribute(referenceContent.Attributes, valueAttributeName).String()
 		if err != nil {
-			return entities.Section{}, fmt.Errorf("parsing subsection: %s", err)
+			return nil, err
 		}
+		reference.Value = value
 
-		section.SubSections = append(section.SubSections, subSection)
+		references = append(references, reference)
 	}
 
-	return section, nil
-}
-
-func parseVariable(variableBlock *hcl.Block) (entities.Variable, error) {
-	variableContent, diags := variableBlock.Body.Content(hclschema.VariableSchema())
-	if diags.HasErrors() {
-		return entities.Variable{}, fmt.Errorf("parsing variable: %v", diags.Errs())
-	}
-
-	if len(variableBlock.Labels) != 1 {
-		return entities.Variable{}, errors.New("variable block does not have a name")
-	}
-
-	name := variableBlock.Labels[0]
-	variable, err := createVariableFromHCLAttributes(variableContent.Attributes, name)
-	if err != nil {
-		return entities.Variable{}, fmt.Errorf("parsing variable: %s", err)
-	}
-
-	// variables have only `attribute` blocks
-	for _, blk := range variableContent.Blocks.OfType(attributeBlockName) {
-		attribute, err := parseAttribute(blk, variableAttributeLevel)
-		if err != nil {
-			return entities.Variable{}, fmt.Errorf("parsing variable attributes: %s", err)
-		}
-
-		variable.Attributes = append(variable.Attributes, attribute)
-	}
-
-	return variable, nil
-}
-
-func parseAttribute(attrBlock *hcl.Block, level int) (entities.Attribute, error) {
-	attrContent, diags := attrBlock.Body.Content(hclschema.AttributeSchema())
-	if diags.HasErrors() {
-		return entities.Attribute{}, fmt.Errorf("parsing attribute block: %v", diags.Errs())
-	}
-
-	if len(attrBlock.Labels) != 1 {
-		return entities.Attribute{}, errors.New("attribute block does not have a name")
-	}
-
-	name := attrBlock.Labels[0]
-	attr, err := createAttributeFromHCLAttributes(attrContent.Attributes, name, level)
-	if err != nil {
-		return entities.Attribute{}, fmt.Errorf("parsing attribute: %s", err)
-	}
-
-	nestedAttributeLevel := level + 1
-	// attribute blocks have only `attribute` blocks
-	for _, blk := range attrContent.Blocks.OfType(attributeBlockName) {
-		nestedAttr, err := parseAttribute(blk, nestedAttributeLevel)
-		if err != nil {
-			return entities.Attribute{}, fmt.Errorf("parsing nested attribute: %s", err)
-		}
-
-		attr.Attributes = append(attr.Attributes, nestedAttr)
-	}
-
-	return attr, nil
-}
-
-func createSectionFromAttributes(attrs hcl.Attributes, level int) (entities.Section, error) {
-	section := entities.Section{Level: level}
-
-	// title
-	title, err := getAttribute(attrs, titleAttributeName).String()
-	if err != nil {
-		return entities.Section{}, err
-	}
-	section.Title = title
-
-	// fetch section description
-	description, err := getAttribute(attrs, descriptionAttributeName).String()
-	if err != nil {
-		return entities.Section{}, err
-	}
-
-	section.Description = description
-
-	return section, nil
-}
-
-func createVariableFromHCLAttributes(attrs hcl.Attributes, name string) (entities.Variable, error) {
-	variable := entities.Variable{Name: name}
-
-	// description
-	description, err := getAttribute(attrs, descriptionAttributeName).String()
-	if err != nil {
-		return entities.Variable{}, err
-	}
-	variable.Description = description
-
-	// default
-	varDefault, err := getAttribute(attrs, defaultAttributeName).RawJSON()
-	if err != nil {
-		return entities.Variable{}, err
-	}
-	variable.Default = varDefault
-
-	// required
-	required, err := getAttribute(attrs, requiredAttributeName).Bool()
-	if err != nil {
-		return entities.Variable{}, err
-	}
-	variable.Required = required
-
-	// forcesRecreation
-	forcesRecreation, err := getAttribute(attrs, forcesRecreationAttributeName).Bool()
-	if err != nil {
-		return entities.Variable{}, err
-	}
-	variable.ForcesRecreation = forcesRecreation
-
-	// readme example
-	readmeExample, err := getAttribute(attrs, readmeExampleAttributeName).HCLString()
-	if err != nil {
-		return entities.Variable{}, err
-	}
-	variable.ReadmeExample = readmeExample
-
-	// type definition
-	typeDefinition, err := getType(attrs, name)
-	if err != nil {
-		return entities.Variable{}, err
-	}
-	variable.Type = typeDefinition
-
-	return variable, nil
-}
-
-func createAttributeFromHCLAttributes(attrs hcl.Attributes, name string, level int) (entities.Attribute, error) {
-	attribute := entities.Attribute{Name: name, Level: level}
-
-	// description
-	description, err := getAttribute(attrs, descriptionAttributeName).String()
-	if err != nil {
-		return entities.Attribute{}, err
-	}
-	attribute.Description = description
-
-	// required
-	required, err := getAttribute(attrs, requiredAttributeName).Bool()
-	if err != nil {
-		return entities.Attribute{}, err
-	}
-	attribute.Required = required
-
-	// forcesRecreation
-	forcesRecreation, err := getAttribute(attrs, forcesRecreationAttributeName).Bool()
-	if err != nil {
-		return entities.Attribute{}, err
-	}
-	attribute.ForcesRecreation = forcesRecreation
-
-	// readme example
-	readmeExample, err := getAttribute(attrs, readmeExampleAttributeName).HCLString()
-	if err != nil {
-		return entities.Attribute{}, err
-	}
-	attribute.ReadmeExample = readmeExample
-
-	// type definition
-	typeDefinition, err := getType(attrs, name)
-	if err != nil {
-		return entities.Attribute{}, err
-	}
-	attribute.Type = typeDefinition
-
-	// default
-	attrDefault, err := getAttribute(attrs, defaultAttributeName).RawJSON()
-	if err != nil {
-		return entities.Attribute{}, err
-	}
-	attribute.Default = attrDefault
-
-	return attribute, nil
+	return references, nil
 }
 
 func getAttribute(attrs hcl.Attributes, name string) *hclAttribute {

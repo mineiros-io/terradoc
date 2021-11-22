@@ -2,6 +2,9 @@ package markdown
 
 import (
 	"io"
+	"log"
+	"regexp"
+	"strings"
 	"text/template"
 
 	"github.com/mineiros-io/terradoc"
@@ -12,10 +15,15 @@ import (
 const (
 	templateName = "README.md"
 
+	headerTemplateName          = "header"
+	badgeTemplateName           = "badge"
+	referenceTemplateName       = "reference"
 	sectionTemplateName         = "section"
 	variableTemplateName        = "variable"
 	attributeTemplateName       = "attribute"
 	typeDescriptionTemplateName = "typeDescription"
+	tocTemplateName             = "toc"
+	rootSectionTemplateName     = "rootSection"
 
 	varNestingLevel = 0
 )
@@ -34,6 +42,70 @@ func newMarkdownWriter(writer io.Writer) (*markdownWriter, error) {
 	}
 
 	return &markdownWriter{writer: writer, templ: t}, nil
+}
+
+func (mw *markdownWriter) writeDefinition(definition entities.Definition) error {
+	if err := mw.writeHeader(definition.Header); err != nil {
+		return err
+	}
+
+	if err := mw.writeSections(definition.Sections); err != nil {
+		return err
+	}
+
+	if err := mw.writeReferences(definition.References); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (mw *markdownWriter) writeRootSection(section entities.Section) error {
+	if err := mw.writeTemplate(rootSectionTemplateName, section); err != nil {
+		return err
+	}
+
+	if err := mw.writeTOC(section.SubSections); err != nil {
+		return err
+	}
+
+	return mw.writeSections(section.SubSections)
+}
+
+func (mw *markdownWriter) writeReferences(references []entities.Reference) error {
+	if len(references) == 0 {
+		return nil
+	}
+
+	for _, reference := range references {
+		if err := mw.writeTemplate(referenceTemplateName, reference); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (mw *markdownWriter) writeHeader(header entities.Header) error {
+	if err := mw.writeTemplate(headerTemplateName, header); err != nil {
+		return err
+	}
+
+	return mw.writeBadges(header.Badges)
+}
+
+func (mw *markdownWriter) writeBadges(badges []entities.Badge) error {
+	if len(badges) == 0 {
+		return nil
+	}
+
+	for _, badge := range badges {
+		if err := mw.writeTemplate(badgeTemplateName, badge); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (mw *markdownWriter) writeSections(sections []entities.Section) error {
@@ -129,4 +201,36 @@ func (mw *markdownWriter) writeAttribute(attribute entities.Attribute) error {
 	}
 
 	return nil
+}
+
+func (mw *markdownWriter) writeTOC(sections []entities.Section) error {
+	items := fetchTOCItems(sections)
+
+	return mw.writeTemplate(tocTemplateName, items)
+}
+
+type tocItemRenderer struct {
+	Label       string
+	Value       string
+	IndentLevel int
+}
+
+func fetchTOCItems(sections []entities.Section) (items []tocItemRenderer) {
+	for _, section := range sections {
+		reg, err := regexp.Compile("[^a-zA-Z0-9 ]+")
+		if err != nil {
+			log.Fatal(err)
+		}
+		str := reg.ReplaceAllString(section.Title, "")
+
+		value := strings.ReplaceAll(strings.ToLower(str), " ", "-")
+
+		tocItem := tocItemRenderer{Label: section.Title, IndentLevel: section.Level, Value: value}
+
+		nestedItems := fetchTOCItems(section.SubSections)
+
+		items = append(items, append(nestedItems, tocItem)...)
+	}
+
+	return items
 }

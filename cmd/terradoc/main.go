@@ -40,7 +40,7 @@ func main() {
 
 	err = markdown.Render(w, def)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "parsing document: %v", err)
+		fmt.Fprintf(os.Stderr, "rendering document: %v", err)
 
 		os.Exit(1)
 	}
