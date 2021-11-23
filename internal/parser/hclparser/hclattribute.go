@@ -3,6 +3,7 @@ package hclparser
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/ext/typeexpr"
@@ -37,7 +38,7 @@ func (a *hclAttribute) String() (string, error) {
 		return "", fmt.Errorf("could not convert %q to string: %v", a.Name, err)
 	}
 
-	return strVal.AsString(), nil
+	return strings.TrimSpace(strVal.AsString()), nil
 }
 
 func (a *hclAttribute) Bool() (bool, error) {

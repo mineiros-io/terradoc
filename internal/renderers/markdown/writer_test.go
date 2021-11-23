@@ -25,9 +25,9 @@ func TestWriteSection(t *testing.T) {
 		{
 			desc: "with description and 4 levels",
 			section: entities.Section{
-				Level:       4,
-				Title:       "I AM THE TITLE!",
-				Description: "Dude, this is a section",
+				Level:   4,
+				Title:   "I AM THE TITLE!",
+				Content: "Dude, this is a section",
 			},
 			want: mdSection{
 				heading:     "#### I AM THE TITLE!",
@@ -287,7 +287,7 @@ func assertMarkdownHasVariable(t *testing.T, buf *bytes.Buffer, md mdVariable) {
 
 	if md.readmeExample != "" {
 		// TODO: what's a better way of checking that indentation is right?
-		want += fmt.Sprintf("\n  Example:\n\n  ```terraform\n  %s  \n  ```\n", md.readmeExample)
+		want += fmt.Sprintf("\n  Example:\n\n  ```hcl\n  %s  \n  ```\n", md.readmeExample)
 	}
 
 	want += "\n"
@@ -311,7 +311,7 @@ func assertMarkdownHasAttribute(t *testing.T, buf *bytes.Buffer, md mdAttribute)
 	}
 
 	if md.readmeExample != "" {
-		want += fmt.Sprintf("\n  Example:\n\n  ```terraform\n  %s\n \n ```\n", md.readmeExample)
+		want += fmt.Sprintf("\n  Example:\n\n  ```hcl\n  %s\n \n ```\n", md.readmeExample)
 	}
 
 	want += lineBreak

@@ -24,46 +24,21 @@ func TestParse(t *testing.T) {
 			want: entities.Definition{
 				Sections: []entities.Section{
 					{
-						Level:       1,
-						Title:       "root section",
-						Description: "i am the root section",
+						Content: `[<img src="https://raw.githubusercontent.com/mineiros-io/brand/3bffd30e8bdbbde32c143e2650b2faa55f1df3ea/mineiros-primary-logo.svg" width="400"/>][mineiros-website]
+
+This is the root section content.
+
+Section contents support anything markdown and allow us to make references like this one: [mineiros-website]`,
 						SubSections: []entities.Section{
 							{
-								Level: 2,
-								Title: "sub section with no description",
-								Variables: []entities.Variable{
+								Level: 1,
+								Title: "sections with variables",
+
+								SubSections: []entities.Section{
 									{
-										Name: "name",
-										Type: entities.Type{
-											TerraformType: entities.TerraformType{
-												Type: types.TerraformString,
-											},
-										},
-										Description: "describes the name of the last person who bothered to change this file",
-										Default:     json.RawMessage("nathan"),
-									},
-								},
-							},
-							{
-								Level:       2,
-								Title:       "section of beers",
-								Description: "an excuse to mention alcohol",
-								Variables: []entities.Variable{
-									{
-										Name: "beers",
-										Type: entities.Type{
-											TerraformType: entities.TerraformType{
-												Type:       types.TerraformList,
-												NestedType: types.TerraformAny,
-											},
-											ReadmeType: "list(beer)",
-										},
-										Description:      "a list of beers",
-										Default:          json.RawMessage("[]"),
-										Required:         true,
-										ForcesRecreation: true,
-										ReadmeExample:    "",
-										Attributes: []entities.Attribute{
+										Level: 2,
+										Title: "example",
+										Variables: []entities.Variable{
 											{
 												Name: "name",
 												Type: entities.Type{
@@ -71,28 +46,62 @@ func TestParse(t *testing.T) {
 														Type: types.TerraformString,
 													},
 												},
-												Description:      "the name of the beer",
-												ForcesRecreation: false,
+												Description: "describes the name of the last person who bothered to change this file",
+												Default:     json.RawMessage("nathan"),
 											},
+										},
+									},
+									{
+										Level:   2,
+										Title:   "section of beers",
+										Content: "an excuse to mention alcohol",
+										Variables: []entities.Variable{
 											{
-												Name: "type",
+												Name: "beers",
 												Type: entities.Type{
 													TerraformType: entities.TerraformType{
-														Type: types.TerraformString,
+														Type:       types.TerraformList,
+														NestedType: types.TerraformAny,
+													},
+													ReadmeType: "list(beer)",
+												},
+												Description:      "a list of beers",
+												Default:          json.RawMessage("[]"),
+												Required:         true,
+												ForcesRecreation: true,
+												ReadmeExample:    "",
+												Attributes: []entities.Attribute{
+													{
+														Name: "name",
+														Type: entities.Type{
+															TerraformType: entities.TerraformType{
+																Type: types.TerraformString,
+															},
+														},
+														Description:      "the name of the beer",
+														ForcesRecreation: false,
+													},
+													{
+														Name: "type",
+														Type: entities.Type{
+															TerraformType: entities.TerraformType{
+																Type: types.TerraformString,
+															},
+														},
+														Description:      "the type of the beer",
+														ForcesRecreation: true,
+													},
+													{
+														Name: "abv",
+														Type: entities.Type{
+															TerraformType: entities.TerraformType{
+																Type: types.TerraformNumber,
+															},
+														},
+														Description:      "beer's alcohol by volume content",
+														ForcesRecreation: true,
 													},
 												},
-												Description:      "the type of the beer",
-												ForcesRecreation: true,
-											},
-											{
-												Name: "abv",
-												Type: entities.Type{
-													TerraformType: entities.TerraformType{
-														Type: types.TerraformNumber,
-													},
-												},
-												Description:      "beer's alcohol by volume content",
-												ForcesRecreation: true,
 											},
 										},
 									},
@@ -123,42 +132,6 @@ func TestParseInvalidContent(t *testing.T) {
 		wantErrorMsgContains string
 		content              string
 	}{
-		{
-			desc:                 "root section without title",
-			wantErrorMsgContains: `The argument "title" is required, but no definition was found.`,
-			content: `
-section {
-  section {
-    title = "sub section with no description"
-
-    variable "name" {
-      type        = string
-      description = "describes the name of the last person who bothered to change this file"
-      default     = "nathan"
-    }
-  }
-}
-
-`,
-		},
-		{
-			desc:                 "sub section without title",
-			wantErrorMsgContains: `The argument "title" is required, but no definition was found.`,
-			content: `
-section {
-  title = "test"
-
-  section {
-    variable "name" {
-      type        = string
-      description = "describes the name of the last person who bothered to change this file"
-      default     = "nathan"
-    }
-  }
-}
-
-`,
-		},
 		{
 			desc:                 "variable block without a label",
 			wantErrorMsgContains: "Missing name for variable; All variable blocks must have 1 labels (name).",
@@ -300,8 +273,8 @@ func assertSectionEquals(t *testing.T, want, got entities.Section) {
 		t.Errorf("Expected section title to be %q. Got %q instead", want.Title, got.Title)
 	}
 
-	if want.Description != got.Description {
-		t.Errorf("Expected section description to be %q. Got %q instead", want.Description, got.Description)
+	if want.Content != got.Content {
+		t.Errorf("Expected section content to be %q. Got %q instead", want.Content, got.Content)
 	}
 
 	if want.Level != got.Level {

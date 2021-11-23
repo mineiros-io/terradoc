@@ -2,10 +2,10 @@ package entities
 
 // Section represents a `section` block from the input file.
 type Section struct {
-	// Title is the title of the section.
+	// Title is an optional title for the section.
 	Title string `json:"title"`
-	// Description is an optional section description.
-	Description string `json:"description,omitempty"`
+	// Content is an optional text content for the section.
+	Content string `json:"content,omitempty"`
 	// Variables is a collection of variable definitions contained in the section block.
 	Variables []Variable `json:"variables,omitempty"`
 	// SubSections is a collection of nested sections contained in the section block.

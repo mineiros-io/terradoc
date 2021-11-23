@@ -12,5 +12,5 @@ func Render(writer io.Writer, definition entities.Definition) error {
 		return err
 	}
 
-	return mdWriter.writeSections(definition.Sections)
+	return mdWriter.writeDefinition(definition)
 }
