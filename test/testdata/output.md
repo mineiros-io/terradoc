@@ -32,7 +32,7 @@ an excuse to mention alcohol
   ]
   ```
 
-  `list(beer)` is a `list` of `any` with the following attributes:
+  Each object in the list accepts the following attributes:
 
   - **`name`**: *(Optional `string`)*
 

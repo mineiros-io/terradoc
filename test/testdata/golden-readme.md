@@ -70,7 +70,7 @@ See [variables.tf] and [examples/] for details and use-cases.
   }]
   ```
 
-  `list(policy_bindings)` is a `list` of `any` with the following attributes:
+  Each object in the list accepts the following attributes:
 
   - **`role`**: *(**Required** `string`)*
 
@@ -95,7 +95,7 @@ See [variables.tf] and [examples/] for details and use-cases.
     }
     ```
 
-    `object(condition)` is a `any` with the following attributes:
+    The object accepts the following attributes:
 
     - **`expression`**: *(**Required** `string`)*
 
