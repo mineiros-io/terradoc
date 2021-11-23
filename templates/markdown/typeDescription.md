@@ -1,5 +1,5 @@
 {{define "typeDescription"}}
-{{- if .TerraformType.HasNestedType }}{{indent .IndentLevel "`"}}{{.ReadmeType}}` is a `{{.TerraformType.Type}}` of `{{.TerraformType.NestedType}}` with the following attributes:{{newline}}
+{{- if .TerraformType.HasNestedType }}{{indent .IndentLevel "Each object in the"}} {{.TerraformType.Type}} accepts the following attributes:{{newline}}
 {{- else -}}
-{{indent .IndentLevel "`" }}{{.ReadmeType}}` is a `{{.TerraformType.Type}}` with the following attributes:{{newline}}{{end}}
+{{indent .IndentLevel "The object accepts the following attributes:" }}{{newline}}{{end}}
 {{- end -}}

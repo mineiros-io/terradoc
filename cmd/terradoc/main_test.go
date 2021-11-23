@@ -1,7 +1,6 @@
 package main_test
 
 import (
-	"bytes"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -11,6 +10,7 @@ import (
 	"runtime"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/mineiros-io/terradoc/test"
 )
 
@@ -78,8 +78,8 @@ func TestTerradocCLI(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if !bytes.Equal(output, expectedOutput) {
-			t.Errorf("Expected:\n%q\nGot:\n%q", string(expectedOutput), string(output))
+		if diff := cmp.Diff(output, expectedOutput); diff != "" {
+			t.Errorf("Result is not expected (-want +got):\n%s", diff)
 		}
 	})
 
@@ -103,8 +103,8 @@ func TestTerradocCLI(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if !bytes.Equal(output, expectedOutput) {
-			t.Errorf("Expected:\n%q\nGot:\n%q", string(expectedOutput), string(output))
+		if diff := cmp.Diff(output, expectedOutput); diff != "" {
+			t.Errorf("Result is not expected (-want +got):\n%s", diff)
 		}
 	})
 
@@ -116,8 +116,8 @@ func TestTerradocCLI(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if !bytes.Equal(output, expectedOutput) {
-			t.Errorf("Expected:\n%q\nGot:\n%q", string(expectedOutput), string(output))
+		if diff := cmp.Diff(output, expectedOutput); diff != "" {
+			t.Errorf("Result is not expected (-want +got):\n%s", diff)
 		}
 	})
 
@@ -140,8 +140,8 @@ func TestTerradocCLI(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if !bytes.Equal(result, expectedOutput) {
-			t.Errorf("Expected:\n%q\nGot:\n%q", string(expectedOutput), string(result))
+		if diff := cmp.Diff(result, expectedOutput); diff != "" {
+			t.Errorf("Result is not expected (-want +got):\n%s", diff)
 		}
 	})
 }
