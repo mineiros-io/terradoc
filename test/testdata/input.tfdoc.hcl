@@ -27,15 +27,15 @@ section {
 
       forces_recreation = true
 
-      readme_example = {
-        beers = [
-          {
-            name = "guinness"
-            type = "stout"
-            abv = 4.2
-          }
-        ]
-      }
+      readme_example = <<END
+beers = [
+  {
+    name = "guinness"
+    type = "stout"
+    abv  = 4.2
+  }
+]
+END
 
       attribute "name" {
         type = string

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"strings"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclparse"
@@ -218,11 +219,12 @@ func createVariableFromHCLAttributes(attrs hcl.Attributes, name string) (entitie
 	variable.ForcesRecreation = forcesRecreation
 
 	// readme example
-	readmeExample, err := getAttribute(attrs, readmeExampleAttributeName).HCLString()
+	readmeExample, err := getAttribute(attrs, readmeExampleAttributeName).String()
 	if err != nil {
 		return entities.Variable{}, err
 	}
-	variable.ReadmeExample = readmeExample
+	// remove trailing newline if readme example is a multiline string
+	variable.ReadmeExample = strings.Trim(readmeExample, "\n")
 
 	// type definition
 	typeDefinition, err := getType(attrs, name)
@@ -259,11 +261,12 @@ func createAttributeFromHCLAttributes(attrs hcl.Attributes, name string, level i
 	attribute.ForcesRecreation = forcesRecreation
 
 	// readme example
-	readmeExample, err := getAttribute(attrs, readmeExampleAttributeName).HCLString()
+	readmeExample, err := getAttribute(attrs, readmeExampleAttributeName).String()
 	if err != nil {
 		return entities.Attribute{}, err
 	}
-	attribute.ReadmeExample = readmeExample
+	// remove trailing newline if readme example is a multiline string
+	attribute.ReadmeExample = strings.Trim(readmeExample, "\n")
 
 	// type definition
 	typeDefinition, err := getType(attrs, name)

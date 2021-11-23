@@ -1,13 +1,11 @@
 package hclparser
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/ext/typeexpr"
-	"github.com/hashicorp/hcl/v2/hclwrite"
 	"github.com/mineiros-io/terradoc/internal/entities"
 	"github.com/mineiros-io/terradoc/internal/types"
 	"github.com/zclconf/go-cty/cty"
@@ -80,26 +78,6 @@ func (a *hclAttribute) RawJSON() (json.RawMessage, error) {
 	}
 
 	return json.RawMessage(src), nil
-}
-
-func (a *hclAttribute) HCLString() (string, error) {
-	if a.isNil() {
-		return "", nil
-	}
-
-	val, diags := a.Expr.Value(nil)
-	if diags.HasErrors() {
-		return "", fmt.Errorf("could not fetch HCL value for %q: %v", a.Name, diags.Errs())
-	}
-
-	tk := hclwrite.TokensForValue(val)
-	// As the fetched attribute has the format `{ content }\n`,
-	// remove the extra characters to have only the HCL content
-
-	//TODO: refactor
-	bVal := bytes.TrimSpace(bytes.TrimSuffix(bytes.TrimPrefix(bytes.TrimSpace(tk.Bytes()), []byte("{")), []byte("}")))
-
-	return string(bVal), nil
 }
 
 func (a *hclAttribute) TerraformType() (entities.TerraformType, error) {
