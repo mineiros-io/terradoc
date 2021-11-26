@@ -22,21 +22,25 @@ func TestParse(t *testing.T) {
 			desc:      "with a valid input",
 			inputFile: "input.tfdoc.hcl",
 			want: entities.Definition{
+				Header: entities.Header{
+					Image: "https://raw.githubusercontent.com/mineiros-io/brand/3bffd30e8bdbbde32c143e2650b2faa55f1df3ea/mineiros-primary-logo.svg",
+					URL:   "https://www.mineiros.io",
+				},
 				Sections: []entities.Section{
 					{
-						Content: `[<img src="https://raw.githubusercontent.com/mineiros-io/brand/3bffd30e8bdbbde32c143e2650b2faa55f1df3ea/mineiros-primary-logo.svg" width="400"/>][mineiros-website]
-
-This is the root section content.
+						Level: 1,
+						Title: "root section",
+						Content: `This is the root section content.
 
 Section contents support anything markdown and allow us to make references like this one: [mineiros-website]`,
 						SubSections: []entities.Section{
 							{
-								Level: 1,
+								Level: 2,
 								Title: "sections with variables",
 
 								SubSections: []entities.Section{
 									{
-										Level: 2,
+										Level: 3,
 										Title: "example",
 										Variables: []entities.Variable{
 											{
@@ -52,7 +56,7 @@ Section contents support anything markdown and allow us to make references like 
 										},
 									},
 									{
-										Level:   2,
+										Level:   3,
 										Title:   "section of beers",
 										Content: "an excuse to mention alcohol",
 										Variables: []entities.Variable{
@@ -229,7 +233,33 @@ section {
 func assertEqualDefinitions(t *testing.T, want, got entities.Definition) {
 	t.Helper()
 
+	assertEqualHeader(t, want.Header, got.Header)
 	assertEqualSections(t, want.Sections, got.Sections)
+}
+
+func assertEqualHeader(t *testing.T, want, got entities.Header) {
+	t.Helper()
+
+	if want.Image != got.Image {
+		t.Errorf("Expected header image to be %q but got %q instead", want.Image, got.Image)
+	}
+
+	if want.URL != got.URL {
+		t.Errorf("Expected header url to be %q but got %q instead", want.URL, got.URL)
+	}
+
+	assertEqualBadges(t, want.Badges, got.Badges)
+
+}
+
+func assertEqualBadges(t *testing.T, got, want []entities.Badge) {
+	t.Helper()
+
+	if len(want) != len(got) {
+		t.Errorf("Expected header url to have %d badges but got %d instead", len(want), len(got))
+	}
+
+	// TODO: assert that badges are equivalents
 }
 
 func assertEqualSections(t *testing.T, want, got []entities.Section) {

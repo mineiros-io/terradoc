@@ -21,12 +21,17 @@ const (
 	forcesRecreationAttributeName = "forces_recreation"
 	readmeExampleAttributeName    = "readme_example"
 	valueAttributeName            = "value"
+	imageAttributeName            = "image"
+	urlAttributeName              = "url"
+	textAttributeName             = "text"
 
 	sectionBlockName    = "section"
 	variableBlockName   = "variable"
 	attributeBlockName  = "attribute"
 	referencesBlockName = "references"
 	refBlockName        = "ref"
+	headerBlockName     = "header"
+	badgeBlockName      = "badge"
 )
 
 // Parse reads the content of a io.Reader and returns a Definition entity from its parsed values
@@ -58,6 +63,14 @@ func parseDefinition(f *hcl.File) (entities.Definition, error) {
 		return entities.Definition{}, fmt.Errorf("parsing Terradoc definition: %v", diags.Errs())
 	}
 
+	// header
+	header, err := parseHeader(definitionContent.Blocks.OfType(headerBlockName))
+	if err != nil {
+		return entities.Definition{}, fmt.Errorf("parsing header: %v", err)
+	}
+	def.Header = header
+
+	// sections
 	sections, err := parseSections(definitionContent.Blocks.OfType(sectionBlockName))
 	if err != nil {
 		return entities.Definition{}, err

@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	rootSectionLevel = 0
+	rootSectionLevel = 1
 )
 
 func parseSections(sectionBlocks []*hcl.Block) (sections []entities.Section, err error) {

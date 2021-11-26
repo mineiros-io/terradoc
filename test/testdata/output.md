@@ -1,14 +1,16 @@
+[<img src="https://raw.githubusercontent.com/mineiros-io/brand/3bffd30e8bdbbde32c143e2650b2faa55f1df3ea/mineiros-primary-logo.svg" width="400"/>](https://www.mineiros.io)
 
 
-[<img src="https://raw.githubusercontent.com/mineiros-io/brand/3bffd30e8bdbbde32c143e2650b2faa55f1df3ea/mineiros-primary-logo.svg" width="400"/>][mineiros-website]
+
+# root section
 
 This is the root section content.
 
 Section contents support anything markdown and allow us to make references like this one: [mineiros-website]
 
-# sections with variables
+## sections with variables
 
-## example
+### example
 
 - **`name`**: *(Optional `string`)*
 
@@ -16,7 +18,7 @@ Section contents support anything markdown and allow us to make references like 
 
   Default is `"nathan"`.
 
-## section of beers
+### section of beers
 
 an excuse to mention alcohol
 
