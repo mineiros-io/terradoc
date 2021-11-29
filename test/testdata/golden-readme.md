@@ -13,6 +13,7 @@ This module is part of our Infrastructure as Code (IaC) framework
 that enables our users and customers to easily deploy and manage reusable,
 secure, and production-grade cloud infrastructure.
 
+
 - [Module Features](#module-features)
 - [Getting Started](#getting-started)
 - [Module Argument Reference](#module-argument-reference)
@@ -138,7 +139,7 @@ See [variables.tf] and [examples/] for details and use-cases.
 
     Identities that will be granted the privilege in `role`.
 
-    Default is `var.members`.
+    Default is `"var.members"`.
 
   - **`condition`**: *(Optional `object(condition)`)*
 

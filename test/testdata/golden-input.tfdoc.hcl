@@ -32,26 +32,9 @@ and is compatible with the Terraform Google Provider version 3._**
 This module is part of our Infrastructure as Code (IaC) framework
 that enables our users and customers to easily deploy and manage reusable,
 secure, and production-grade cloud infrastructure.
-
-- [Module Features](#module-features)
-- [Getting Started](#getting-started)
-- [Module Argument Reference](#module-argument-reference)
-  - [Top-level Arguments](#top-level-arguments)
-    - [Module Configuration](#module-configuration)
-    - [Main Resource Configuration](#main-resource-configuration)
-    - [Extended Resource Configuration](#extended-resource-configuration)
-- [Module Attributes Reference](#module-attributes-reference)
-- [External Documentation](#external-documentation)
-  - [Google Documentation](#google-documentation)
-  - [Terraform Google Provider Documentation](#terraform-google-provider-documentation)
-- [Module Versioning](#module-versioning)
-  - [Backwards compatibility in `0.0.z` and `0.y.z` version](#backwards-compatibility-in-00z-and-0yz-version)
-- [About Mineiros](#about-mineiros)
-- [Reporting Issues](#reporting-issues)
-- [Contributing](#contributing)
-- [Makefile Targets](#makefile-targets)
-- [License](#license)
 END
+
+  toc = true
 
   section {
     title = "Module Features"
@@ -170,6 +153,7 @@ END
 
           attribute "members" {
             type = set(string)
+            # BUG: `var.members` should not be a string - currently it fails as HCL tries to evaluate the expression
             default = "var.members"
             description = "Identities that will be granted the privilege in `role`."
           }
@@ -204,8 +188,28 @@ END
           }
         }
       }
+
+      section {
+        title = "Extended Resource Configuration"
+      }
     }
   }
+
+  section {
+    title = "Module Attributes Reference"
+    content = <<END
+The following attributes are exported in the outputs of the module:
+
+- **`module_enabled`**
+
+  Whether this module is enabled.
+
+- **`iam`**
+
+  All attributes of the created `iam_binding` or `iam_member` or `iam_policy` resource according to the mode.
+END
+  }
+
 
   section {
     title = "External Documentation"

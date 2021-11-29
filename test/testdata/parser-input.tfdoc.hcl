@@ -11,6 +11,8 @@ This is the root section content.
 Section contents support anything markdown and allow us to make references like this one: [mineiros-website]
 END
 
+  toc = true
+
   section {
     title = "sections with variables"
 

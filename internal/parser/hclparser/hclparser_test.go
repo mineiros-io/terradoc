@@ -20,7 +20,7 @@ func TestParse(t *testing.T) {
 	}{
 		{
 			desc:      "with a valid input",
-			inputFile: "input.tfdoc.hcl",
+			inputFile: "parser-input.tfdoc.hcl",
 			want: entities.Definition{
 				Header: entities.Header{
 					Image: "https://raw.githubusercontent.com/mineiros-io/brand/3bffd30e8bdbbde32c143e2650b2faa55f1df3ea/mineiros-primary-logo.svg",

@@ -2,6 +2,9 @@ package markdown
 
 import (
 	"io"
+	"log"
+	"regexp"
+	"strings"
 	"text/template"
 
 	"github.com/mineiros-io/terradoc"
@@ -18,6 +21,7 @@ const (
 	attributeTemplateName       = "attribute"
 	typeDescriptionTemplateName = "typeDescription"
 	headerTemplateName          = "header"
+	tocTemplateName             = "toc"
 
 	varNestingLevel = 0
 )
@@ -80,6 +84,12 @@ func (mw *markdownWriter) writeSections(sections []entities.Section) error {
 func (mw *markdownWriter) writeSection(section entities.Section) error {
 	if err := mw.writeTemplate(sectionTemplateName, section); err != nil {
 		return err
+	}
+
+	if section.TOC {
+		if err := mw.writeTOC(section.SubSections); err != nil {
+			return err
+		}
 	}
 
 	if err := mw.writeVariables(section.Variables); err != nil {
@@ -160,4 +170,38 @@ func (mw *markdownWriter) writeAttribute(attribute entities.Attribute) error {
 	}
 
 	return nil
+}
+
+type tocItemRenderer struct {
+	Label       string
+	Value       string
+	IndentLevel int
+}
+
+func (mw *markdownWriter) writeTOC(sections []entities.Section) error {
+	items := fetchTOCItems(sections, 0)
+
+	return mw.writeTemplate(tocTemplateName, items)
+}
+
+func fetchTOCItems(sections []entities.Section, level int) (items []tocItemRenderer) {
+	for _, section := range sections {
+		reg, err := regexp.Compile("[^a-zA-Z0-9 -]+")
+		if err != nil {
+			log.Fatal(err)
+		}
+		str := reg.ReplaceAllString(section.Title, "")
+
+		value := strings.ReplaceAll(strings.ToLower(str), " ", "-")
+
+		tocItem := tocItemRenderer{Label: section.Title, IndentLevel: level, Value: value}
+		items = append(items, tocItem)
+
+		nestedItems := fetchTOCItems(section.SubSections, level+2)
+
+		// redundant append to maintain ordering of items
+		items = append(items, nestedItems...)
+	}
+
+	return items
 }

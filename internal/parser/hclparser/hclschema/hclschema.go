@@ -94,6 +94,10 @@ func SectionSchema() *hcl.BodySchema {
 				Name:     "content",
 				Required: false,
 			},
+			{
+				Name:     "toc",
+				Required: false,
+			},
 		},
 		Blocks: []hcl.BlockHeaderSchema{
 			{

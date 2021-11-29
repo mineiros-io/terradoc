@@ -24,6 +24,7 @@ const (
 	imageAttributeName            = "image"
 	urlAttributeName              = "url"
 	textAttributeName             = "text"
+	tocAttributeName              = "toc"
 
 	sectionBlockName    = "section"
 	variableBlockName   = "variable"

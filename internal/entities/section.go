@@ -12,4 +12,6 @@ type Section struct {
 	SubSections []Section `json:"subsections,omitempty"`
 	// Level is the nesting of this section
 	Level int `json:"-"`
+	// TOC is a flag for generating table of contents for nested sections
+	TOC bool `json:"-"`
 }
