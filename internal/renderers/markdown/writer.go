@@ -13,6 +13,7 @@ const (
 	templateName = "README.md"
 
 	sectionTemplateName         = "section"
+	referencesTemplateName      = "references"
 	variableTemplateName        = "variable"
 	attributeTemplateName       = "attribute"
 	typeDescriptionTemplateName = "typeDescription"
@@ -34,6 +35,22 @@ func newMarkdownWriter(writer io.Writer) (*markdownWriter, error) {
 	}
 
 	return &markdownWriter{writer: writer, templ: t}, nil
+}
+
+func (mw *markdownWriter) writeDefinition(definition entities.Definition) error {
+	if err := mw.writeSections(definition.Sections); err != nil {
+		return err
+	}
+
+	return mw.writeReferences(definition.References)
+}
+
+func (mw *markdownWriter) writeReferences(references []entities.Reference) error {
+	if len(references) == 0 {
+		return nil
+	}
+
+	return mw.writeTemplate(referencesTemplateName, references)
 }
 
 func (mw *markdownWriter) writeSections(sections []entities.Section) error {

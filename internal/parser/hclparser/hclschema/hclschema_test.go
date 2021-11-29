@@ -25,8 +25,8 @@ func TestSectionSchema(t *testing.T) {
 	s := hclschema.SectionSchema()
 
 	// schema attributes
-	assertHasAttribute(t, s, "title", true)
-	assertHasAttribute(t, s, "description", false)
+	assertHasAttribute(t, s, "title", false)
+	assertHasAttribute(t, s, "content", false)
 
 	// schema blocks
 	nestedSectionBlocks := getBlocks(s.Blocks, "section")

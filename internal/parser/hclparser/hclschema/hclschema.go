@@ -9,6 +9,32 @@ func RootSchema() *hcl.BodySchema {
 				Type:       "section",
 				LabelNames: []string{},
 			},
+			{
+				Type:       "references",
+				LabelNames: []string{},
+			},
+		},
+	}
+}
+
+func ReferencesSchema() *hcl.BodySchema {
+	return &hcl.BodySchema{
+		Blocks: []hcl.BlockHeaderSchema{
+			{
+				Type:       "ref",
+				LabelNames: []string{"name"},
+			},
+		},
+	}
+}
+
+func RefSchema() *hcl.BodySchema {
+	return &hcl.BodySchema{
+		Attributes: []hcl.AttributeSchema{
+			{
+				Name:     "value",
+				Required: true,
+			},
 		},
 	}
 }
@@ -18,10 +44,10 @@ func SectionSchema() *hcl.BodySchema {
 		Attributes: []hcl.AttributeSchema{
 			{
 				Name:     "title",
-				Required: true,
+				Required: false,
 			},
 			{
-				Name:     "description",
+				Name:     "content",
 				Required: false,
 			},
 		},

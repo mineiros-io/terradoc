@@ -1,8 +1,14 @@
-# root section
 
-i am the root section
 
-## sub section with no description
+[<img src="https://raw.githubusercontent.com/mineiros-io/brand/3bffd30e8bdbbde32c143e2650b2faa55f1df3ea/mineiros-primary-logo.svg" width="400"/>][mineiros-website]
+
+This is the root section content.
+
+Section contents support anything markdown and allow us to make references like this one: [mineiros-website]
+
+# sections with variables
+
+## example
 
 - **`name`**: *(Optional `string`)*
 
@@ -22,7 +28,7 @@ an excuse to mention alcohol
 
   Example:
 
-  ```terraform
+  ```hcl
   beers = [
     {
       name = "guinness"
@@ -45,4 +51,9 @@ an excuse to mention alcohol
   - **`abv`**: *(Optional `number`, Forces new resource)*
 
     beer's alcohol by volume content
+
+
+<!-- References -->
+
+[mineiros-website]: https://www.mineiros.io
 
