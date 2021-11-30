@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/madlambda/spells/assert"
 	"github.com/mineiros-io/terradoc/internal/entities"
 	"github.com/mineiros-io/terradoc/internal/renderers/markdown"
 	"github.com/mineiros-io/terradoc/internal/types"
@@ -107,9 +108,7 @@ func TestRender(t *testing.T) {
 
 	buf := new(bytes.Buffer)
 	err := markdown.Render(buf, definition)
-	if err != nil {
-		t.Errorf("Expected no error but got %q instead", err)
-	}
+	assert.NoError(t, err)
 
 	got := strings.TrimSpace(buf.String())
 

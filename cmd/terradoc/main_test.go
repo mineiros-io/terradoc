@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/madlambda/spells/assert"
 	"github.com/mineiros-io/terradoc/test"
 )
 
@@ -48,23 +49,18 @@ func TestMain(m *testing.M) {
 
 func TestTerradocCLI(t *testing.T) {
 	dir, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
+	assert.NoError(t, err)
 
 	// set up input file and content - TODO: structure this better
 	inputContent := test.ReadFixture(t, inputFixtureName)
 
 	inputFile, err := ioutil.TempFile("", "terradoc-input-")
-	if err != nil {
-		t.Fatal(err)
-	}
+	assert.NoError(t, err)
+
 	defer inputFile.Close()
 
 	_, err = inputFile.Write(inputContent)
-	if err != nil {
-		t.Fatal(err)
-	}
+	assert.NoError(t, err)
 
 	cmdPath := filepath.Join(dir, binName)
 
@@ -74,9 +70,7 @@ func TestTerradocCLI(t *testing.T) {
 		cmd := exec.Command(cmdPath, inputFile.Name())
 
 		output, err := cmd.CombinedOutput()
-		if err != nil {
-			t.Fatal(err)
-		}
+		assert.NoError(t, err)
 
 		if diff := cmp.Diff(output, expectedOutput); diff != "" {
 			t.Errorf("Result is not expected (-want +got):\n%s", diff)
@@ -87,21 +81,15 @@ func TestTerradocCLI(t *testing.T) {
 		cmd := exec.Command(cmdPath)
 
 		cmdStdIn, err := cmd.StdinPipe()
-		if err != nil {
-			t.Fatal(err)
-		}
+		assert.NoError(t, err)
 
 		_, err = io.WriteString(cmdStdIn, string(inputContent))
-		if err != nil {
-			t.Fatal(err)
-		}
+		assert.NoError(t, err)
 
 		cmdStdIn.Close()
 
 		output, err := cmd.CombinedOutput()
-		if err != nil {
-			t.Fatal(err)
-		}
+		assert.NoError(t, err)
 
 		if diff := cmp.Diff(output, expectedOutput); diff != "" {
 			t.Errorf("Result is not expected (-want +got):\n%s", diff)
@@ -112,9 +100,7 @@ func TestTerradocCLI(t *testing.T) {
 		cmd := exec.Command(cmdPath, inputFile.Name())
 
 		output, err := cmd.CombinedOutput()
-		if err != nil {
-			t.Fatal(err)
-		}
+		assert.NoError(t, err)
 
 		if diff := cmp.Diff(output, expectedOutput); diff != "" {
 			t.Errorf("Result is not expected (-want +got):\n%s", diff)
@@ -123,22 +109,16 @@ func TestTerradocCLI(t *testing.T) {
 
 	t.Run("WriteToFile", func(t *testing.T) {
 		f, err := ioutil.TempFile("", "terradoc-output-")
-		if err != nil {
-			t.Fatal(err)
-		}
+		assert.NoError(t, err)
 		defer f.Close()
 
 		cmd := exec.Command(cmdPath, "-o", f.Name(), inputFile.Name())
 
 		err = cmd.Run()
-		if err != nil {
-			t.Fatal(err)
-		}
+		assert.NoError(t, err)
 
 		result, err := ioutil.ReadAll(f)
-		if err != nil {
-			t.Fatal(err)
-		}
+		assert.NoError(t, err)
 
 		if diff := cmp.Diff(result, expectedOutput); diff != "" {
 			t.Errorf("Result is not expected (-want +got):\n%s", diff)

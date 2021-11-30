@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/madlambda/spells/assert"
 	"github.com/mineiros-io/terradoc/internal/entities"
 	"github.com/mineiros-io/terradoc/internal/types"
 )
@@ -51,9 +52,7 @@ func TestWriteSection(t *testing.T) {
 			writer := newTestWriter(t, buf)
 
 			err := writer.writeSection(tt.section)
-			if err != nil {
-				t.Fatalf("Expected no error but got %q instead", err)
-			}
+			assert.NoError(t, err)
 
 			assertMarkdownHasSection(t, buf, tt.want)
 		})
@@ -143,9 +142,7 @@ func TestWriteVariable(t *testing.T) {
 			writer := newTestWriter(t, buf)
 
 			err := writer.writeVariable(tt.variable)
-			if err != nil {
-				t.Fatalf("Expected no error but got %q instead", err)
-			}
+			assert.NoError(t, err)
 
 			assertMarkdownHasVariable(t, buf, tt.want)
 		})
@@ -226,9 +223,7 @@ func TestWriteAttribute(t *testing.T) {
 
 			writer := newTestWriter(t, buf)
 			err := writer.writeAttribute(tt.attr)
-			if err != nil {
-				t.Fatalf("Expected no error but got %q instead", err)
-			}
+			assert.NoError(t, err)
 
 			assertMarkdownHasAttribute(t, buf, tt.want)
 		})
@@ -329,9 +324,7 @@ func assertMarkdownHasAttribute(t *testing.T, buf *bytes.Buffer, md mdAttribute)
 
 func newTestWriter(t *testing.T, buf io.Writer) *markdownWriter {
 	writer, err := newMarkdownWriter(buf)
-	if err != nil {
-		t.Fatal(err)
-	}
+	assert.NoError(t, err)
 
 	return writer
 }

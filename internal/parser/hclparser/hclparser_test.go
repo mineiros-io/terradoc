@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/madlambda/spells/assert"
 	"github.com/mineiros-io/terradoc/internal/entities"
 	"github.com/mineiros-io/terradoc/internal/parser/hclparser"
 	"github.com/mineiros-io/terradoc/internal/types"
@@ -121,9 +122,7 @@ Section contents support anything markdown and allow us to make references like 
 			r := test.OpenFixture(t, tt.inputFile)
 			// parsed definition
 			definition, err := hclparser.Parse(r, "foo")
-			if err != nil {
-				t.Fatal(err)
-			}
+			assert.NoError(t, err)
 
 			assertEqualDefinitions(t, tt.want, definition) //
 		})
@@ -219,9 +218,7 @@ section {
 			r := bytes.NewBufferString(tt.content)
 
 			_, err := hclparser.Parse(r, "foo-file")
-			if err == nil {
-				t.Fatal("Expected error but none occurred")
-			}
+			assert.Error(t, err)
 
 			if !strings.Contains(err.Error(), tt.wantErrorMsgContains) {
 				t.Errorf("Expected error message to contain %q but got %q instead", tt.wantErrorMsgContains, err.Error())
@@ -240,13 +237,8 @@ func assertEqualDefinitions(t *testing.T, want, got entities.Definition) {
 func assertEqualHeader(t *testing.T, want, got entities.Header) {
 	t.Helper()
 
-	if want.Image != got.Image {
-		t.Errorf("Expected header image to be %q but got %q instead", want.Image, got.Image)
-	}
-
-	if want.URL != got.URL {
-		t.Errorf("Expected header url to be %q but got %q instead", want.URL, got.URL)
-	}
+	assert.EqualStrings(t, want.Image, got.Image)
+	assert.EqualStrings(t, want.URL, got.URL)
 
 	assertEqualBadges(t, want.Badges, got.Badges)
 
@@ -255,19 +247,15 @@ func assertEqualHeader(t *testing.T, want, got entities.Header) {
 func assertEqualBadges(t *testing.T, got, want []entities.Badge) {
 	t.Helper()
 
-	if len(want) != len(got) {
-		t.Errorf("Expected header url to have %d badges but got %d instead", len(want), len(got))
-	}
+	assert.EqualInts(t, len(want), len(got))
 
-	// TODO: assert that badges are equivalents
+	// TODO: assert that badges are equivalent
 }
 
 func assertEqualSections(t *testing.T, want, got []entities.Section) {
 	t.Helper()
 
-	if len(want) != len(got) {
-		t.Fatalf("Expected definition to contain %d sections. Found %d instead", len(want), len(got))
-	}
+	assert.EqualInts(t, len(want), len(got))
 
 	if len(got) == 0 {
 		return
@@ -299,17 +287,9 @@ func assertSectionEquals(t *testing.T, want, got entities.Section) {
 	t.Helper()
 
 	// redundant since we're finding the section by title
-	if want.Title != got.Title {
-		t.Errorf("Expected section title to be %q. Got %q instead", want.Title, got.Title)
-	}
-
-	if want.Content != got.Content {
-		t.Errorf("Expected section content to be %q. Got %q instead", want.Content, got.Content)
-	}
-
-	if want.Level != got.Level {
-		t.Errorf("Expected section level to be %d. Got %d instead", want.Level, got.Level)
-	}
+	assert.EqualStrings(t, want.Title, got.Title)
+	assert.EqualStrings(t, want.Content, got.Content)
+	assert.EqualInts(t, want.Level, got.Level)
 
 	assertEqualVariables(t, want.Variables, got.Variables)
 	assertEqualSections(t, want.SubSections, got.SubSections)
@@ -318,9 +298,7 @@ func assertSectionEquals(t *testing.T, want, got entities.Section) {
 func assertEqualVariables(t *testing.T, want, got []entities.Variable) {
 	t.Helper()
 
-	if len(want) != len(got) {
-		t.Fatalf("Expected definition to contain %d variables. Found %d instead", len(want), len(got))
-	}
+	assert.EqualInts(t, len(want), len(got))
 
 	if len(got) == 0 {
 		return
@@ -352,17 +330,10 @@ func assertVariableEquals(t *testing.T, want, got entities.Variable) {
 	t.Helper()
 
 	// redundant since we're finding the variable by name
-	if want.Name != got.Name {
-		t.Errorf("Expected variable name to be %q. Got %q instead", want.Name, got.Name)
-	}
-
-	if want.Description != got.Description {
-		t.Errorf("Expected variable description to be %q. Got %q instead", want.Description, got.Description)
-	}
-
-	if want.Type.TerraformType != got.Type.TerraformType {
-		t.Errorf("Expected variable type to be %q. Got %q instead", want.Type.TerraformType, got.Type.TerraformType)
-	}
+	assert.EqualStrings(t, want.Name, got.Name)
+	assert.EqualStrings(t, want.Description, got.Description)
+	assert.EqualInts(t, int(want.Type.TerraformType.Type), int(got.Type.TerraformType.Type))
+	assert.EqualInts(t, int(want.Type.TerraformType.NestedType), int(got.Type.TerraformType.NestedType))
 
 	assertEqualAttributes(t, want.Attributes, got.Attributes)
 }
@@ -370,9 +341,7 @@ func assertVariableEquals(t *testing.T, want, got entities.Variable) {
 func assertEqualAttributes(t *testing.T, want, got []entities.Attribute) {
 	t.Helper()
 
-	if len(want) != len(got) {
-		t.Fatalf("Expected definition to contain %d attributes. Found %d instead", len(want), len(got))
-	}
+	assert.EqualInts(t, len(want), len(got))
 
 	if len(got) == 0 {
 		return
@@ -404,17 +373,10 @@ func assertAttributeEquals(t *testing.T, want, got entities.Attribute) {
 	t.Helper()
 
 	// redundant since we're finding the attribute by name
-	if want.Name != got.Name {
-		t.Errorf("Expected attribute name to be %q. Got %q instead", want.Name, got.Name)
-	}
-
-	if want.Description != got.Description {
-		t.Errorf("Expected attribute description to be %q. Got %q instead", want.Description, got.Description)
-	}
-
-	if want.Type.TerraformType != got.Type.TerraformType {
-		t.Errorf("Expected attribute type to be %q. Got %q instead", want.Type.TerraformType, got.Type.TerraformType)
-	}
+	assert.EqualStrings(t, want.Name, got.Name)
+	assert.EqualStrings(t, want.Description, got.Description)
+	assert.EqualInts(t, int(want.Type.TerraformType.Type), int(got.Type.TerraformType.Type))
+	assert.EqualInts(t, int(want.Type.TerraformType.NestedType), int(got.Type.TerraformType.NestedType))
 
 	assertEqualAttributes(t, want.Attributes, got.Attributes)
 }
