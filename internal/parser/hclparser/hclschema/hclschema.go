@@ -6,12 +6,56 @@ func RootSchema() *hcl.BodySchema {
 	return &hcl.BodySchema{
 		Blocks: []hcl.BlockHeaderSchema{
 			{
+				Type:       "header",
+				LabelNames: []string{},
+			},
+			{
 				Type:       "section",
 				LabelNames: []string{},
 			},
 			{
 				Type:       "references",
 				LabelNames: []string{},
+			},
+		},
+	}
+}
+
+func HeaderSchema() *hcl.BodySchema {
+	return &hcl.BodySchema{
+		Attributes: []hcl.AttributeSchema{
+			{
+				Name:     "image",
+				Required: false,
+			},
+			{
+				Name:     "url",
+				Required: false,
+			},
+		},
+		Blocks: []hcl.BlockHeaderSchema{
+			{
+				Type:       "badge",
+				LabelNames: []string{"name"},
+			},
+		},
+	}
+}
+
+func BadgeSchema() *hcl.BodySchema {
+	return &hcl.BodySchema{
+		Attributes: []hcl.AttributeSchema{
+			{
+				Name:     "image",
+				Required: true,
+			},
+			{
+				Name:     "url",
+				Required: true,
+			},
+			{
+				Name:     "text",
+				Required: true,
 			},
 		},
 	}

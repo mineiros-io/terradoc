@@ -1,7 +1,11 @@
-section {
-  content = <<END
-[<img src="https://raw.githubusercontent.com/mineiros-io/brand/3bffd30e8bdbbde32c143e2650b2faa55f1df3ea/mineiros-primary-logo.svg" width="400"/>][mineiros-website]
+header {
+  image = "https://raw.githubusercontent.com/mineiros-io/brand/3bffd30e8bdbbde32c143e2650b2faa55f1df3ea/mineiros-primary-logo.svg"
+  url = "https://www.mineiros.io"
+}
 
+section {
+  title = "root section"
+  content = <<END
 This is the root section content.
 
 Section contents support anything markdown and allow us to make references like this one: [mineiros-website]

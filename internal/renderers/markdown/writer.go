@@ -17,6 +17,7 @@ const (
 	variableTemplateName        = "variable"
 	attributeTemplateName       = "attribute"
 	typeDescriptionTemplateName = "typeDescription"
+	headerTemplateName          = "header"
 
 	varNestingLevel = 0
 )
@@ -38,11 +39,24 @@ func newMarkdownWriter(writer io.Writer) (*markdownWriter, error) {
 }
 
 func (mw *markdownWriter) writeDefinition(definition entities.Definition) error {
+	if err := mw.writeHeader(definition.Header); err != nil {
+		return err
+	}
+
 	if err := mw.writeSections(definition.Sections); err != nil {
 		return err
 	}
 
 	return mw.writeReferences(definition.References)
+}
+
+func (mw *markdownWriter) writeHeader(header entities.Header) error {
+	// Prevent empty header from being rendered
+	if len(header.Badges) > 0 || header.Image != "" {
+		return mw.writeTemplate(headerTemplateName, header)
+	}
+
+	return nil
 }
 
 func (mw *markdownWriter) writeReferences(references []entities.Reference) error {

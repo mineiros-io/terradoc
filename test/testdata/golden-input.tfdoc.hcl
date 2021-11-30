@@ -1,15 +1,29 @@
+header {
+  image = "https://raw.githubusercontent.com/mineiros-io/brand/3bffd30e8bdbbde32c143e2650b2faa55f1df3ea/mineiros-primary-logo.svg"
+  url = "https://mineiros.io/?ref=terraform-google-secret-manager-iam"
+
+  badge "terraform" {
+    image = "https://img.shields.io/badge/Terraform-1.x-623CE4.svg?logo=terraform"
+    url = "https://github.com/hashicorp/terraform/releases"
+    text = "Terraform Version"
+  }
+
+  badge "google-provider"{
+    image = "https://img.shields.io/badge/google-3.x-1A73E8.svg?logo=terraform"
+    url = "https://github.com/terraform-providers/terraform-provider-google/releases"
+    text = "Google Provider Version"
+  }
+
+  badge "slack" {
+    image = "https://img.shields.io/badge/slack-@mineiros--community-f32752.svg?logo=slack"
+    url = "https://mineiros.io/slack"
+    text = "Join Slack"
+  }
+}
+
 section {
+  title = "terraform-google-secret-manager-iam"
   content = <<END
-[<img src="https://raw.githubusercontent.com/mineiros-io/brand/3bffd30e8bdbbde32c143e2650b2faa55f1df3ea/mineiros-primary-logo.svg" width="400"/>][homepage]
-
-[![Terraform Version][badge-terraform]][releases-terraform]
-[![Google Provider Version][badge-tf-gcp]][releases-google-provider]
-[![Join Slack][badge-slack]][slack]
-END
-
-  section {
-    title = "terraform-google-secret-manager-iam"
-    content = <<END
 A [Terraform](https://www.terraform.io) module to create a [Google Secret Manager IAM](https://cloud.google.com/secret-manager/docs/access-control) on [Google Cloud Services (GCP)](https://cloud.google.com/).
 
 **_This module supports Terraform version 1
@@ -39,20 +53,20 @@ secure, and production-grade cloud infrastructure.
 - [License](#license)
 END
 
-    section {
-      title = "Module Features"
-      content = <<END
+  section {
+    title = "Module Features"
+    content = <<END
 This module implements the following terraform resources:
 
 - `google_secret_manager_secret_iam_binding`
 - `google_secret_manager_secret_iam_member`
 - `google_secret_manager_secret_iam_policy`
 END
-    }
+  }
 
-    section {
-      title = "Getting Started"
-      content = <<END
+  section {
+    title = "Getting Started"
+    content = <<END
 Most basic usage just setting required arguments:
 
 ```hcl
@@ -65,49 +79,49 @@ module "terraform-google-secret-manager-iam" {
 }
 ```
 END
-    }
+  }
+
+  section {
+    title = "Module Argument Reference"
+    content = "See [variables.tf] and [examples/] for details and use-cases."
 
     section {
-      title = "Module Argument Reference"
-      content = "See [variables.tf] and [examples/] for details and use-cases."
+      title = "Top-level Arguments"
 
       section {
-        title = "Top-level Arguments"
+        title = "Module Configuration"
 
-        section {
-          title = "Module Configuration"
+        variable "module_enabled" {
+          type = bool
+          description = "Specifies whether resources in the module will be created."
+          default = true
+        }
 
-          variable "module_enabled" {
-            type = bool
-            description = "Specifies whether resources in the module will be created."
-            default = true
-          }
-
-          variable "module_depends_on" {
-            type = list(any)
-            readme_type = "list(dependencies)"
-            description = "A list of dependencies. Any object can be _assigned_ to this list to define a hidden external dependency."
-            readme_example = <<END
+        variable "module_depends_on" {
+          type = list(any)
+          readme_type = "list(dependencies)"
+          description = "A list of dependencies. Any object can be _assigned_ to this list to define a hidden external dependency."
+          readme_example = <<END
 module_depends_on = [
   google_network.network
 ]
 END
-          }
+        }
+      }
+
+      section {
+        title = "Main Resource Configuration"
+
+        variable "secret_id" {
+          required = true
+          type = string
+          description = "The id of the secret."
         }
 
-        section {
-          title = "Main Resource Configuration"
-
-          variable "secret_id" {
-            required = true
-            type = string
-            description = "The id of the secret."
-          }
-
-          variable "members" {
-            type = set(string)
-            default = []
-            description = <<END
+        variable "members" {
+          type = set(string)
+          default = []
+          description = <<END
 Identities that will be granted the privilege in role. Each entry can have one of the following values:
   - `allUsers`: A special identifier that represents anyone who is on the internet; with or without a Google account.
   - `allAuthenticatedUsers`: A special identifier that represents anyone who is authenticated with a Google account or a service account.
@@ -115,76 +129,77 @@ Identities that will be granted the privilege in role. Each entry can have one o
   - `serviceAccount:{emailid}`: An email address that represents a service account. For example, my-other-app@appspot.gserviceaccount.com.
   - `group:{emailid}`: An email address that represents a Google group. For example, admins@example.com.
   - `domain:{domain}`: A G Suite domain (primary, instead of alias) name that represents all the users of that domain. For example, google.com or example.com.
+  - `projectOwner:projectid`: Owners of the given project. For example, `projectOwner:my-example-project`
+  - `projectEditor:projectid`: Editors of the given project. For example, `projectEditor:my-example-project`
+  - `projectViewer:projectid`: Viewers of the given project. For example, `projectViewer:my-example-project`
 END
-          }
+        }
 
-          variable "role" {
-            type = string
-            description = "The role that should be applied. Note that custom roles must be of the format `[projects|organizations]/{parent-name}/roles/{role-name}`."
-          }
+        variable "role" {
+          type = string
+          description = "The role that should be applied. Note that custom roles must be of the format `[projects|organizations]/{parent-name}/roles/{role-name}`."
+        }
 
-          variable "project" {
-            type = string
-            description = "The resource name of the project the policy is attached to. Its format is `projects/{project_id}`."
-          }
+        variable "project" {
+          type = string
+          description = "The ID of the project in which the resource belongs. If it is not provided, the project will be parsed from the identifier of the parent resource. If no project is provided in the parent identifier and no project is specified, the provider project is used."
+        }
 
-          variable "authoritative" {
-            description = "Whether to exclusively set (authoritative mode) or add (non-authoritative/additive mode) members to the role."
-            type = bool
-            default = true
-          }
+        variable "authoritative" {
+          description = "Whether to exclusively set (authoritative mode) or add (non-authoritative/additive mode) members to the role."
+          type = bool
+          default = true
+        }
 
-          variable "policy_bindings" {
-            type = list(any)
-            readme_type = "list(policy_bindings)"
-            description = "A list of IAM policy bindings."
-            readme_example = <<END
+        variable "policy_bindings" {
+          type = list(any)
+          readme_type = "list(policy_bindings)"
+          description = "A list of IAM policy bindings."
+          readme_example = <<END
 policy_bindings = [{
   role    = "roles/secretmanager.secretAccessor"
   members = ["user:member@example.com"]
 }]
 END
 
-            attribute "role" {
-              description = "The role that should be applied."
-              required = true
-              type = string
-            }
+          attribute "role" {
+            description = "The role that should be applied."
+            required = true
+            type = string
+          }
 
-            attribute "members" {
-              required = true
-              type = string
-              default = "var.members"
-              description = "Identities that will be granted the privilege in `role`."
-            }
+          attribute "members" {
+            type = set(string)
+            default = "var.members"
+            description = "Identities that will be granted the privilege in `role`."
+          }
 
-            attribute "condition" {
-              type = any
-              readme_type = "object(condition)"
-              description = "An IAM Condition for a given binding."
-              readme_example = <<END
+          attribute "condition" {
+            type = any
+            readme_type = "object(condition)"
+            description = "An IAM Condition for a given binding."
+            readme_example = <<END
 condition = {
   expression = "request.time < timestamp(\"2022-01-01T00:00:00Z\")"
   title      = "expires_after_2021_12_31"
 }
 END
 
-              attribute "expression" {
-                type = string
-                required = true
-                description = "Textual representation of an expression in Common Expression Language syntax."
-              }
+            attribute "expression" {
+              type = string
+              required = true
+              description = "Textual representation of an expression in Common Expression Language syntax."
+            }
 
-              attribute "title" {
-                type = string
-                required = true
-                description = "A title for the expression, i.e. a short string describing its purpose."
-              }
+            attribute "title" {
+              type = string
+              required = true
+              description = "A title for the expression, i.e. a short string describing its purpose."
+            }
 
-              attribute "description" {
-                type = string
-                description = "An optional description of the expression. This is a longer text which describes the expression, e.g. when hovered over it in a UI."
-              }
+            attribute "description" {
+              type = string
+              description = "An optional description of the expression. This is a longer text which describes the expression, e.g. when hovered over it in a UI."
             }
           }
         }

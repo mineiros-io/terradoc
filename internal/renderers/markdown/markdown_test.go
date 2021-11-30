@@ -14,19 +14,35 @@ import (
 
 func TestRender(t *testing.T) {
 	definition := entities.Definition{
+		Header: entities.Header{
+			Image: "https://raw.githubusercontent.com/mineiros-io/brand/3bffd30e8bdbbde32c143e2650b2faa55f1df3ea/mineiros-primary-logo.svg",
+			URL:   "https://mineiros.io/?ref=terraform-google-secret-manager-iam",
+			Badges: []entities.Badge{
+				{
+					Image: "https://img.shields.io/badge/Terraform-1.x-623CE4.svg?logo=terraform",
+					Text:  "Terraform Version",
+					Name:  "badge-terraform",
+					URL:   "https://github.com/hashicorp/terraform/releases",
+				},
+				{
+					Image: "https://img.shields.io/badge/google-3.x-1A73E8.svg?logo=terraform",
+					Text:  "Google Provider Version",
+					Name:  "badge-tf-gcp",
+					URL:   "https://github.com/terraform-providers/terraform-provider-google/releases",
+				},
+				{
+					Image: "https://img.shields.io/badge/slack-@mineiros--community-f32752.svg?logo=slack",
+					Text:  "Join Slack",
+					Name:  "badge-slack",
+					URL:   "https://mineiros.io/slack",
+				},
+			},
+		},
 		Sections: []entities.Section{
 			{
-				Level: 0,
-				Content: `[<img src="https://raw.githubusercontent.com/mineiros-io/brand/3bffd30e8bdbbde32c143e2650b2faa55f1df3ea/mineiros-primary-logo.svg" width="400"/>][homepage]
-
-[![Terraform Version][badge-terraform]][releases-terraform]
-[![Google Provider Version][badge-tf-gcp]][releases-google-provider]
-[![Join Slack][badge-slack]][slack]`,
-				SubSections: []entities.Section{
-					{
-						Level: 1,
-						Title: "terraform-google-secret-manager-iam",
-						Content: `A [Terraform](https://www.terraform.io) module to create a [Google Secret Manager IAM](https://cloud.google.com/secret-manager/docs/access-control) on [Google Cloud Services (GCP)](https://cloud.google.com/).
+				Level: 1,
+				Title: "terraform-google-secret-manager-iam",
+				Content: `A [Terraform](https://www.terraform.io) module to create a [Google Secret Manager IAM](https://cloud.google.com/secret-manager/docs/access-control) on [Google Cloud Services (GCP)](https://cloud.google.com/).
 
 **_This module supports Terraform version 1
 and is compatible with the Terraform Google Provider version 3._**
@@ -53,20 +69,20 @@ secure, and production-grade cloud infrastructure.
 - [Contributing](#contributing)
 - [Makefile Targets](#makefile-targets)
 - [License](#license)`,
-						SubSections: []entities.Section{
-							{
-								Level: 2,
-								Title: "Module Features",
-								Content: `This module implements the following terraform resources:
+				SubSections: []entities.Section{
+					{
+						Level: 2,
+						Title: "Module Features",
+						Content: `This module implements the following terraform resources:
 
 - ` + "`google_secret_manager_secret_iam_binding`" + `
 - ` + "`google_secret_manager_secret_iam_member`" + `
 - ` + "`google_secret_manager_secret_iam_policy`",
-							},
-							{
-								Level: 2,
-								Title: "Getting Started",
-								Content: `Most basic usage just setting required arguments:
+					},
+					{
+						Level: 2,
+						Title: "Getting Started",
+						Content: `Most basic usage just setting required arguments:
 
 ` + "```hcl" + `
 module "terraform-google-secret-manager-iam" {
@@ -77,70 +93,70 @@ module "terraform-google-secret-manager-iam" {
   members   = ["user:admin@example.com"]
 }
 ` + "```",
-							},
+					},
+					{
+						Level:   2,
+						Title:   "Module Argument Reference",
+						Content: "See [variables.tf] and [examples/] for details and use-cases.",
+						SubSections: []entities.Section{
 							{
-								Level:   2,
-								Title:   "Module Argument Reference",
-								Content: "See [variables.tf] and [examples/] for details and use-cases.",
+								Level: 3,
+								Title: "Top-level Arguments",
 								SubSections: []entities.Section{
 									{
-										Level: 3,
-										Title: "Top-level Arguments",
-										SubSections: []entities.Section{
+										Title: "Module Configuration",
+										Level: 4,
+										Variables: []entities.Variable{
 											{
-												Title: "Module Configuration",
-												Level: 4,
-												Variables: []entities.Variable{
-													{
-														Name: "module_enabled",
-														Type: entities.Type{
-															TerraformType: entities.TerraformType{
-																Type: types.TerraformBool,
-															},
-														},
-														Description: "Specifies whether resources in the module will be created.",
-														Default:     []byte("true"),
-													},
-													{
-														Name: "module_depends_on",
-														Type: entities.Type{
-															ReadmeType: "list(dependencies)",
-															TerraformType: entities.TerraformType{
-																Type:       types.TerraformList,
-																NestedType: types.TerraformAny,
-															},
-														},
-														Description: "A list of dependencies. Any object can be _assigned_ to this list to define a hidden external dependency.",
-														ReadmeExample: `module_depends_on = [
-  google_network.network
-]`,
+												Name: "module_enabled",
+												Type: entities.Type{
+													TerraformType: entities.TerraformType{
+														Type: types.TerraformBool,
 													},
 												},
+												Description: "Specifies whether resources in the module will be created.",
+												Default:     []byte("true"),
 											},
 											{
-												Level: 4,
-												Title: "Main Resource Configuration",
-												Variables: []entities.Variable{
-													{
-														Name:     "secret_id",
-														Required: true,
-														Type: entities.Type{
-															TerraformType: entities.TerraformType{
-																Type: types.TerraformString,
-															},
-														},
-														Description: "The id of the secret.",
+												Name: "module_depends_on",
+												Type: entities.Type{
+													ReadmeType: "list(dependencies)",
+													TerraformType: entities.TerraformType{
+														Type:       types.TerraformList,
+														NestedType: types.TerraformAny,
 													},
-													{
-														Name: "members",
-														Type: entities.Type{
-															TerraformType: entities.TerraformType{
-																Type:       types.TerraformSet,
-																NestedType: types.TerraformString,
-															},
-														},
-														Default: []byte("[]"),
-														Description: `Identities that will be granted the privilege in role. Each entry can have one of the following values:
+												},
+												Description: "A list of dependencies. Any object can be _assigned_ to this list to define a hidden external dependency.",
+												ReadmeExample: `module_depends_on = [
+  google_network.network
+]`,
+											},
+										},
+									},
+									{
+										Level: 4,
+										Title: "Main Resource Configuration",
+										Variables: []entities.Variable{
+											{
+												Name:     "secret_id",
+												Required: true,
+												Type: entities.Type{
+													TerraformType: entities.TerraformType{
+														Type: types.TerraformString,
+													},
+												},
+												Description: "The id of the secret.",
+											},
+											{
+												Name: "members",
+												Type: entities.Type{
+													TerraformType: entities.TerraformType{
+														Type:       types.TerraformSet,
+														NestedType: types.TerraformString,
+													},
+												},
+												Default: []byte("[]"),
+												Description: `Identities that will be granted the privilege in role. Each entry can have one of the following values:
   - ` + "`allUsers`" + `: A special identifier that represents anyone who is on the internet; with or without a Google account.
   - ` + "`allAuthenticatedUsers`" + `: A special identifier that represents anyone who is authenticated with a Google account or a service account.
   - ` + "`user:{emailid}`" + `: An email address that represents a specific Google account. For example, alice@gmail.com or joe@example.com.
@@ -150,54 +166,92 @@ module "terraform-google-secret-manager-iam" {
   - ` + "`projectOwner:projectid`" + `: Owners of the given project. For example, ` + "`projectOwner:my-example-project`" + `
   - ` + "`projectEditor:projectid`" + `: Editors of the given project. For example, ` + "`projectEditor:my-example-project`" + `
   - ` + "`projectViewer:projectid`" + `: Viewers of the given project. For example, ` + "`projectViewer:my-example-project`",
+											},
+											{
+												Name: "role",
+												Type: entities.Type{
+													TerraformType: entities.TerraformType{
+														Type: types.TerraformString,
 													},
-													{
-														Name: "role",
-														Type: entities.Type{
-															TerraformType: entities.TerraformType{
-																Type: types.TerraformString,
-															},
-														},
-														Description: "The role that should be applied. Note that custom roles must be of the format `[projects|organizations]/{parent-name}/roles/{role-name}`.",
+												},
+												Description: "The role that should be applied. Note that custom roles must be of the format `[projects|organizations]/{parent-name}/roles/{role-name}`.",
+											},
+											{
+												Name: "project",
+												Type: entities.Type{
+													TerraformType: entities.TerraformType{
+														Type: types.TerraformString,
 													},
-													{
-														Name: "project",
-														Type: entities.Type{
-															TerraformType: entities.TerraformType{
-																Type: types.TerraformString,
-															},
-														},
-														Description: "The ID of the project in which the resource belongs. If it is not provided, the project will be parsed from the identifier of the parent resource. If no project is provided in the parent identifier and no project is specified, the provider project is used.",
+												},
+												Description: "The ID of the project in which the resource belongs. If it is not provided, the project will be parsed from the identifier of the parent resource. If no project is provided in the parent identifier and no project is specified, the provider project is used.",
+											},
+											{
+												Name: "authoritative",
+												Type: entities.Type{
+													TerraformType: entities.TerraformType{
+														Type: types.TerraformBool,
 													},
-													{
-														Name: "authoritative",
-														Type: entities.Type{
-															TerraformType: entities.TerraformType{
-																Type: types.TerraformBool,
-															},
-														},
-														Default:     []byte("true"),
-														Description: "Whether to exclusively set (authoritative mode) or add (non-authoritative/additive mode) members to the role.",
+												},
+												Default:     []byte("true"),
+												Description: "Whether to exclusively set (authoritative mode) or add (non-authoritative/additive mode) members to the role.",
+											},
+											{
+												Name: "policy_bindings",
+												Type: entities.Type{
+													ReadmeType: "list(policy_bindings)",
+													TerraformType: entities.TerraformType{
+														Type:       types.TerraformList,
+														NestedType: types.TerraformAny,
 													},
-													{
-														Name: "policy_bindings",
-														Type: entities.Type{
-															ReadmeType: "list(policy_bindings)",
-															TerraformType: entities.TerraformType{
-																Type:       types.TerraformList,
-																NestedType: types.TerraformAny,
-															},
-														},
-														Description: "A list of IAM policy bindings.",
-														ReadmeExample: `policy_bindings = [{
+												},
+												Description: "A list of IAM policy bindings.",
+												ReadmeExample: `policy_bindings = [{
   role    = "roles/secretmanager.secretAccessor"
   members = ["user:member@example.com"]
 }]`,
+												Attributes: []entities.Attribute{
+													{
+														Level:       1,
+														Name:        "role",
+														Description: "The role that should be applied.",
+														Required:    true,
+														Type: entities.Type{
+															TerraformType: entities.TerraformType{
+																Type: types.TerraformString,
+															},
+														},
+													},
+													{
+														Level:       1,
+														Name:        "members",
+														Description: "Identities that will be granted the privilege in `role`.",
+														Type: entities.Type{
+															TerraformType: entities.TerraformType{
+																Type:       types.TerraformSet,
+																NestedType: types.TerraformString,
+															},
+														},
+														Default: []byte("var.members"),
+													},
+													{
+														Level:       1,
+														Name:        "condition",
+														Description: "An IAM Condition for a given binding.",
+														Type: entities.Type{
+															ReadmeType: "object(condition)",
+															TerraformType: entities.TerraformType{
+																Type: types.TerraformAny,
+															},
+														},
+														ReadmeExample: `condition = {
+  expression = "request.time < timestamp(\"2022-01-01T00:00:00Z\")"
+  title      = "expires_after_2021_12_31"
+}`,
 														Attributes: []entities.Attribute{
 															{
-																Level:       1,
-																Name:        "role",
-																Description: "The role that should be applied.",
+																Level:       2,
+																Name:        "expression",
+																Description: "Textual representation of an expression in Common Expression Language syntax.",
 																Required:    true,
 																Type: entities.Type{
 																	TerraformType: entities.TerraformType{
@@ -206,63 +260,23 @@ module "terraform-google-secret-manager-iam" {
 																},
 															},
 															{
-																Level:       1,
-																Name:        "members",
-																Description: "Identities that will be granted the privilege in `role`.",
+																Level:       2,
+																Name:        "title",
+																Description: "A title for the expression, i.e. a short string describing its purpose.",
+																Required:    true,
 																Type: entities.Type{
 																	TerraformType: entities.TerraformType{
-																		Type:       types.TerraformSet,
-																		NestedType: types.TerraformString,
+																		Type: types.TerraformString,
 																	},
 																},
-																Default: []byte("var.members"),
 															},
 															{
-																Level:       1,
-																Name:        "condition",
-																Description: "An IAM Condition for a given binding.",
+																Level:       2,
+																Name:        "description",
+																Description: "An optional description of the expression. This is a longer text which describes the expression, e.g. when hovered over it in a UI.",
 																Type: entities.Type{
-																	ReadmeType: "object(condition)",
 																	TerraformType: entities.TerraformType{
-																		Type: types.TerraformAny,
-																	},
-																},
-																ReadmeExample: `condition = {
-  expression = "request.time < timestamp(\"2022-01-01T00:00:00Z\")"
-  title      = "expires_after_2021_12_31"
-}`,
-																Attributes: []entities.Attribute{
-																	{
-																		Level:       2,
-																		Name:        "expression",
-																		Description: "Textual representation of an expression in Common Expression Language syntax.",
-																		Required:    true,
-																		Type: entities.Type{
-																			TerraformType: entities.TerraformType{
-																				Type: types.TerraformString,
-																			},
-																		},
-																	},
-																	{
-																		Level:       2,
-																		Name:        "title",
-																		Description: "A title for the expression, i.e. a short string describing its purpose.",
-																		Required:    true,
-																		Type: entities.Type{
-																			TerraformType: entities.TerraformType{
-																				Type: types.TerraformString,
-																			},
-																		},
-																	},
-																	{
-																		Level:       2,
-																		Name:        "description",
-																		Description: "An optional description of the expression. This is a longer text which describes the expression, e.g. when hovered over it in a UI.",
-																		Type: entities.Type{
-																			TerraformType: entities.TerraformType{
-																				Type: types.TerraformString,
-																			},
-																		},
+																		Type: types.TerraformString,
 																	},
 																},
 															},
@@ -270,11 +284,11 @@ module "terraform-google-secret-manager-iam" {
 													},
 												},
 											},
-											{
-												Level: 4,
-												Title: "Extended Resource Configuration",
-											},
 										},
+									},
+									{
+										Level: 4,
+										Title: "Extended Resource Configuration",
 									},
 								},
 							},
@@ -485,6 +499,7 @@ Copyright &copy; 2020-2021 [Mineiros GmbH][homepage]`,
 	want := string(bytes.TrimSpace(wantContent))
 
 	if diff := cmp.Diff(got, want); diff != "" {
+		t.Logf("\n\nWANT:\n%q\n\nGOT:\n%q\n", want, got)
 		t.Errorf("Expected golden file to match result (-want +got):\n%s", diff)
 	}
 }
