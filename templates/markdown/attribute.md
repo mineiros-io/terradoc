@@ -1,4 +1,4 @@
-{{define "attribute"}}{{indent (multiply .Level 2) "-"}} **`{{.Name}}`**: *({{if .Required}}**Required**{{else}}Optional{{end}} `{{template "variableType" .Type}}`{{if .ForcesRecreation}}, Forces new resource{{end}})*
+{{define "attribute"}}{{indent (multiply .Level 2) "-"}} [**`{{.Name}}`**](#attr-{{.Name}}-{{.Level}}): *({{if .Required}}**Required**{{else}}Optional{{end}} `{{template "variableType" .Type}}`{{if .ForcesRecreation}}, Forces new resource{{end}})*<a name="attr-{{.Name}}-{{.Level}}"></a>
 
 {{- if .Description}}{{- newline}}{{indent (getIndent .Level) .Description}}{{end}}
 

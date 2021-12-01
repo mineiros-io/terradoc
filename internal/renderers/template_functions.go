@@ -1,16 +1,26 @@
 package renderers
 
 import (
+	"regexp"
 	"strings"
 	"text/template"
 )
 
 var TemplatesFuncMap = template.FuncMap{
-	"indent":    indent,
-	"repeat":    repeat,
-	"multiply":  func(x, y int) int { return x * y },
-	"getIndent": GetIndent,
-	"newline":   newLine,
+	"urlfragment": urlfragment,
+	"indent":      indent,
+	"repeat":      repeat,
+	"multiply":    func(x, y int) int { return x * y },
+	"getIndent":   GetIndent,
+	"newline":     newLine,
+}
+
+var urlfragmentRegex *regexp.Regexp
+
+func urlfragment(str string) string {
+	val := urlfragmentRegex.ReplaceAllString(str, "")
+
+	return strings.ReplaceAll(strings.ToLower(val), " ", "-")
 }
 
 func newLine() string {
@@ -37,4 +47,8 @@ func indent(level int, v string) string {
 
 func repeat(str string, n int) string {
 	return strings.Repeat(str, n)
+}
+
+func init() {
+	urlfragmentRegex = regexp.MustCompile("[^a-zA-Z0-9 -]+")
 }

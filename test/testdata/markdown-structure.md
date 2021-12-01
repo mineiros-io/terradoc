@@ -9,7 +9,7 @@ Section Content
 
 ## SubSection 1
 
-- **`simple_string`**: *(Optional `string`)*
+- [**`simple_string`**](#var-simple_string): *(Optional `string`)*<a name="var-simple_string"></a>
 
   A simple string
 
@@ -19,22 +19,22 @@ We can add infinite subsections!
 
 ## SubSection 2
 
-- **`test_objects`**: *(Optional `list(test_object)`)*
+- [**`test_objects`**](#var-test_objects): *(Optional `list(test_object)`)*<a name="var-test_objects"></a>
 
   Default is `[]`.
 
   Each object in the list accepts the following attributes:
 
-  - **`name`**: *(Optional `string`)*
+  - [**`name`**](#attr-name-1): *(Optional `string`)*<a name="attr-name-1"></a>
 
     A string
 
-  - **`something_complex`**: *(Optional `any`)*
+  - [**`something_complex`**](#attr-something_complex-1): *(Optional `any`)*<a name="attr-something_complex-1"></a>
 
     Some other object
 
     The object accepts the following attributes:
 
-    - **`nested_string`**: *(Optional `string`)*
+    - [**`nested_string`**](#attr-nested_string-2): *(Optional `string`)*<a name="attr-nested_string-2"></a>
 
       a nested string

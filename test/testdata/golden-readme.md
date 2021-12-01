@@ -63,13 +63,13 @@ See [variables.tf] and [examples/] for details and use-cases.
 
 #### Module Configuration
 
-- **`module_enabled`**: *(Optional `bool`)*
+- [**`module_enabled`**](#var-module_enabled): *(Optional `bool`)*<a name="var-module_enabled"></a>
 
   Specifies whether resources in the module will be created.
 
   Default is `true`.
 
-- **`module_depends_on`**: *(Optional `list(dependencies)`)*
+- [**`module_depends_on`**](#var-module_depends_on): *(Optional `list(dependencies)`)*<a name="var-module_depends_on"></a>
 
   A list of dependencies. Any object can be _assigned_ to this list to define a hidden external dependency.
 
@@ -83,11 +83,11 @@ See [variables.tf] and [examples/] for details and use-cases.
 
 #### Main Resource Configuration
 
-- **`secret_id`**: *(**Required** `string`)*
+- [**`secret_id`**](#var-secret_id): *(**Required** `string`)*<a name="var-secret_id"></a>
 
   The id of the secret.
 
-- **`members`**: *(Optional `set(string)`)*
+- [**`members`**](#var-members): *(Optional `set(string)`)*<a name="var-members"></a>
 
   Identities that will be granted the privilege in role. Each entry can have one of the following values:
   - `allUsers`: A special identifier that represents anyone who is on the internet; with or without a Google account.
@@ -102,21 +102,21 @@ See [variables.tf] and [examples/] for details and use-cases.
 
   Default is `[]`.
 
-- **`role`**: *(Optional `string`)*
+- [**`role`**](#var-role): *(Optional `string`)*<a name="var-role"></a>
 
   The role that should be applied. Note that custom roles must be of the format `[projects|organizations]/{parent-name}/roles/{role-name}`.
 
-- **`project`**: *(Optional `string`)*
+- [**`project`**](#var-project): *(Optional `string`)*<a name="var-project"></a>
 
   The ID of the project in which the resource belongs. If it is not provided, the project will be parsed from the identifier of the parent resource. If no project is provided in the parent identifier and no project is specified, the provider project is used.
 
-- **`authoritative`**: *(Optional `bool`)*
+- [**`authoritative`**](#var-authoritative): *(Optional `bool`)*<a name="var-authoritative"></a>
 
   Whether to exclusively set (authoritative mode) or add (non-authoritative/additive mode) members to the role.
 
   Default is `true`.
 
-- **`policy_bindings`**: *(Optional `list(policy_bindings)`)*
+- [**`policy_bindings`**](#var-policy_bindings): *(Optional `list(policy_bindings)`)*<a name="var-policy_bindings"></a>
 
   A list of IAM policy bindings.
 
@@ -131,17 +131,17 @@ See [variables.tf] and [examples/] for details and use-cases.
 
   Each object in the list accepts the following attributes:
 
-  - **`role`**: *(**Required** `string`)*
+  - [**`role`**](#attr-role-1): *(**Required** `string`)*<a name="attr-role-1"></a>
 
     The role that should be applied.
 
-  - **`members`**: *(Optional `set(string)`)*
+  - [**`members`**](#attr-members-1): *(Optional `set(string)`)*<a name="attr-members-1"></a>
 
     Identities that will be granted the privilege in `role`.
 
     Default is `"var.members"`.
 
-  - **`condition`**: *(Optional `object(condition)`)*
+  - [**`condition`**](#attr-condition-1): *(Optional `object(condition)`)*<a name="attr-condition-1"></a>
 
     An IAM Condition for a given binding.
 
@@ -156,15 +156,15 @@ See [variables.tf] and [examples/] for details and use-cases.
 
     The object accepts the following attributes:
 
-    - **`expression`**: *(**Required** `string`)*
+    - [**`expression`**](#attr-expression-2): *(**Required** `string`)*<a name="attr-expression-2"></a>
 
       Textual representation of an expression in Common Expression Language syntax.
 
-    - **`title`**: *(**Required** `string`)*
+    - [**`title`**](#attr-title-2): *(**Required** `string`)*<a name="attr-title-2"></a>
 
       A title for the expression, i.e. a short string describing its purpose.
 
-    - **`description`**: *(Optional `string`)*
+    - [**`description`**](#attr-description-2): *(Optional `string`)*<a name="attr-description-2"></a>
 
       An optional description of the expression. This is a longer text which describes the expression, e.g. when hovered over it in a UI.
 

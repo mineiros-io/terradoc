@@ -79,7 +79,7 @@ func TestWriteVariable(t *testing.T) {
 				Default:          []byte(`"default value"`),
 			},
 			want: mdVariable{
-				item:        "- **`string_variable`**: *(**Required** `string`, Forces new resource)*",
+				item:        "- [**`string_variable`**](#var-string_variable): *(**Required** `string`, Forces new resource)*<a name=\"var-string_variable\"></a>",
 				description: "i am a variable",
 				defaults:    "Default is `\"default value\"`.",
 			},
@@ -96,7 +96,7 @@ func TestWriteVariable(t *testing.T) {
 				Default:          []byte("123"),
 			},
 			want: mdVariable{
-				item:     "- **`number_variable`**: *(Optional `number`, Forces new resource)*",
+				item:     "- [**`number_variable`**](#var-number_variable): *(Optional `number`, Forces new resource)*<a name=\"var-number_variable\"></a>",
 				defaults: "Default is `123`.",
 			},
 		},
@@ -111,7 +111,7 @@ func TestWriteVariable(t *testing.T) {
 				Required:         false,
 			},
 			want: mdVariable{
-				item: "- **`bool_variable`**: *(Optional `bool`)*",
+				item: "- [**`bool_variable`**](#var-bool_variable): *(Optional `bool`)*<a name=\"var-bool_variable\"></a>",
 			},
 		},
 		{
@@ -129,7 +129,7 @@ func TestWriteVariable(t *testing.T) {
 `,
 			},
 			want: mdVariable{
-				item: "- **`obj_variable`**: *(**Required** `object`, Forces new resource)*",
+				item: "- [**`obj_variable`**](#var-obj_variable): *(**Required** `object`, Forces new resource)*<a name=\"var-obj_variable\"></a>",
 				readmeExample: `obj_variable = {
     a = "foo"
   }
@@ -161,6 +161,7 @@ func TestWriteAttribute(t *testing.T) {
 		{
 			desc: "a required string attribute with description that forces recreation",
 			attr: entities.Attribute{
+				Level:       1,
 				Name:        "string_attribute",
 				Description: "i am this attribute's description",
 				Type: entities.Type{
@@ -170,14 +171,15 @@ func TestWriteAttribute(t *testing.T) {
 				Required:         true,
 			},
 			want: mdAttribute{
-				item:        "- **`string_attribute`**: *(**Required** `string`, Forces new resource)*",
-				description: "i am this attribute's description",
+				item:        "  - [**`string_attribute`**](#attr-string_attribute-1): *(**Required** `string`, Forces new resource)*<a name=\"attr-string_attribute-1\"></a>",
+				description: "  i am this attribute's description",
 			},
 		},
 		{
 			desc: "an optional number attribute that forces recreations",
 			attr: entities.Attribute{
-				Name: "number_attribute",
+				Level: 2,
+				Name:  "number_attribute",
 				Type: entities.Type{
 					TerraformType: entities.TerraformType{Type: types.TerraformNumber},
 				},
@@ -185,13 +187,14 @@ func TestWriteAttribute(t *testing.T) {
 				Required:         false,
 			},
 			want: mdAttribute{
-				item: "- **`number_attribute`**: *(Optional `number`, Forces new resource)*",
+				item: "    - [**`number_attribute`**](#attr-number_attribute-2): *(Optional `number`, Forces new resource)*<a name=\"attr-number_attribute-2\"></a>",
 			},
 		},
 		{
 			desc: "a bool attribute",
 			attr: entities.Attribute{
-				Name: "bool_attribute",
+				Level: 0,
+				Name:  "bool_attribute",
 				Type: entities.Type{
 					TerraformType: entities.TerraformType{Type: types.TerraformBool},
 				},
@@ -199,21 +202,22 @@ func TestWriteAttribute(t *testing.T) {
 				Required:         false,
 			},
 			want: mdAttribute{
-				item: "- **`bool_attribute`**: *(Optional `bool`)*",
+				item: "- [**`bool_attribute`**](#attr-bool_attribute-0): *(Optional `bool`)*<a name=\"attr-bool_attribute-0\"></a>",
 			},
 		},
 		{
 			desc: "an attribute with defautlts",
 			attr: entities.Attribute{
-				Name: "i_have_a_default",
+				Level: 1,
+				Name:  "i_have_a_default",
 				Type: entities.Type{
 					TerraformType: entities.TerraformType{Type: types.TerraformNumber},
 				},
 				Default: []byte("123"),
 			},
 			want: mdAttribute{
-				item:        "- **`i_have_a_default`**: *(Optional `number`)*",
-				description: "Default is `123`.",
+				item:        "  - [**`i_have_a_default`**](#attr-i_have_a_default-1): *(Optional `number`)*<a name=\"attr-i_have_a_default-1\"></a>",
+				description: "  Default is `123`.",
 			},
 		},
 	} {
