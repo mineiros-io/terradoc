@@ -16,8 +16,8 @@ import (
 
 var (
 	binName                   = "terradoc"
-	inputFixtureName          = "input.tfdoc.hcl"
-	expectedOutputFixtureName = "output.md"
+	inputFixtureName          = "golden-input.tfdoc.hcl"
+	expectedOutputFixtureName = "golden-readme.md"
 )
 
 func TestMain(m *testing.M) {

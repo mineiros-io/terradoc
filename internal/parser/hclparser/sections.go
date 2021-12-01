@@ -58,21 +58,24 @@ func parseSection(sectionBlock *hcl.Block, level int) (entities.Section, error) 
 }
 
 func createSectionFromHCLAttributes(attrs hcl.Attributes, level int) (entities.Section, error) {
+	var err error
+
 	section := entities.Section{Level: level}
 
-	// title
-	title, err := getAttribute(attrs, titleAttributeName).String()
+	section.Title, err = getAttribute(attrs, titleAttributeName).String()
 	if err != nil {
 		return entities.Section{}, err
 	}
-	section.Title = title
 
-	// fetch section content
-	content, err := getAttribute(attrs, contentAttributeName).String()
+	section.Content, err = getAttribute(attrs, contentAttributeName).String()
 	if err != nil {
 		return entities.Section{}, err
 	}
-	section.Content = content
+
+	section.TOC, err = getAttribute(attrs, tocAttributeName).Bool()
+	if err != nil {
+		return entities.Section{}, err
+	}
 
 	return section, nil
 }
