@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/ext/customdecode"
 	"github.com/hashicorp/hcl/v2/hcltest"
+	"github.com/madlambda/spells/assert"
 	"github.com/mineiros-io/terradoc/internal/types"
 	"github.com/zclconf/go-cty/cty"
 )
@@ -24,13 +25,8 @@ func TestAttributeToString(t *testing.T) {
 		attr := newMockAttribute(attrName, exprValue)
 
 		res, err := attr.String()
-		if err != nil {
-			t.Fatalf("Expected no error but got %q instead", err.Error())
-		}
-
-		if res != wantString {
-			t.Errorf("Expected returned value to be %q but got %q instead", wantString, res)
-		}
+		assert.NoError(t, err)
+		assert.EqualStrings(t, wantString, res)
 	})
 
 	t.Run("when value is not convertable to string", func(t *testing.T) {
@@ -41,9 +37,7 @@ func TestAttributeToString(t *testing.T) {
 		attr := newMockAttribute(attrName, exprValue)
 
 		res, err := attr.String()
-		if err == nil {
-			t.Fatalf("Expected no error but got none")
-		}
+		assert.Error(t, err)
 
 		if !strings.Contains(err.Error(), wantErrorMSGContains) {
 			t.Errorf("Expected error to contain %q but got %q instead", wantErrorMSGContains, err.Error())
@@ -65,9 +59,7 @@ func TestAttributeToBool(t *testing.T) {
 		attr := newMockAttribute(attrName, exprValue)
 
 		res, err := attr.Bool()
-		if err != nil {
-			t.Fatalf("Expected no error but got %q instead", err.Error())
-		}
+		assert.NoError(t, err)
 
 		if res != wantBool {
 			t.Errorf("Expected returned value to be %t but got %t instead", wantBool, res)
@@ -82,9 +74,7 @@ func TestAttributeToBool(t *testing.T) {
 		attr := newMockAttribute(attrName, exprValue)
 
 		res, err := attr.Bool()
-		if err == nil {
-			t.Fatalf("Expected no error but got none")
-		}
+		assert.Error(t, err)
 
 		if !strings.Contains(err.Error(), wantErrorMSGContains) {
 			t.Errorf("Expected error to contain %q but got %q instead", wantErrorMSGContains, err.Error())
@@ -124,20 +114,13 @@ func TestAttributeToJSONValue(t *testing.T) {
 			attr := &hclAttribute{&hcl.Attribute{Expr: expr}}
 
 			res, err := attr.RawJSON()
-			if err != nil {
-				t.Fatalf("Expected no error. Got %q instead", err)
-			}
+			assert.NoError(t, err)
 
 			var strRes string
 			err = json.Unmarshal(res, &strRes)
 
-			if err != nil {
-				t.Fatalf("Expected no error. Got %q instead", err)
-			}
-
-			if strRes != tt.value {
-				t.Errorf("Expected result to be %q. Got %q instead", tt.value, strRes)
-			}
+			assert.NoError(t, err)
+			assert.EqualStrings(t, tt.value, strRes)
 		})
 	}
 }
@@ -168,13 +151,9 @@ func TestAttributeToTerraformTypeValidPrimaryType(t *testing.T) {
 			attr := newTypeAttribute(tt.exprValue, tt.exprValue)
 
 			res, err := attr.TerraformType()
-			if err != nil {
-				t.Fatalf("Expected no error. Got %q instead", err)
-			}
+			assert.NoError(t, err)
 
-			if res.Type != tt.expectedTerraformType {
-				t.Errorf("Expected type to be %q. Got %q instead", tt.expectedTerraformType.String(), res)
-			}
+			assert.EqualInts(t, int(tt.expectedTerraformType), int(res.Type))
 		})
 	}
 }
@@ -215,17 +194,13 @@ func TestAttributeToTerraformTypeInvalidTypes(t *testing.T) {
 			attr := newTypeAttribute(tt.exprValue, tt.exprValue)
 
 			res, err := attr.TerraformType()
-			if err == nil {
-				t.Fatal("Expected  but got none")
-			}
+			assert.Error(t, err)
 
 			if !strings.Contains(err.Error(), tt.expectedErrorMSG) {
 				t.Errorf("Expected error to contain %q. Got %q instead", tt.expectedErrorMSG, err.Error())
 			}
 
-			if res.Type != types.TerraformEmptyType {
-				t.Errorf("Expected returned type to be %q. Got %q instead", types.TerraformEmptyType, res)
-			}
+			assert.EqualInts(t, int(types.TerraformEmptyType), int(res.Type))
 		})
 	}
 }
