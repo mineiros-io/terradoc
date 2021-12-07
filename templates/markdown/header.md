@@ -1,7 +1,9 @@
-{{- define "header"}}[<img src="{{.Image}}" width="400"/>]({{.URL}})
+{{define "header" -}}
+  [<img src="{{.Image}}" width="400"/>]({{.URL}})
 
-{{range .Badges}} {{template "badge" .}}{{end}}
-{{- newline -}}{{- end -}}
+{{range .Badges -}}
+  {{template "badge" .}}
+{{end}}
+{{end -}}
 
-
-{{define "badge"}}[![{{.Text}}]({{.Image}})]({{.URL}}){{end}}
+{{define "badge" -}} [![{{.Text}}]({{.Image}})]({{.URL}}) {{- end}}

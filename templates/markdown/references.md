@@ -2,5 +2,4 @@
 <!-- References -->
 {{range . }}
 [{{.Name}}]: {{.Value}}{{end}}
-
 {{end}}
