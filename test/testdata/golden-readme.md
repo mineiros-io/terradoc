@@ -1,6 +1,8 @@
 [<img src="https://raw.githubusercontent.com/mineiros-io/brand/3bffd30e8bdbbde32c143e2650b2faa55f1df3ea/mineiros-primary-logo.svg" width="400"/>](https://mineiros.io/?ref=terraform-google-secret-manager-iam)
 
- [![Terraform Version](https://img.shields.io/badge/Terraform-1.x-623CE4.svg?logo=terraform)](https://github.com/hashicorp/terraform/releases) [![Google Provider Version](https://img.shields.io/badge/google-3.x-1A73E8.svg?logo=terraform)](https://github.com/terraform-providers/terraform-provider-google/releases) [![Join Slack](https://img.shields.io/badge/slack-@mineiros--community-f32752.svg?logo=slack)](https://mineiros.io/slack)
+[![Terraform Version](https://img.shields.io/badge/Terraform-1.x-623CE4.svg?logo=terraform)](https://github.com/hashicorp/terraform/releases)
+[![Google Provider Version](https://img.shields.io/badge/google-3.x-1A73E8.svg?logo=terraform)](https://github.com/terraform-providers/terraform-provider-google/releases)
+[![Join Slack](https://img.shields.io/badge/slack-@mineiros--community-f32752.svg?logo=slack)](https://mineiros.io/slack)
 
 # terraform-google-secret-manager-iam
 
@@ -271,4 +273,3 @@ Copyright &copy; 2020-2021 [Mineiros GmbH][homepage]
 [makefile]: https://github.com/mineiros-io/terraform-google-secret-manager-iam/blob/main/Makefile
 [pull requests]: https://github.com/mineiros-io/terraform-google-secret-manager-iam/pulls
 [contribution guidelines]: https://github.com/mineiros-io/terraform-google-secret-manager-iam/blob/main/CONTRIBUTING.md
-
