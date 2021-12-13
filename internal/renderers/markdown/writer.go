@@ -1,6 +1,7 @@
 package markdown
 
 import (
+	"fmt"
 	"io"
 	"text/template"
 
@@ -120,7 +121,7 @@ func (mw *markdownWriter) writeVariable(variable entities.Variable) error {
 			return err
 		}
 
-		return mw.writeAttributes(variable.Attributes)
+		return mw.writeAttributes(variable.Attributes, variable.Name)
 	}
 
 	return nil
@@ -143,9 +144,9 @@ func (mw *markdownWriter) writeType(typeDefinition entities.Type, nestingLevel i
 	)
 }
 
-func (mw *markdownWriter) writeAttributes(attributes []entities.Attribute) error {
+func (mw *markdownWriter) writeAttributes(attributes []entities.Attribute, parentName string) error {
 	for _, attribute := range attributes {
-		if err := mw.writeAttribute(attribute); err != nil {
+		if err := mw.writeAttribute(attribute, parentName); err != nil {
 			return err
 		}
 	}
@@ -153,8 +154,15 @@ func (mw *markdownWriter) writeAttributes(attributes []entities.Attribute) error
 	return nil
 }
 
-func (mw *markdownWriter) writeAttribute(attribute entities.Attribute) error {
-	if err := mw.writeTemplate(attributeTemplateName, attribute); err != nil {
+func (mw *markdownWriter) writeAttribute(attribute entities.Attribute, parentName string) error {
+	type attributeRenderer struct {
+		entities.Attribute
+		ParentName string
+	}
+
+	attrRenderer := attributeRenderer{Attribute: attribute, ParentName: parentName}
+
+	if err := mw.writeTemplate(attributeTemplateName, attrRenderer); err != nil {
 		return err
 	}
 
@@ -163,7 +171,9 @@ func (mw *markdownWriter) writeAttribute(attribute entities.Attribute) error {
 			return err
 		}
 
-		return mw.writeAttributes(attribute.Attributes)
+		nestedParentName := fmt.Sprintf("%s-%s", attribute.Name, parentName)
+
+		return mw.writeAttributes(attribute.Attributes, nestedParentName)
 	}
 
 	return nil

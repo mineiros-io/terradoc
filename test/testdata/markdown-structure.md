@@ -25,16 +25,16 @@ We can add infinite subsections!
 
   Each object in the list accepts the following attributes:
 
-  - [**`name`**](#attr-name-1): *(Optional `string`)*<a name="attr-name-1"></a>
+  - [**`name`**](#attr-name-test_objects): *(Optional `string`)*<a name="attr-name-test_objects"></a>
 
     A string
 
-  - [**`something_complex`**](#attr-something_complex-1): *(Optional `any`)*<a name="attr-something_complex-1"></a>
+  - [**`something_complex`**](#attr-something_complex-test_objects): *(Optional `any`)*<a name="attr-something_complex-test_objects"></a>
 
     Some other object
 
     The object accepts the following attributes:
 
-    - [**`nested_string`**](#attr-nested_string-2): *(Optional `string`)*<a name="attr-nested_string-2"></a>
+    - [**`nested_string`**](#attr-nested_string-something_complex-test_objects): *(Optional `string`)*<a name="attr-nested_string-something_complex-test_objects"></a>
 
       a nested string
