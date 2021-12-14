@@ -168,7 +168,7 @@ func TestWriteAttribute(t *testing.T) {
 				Required:         true,
 			},
 			want: mdAttribute{
-				item:        "  - [**`string_attribute`**](#attr-string_attribute-1): *(**Required** `string`, Forces new resource)*<a name=\"attr-string_attribute-1\"></a>",
+				item:        "  - [**`string_attribute`**](#attr-string_attribute-parent_var_name): *(**Required** `string`, Forces new resource)*<a name=\"attr-string_attribute-parent_var_name\"></a>",
 				description: "  i am this attribute's description",
 			},
 		},
@@ -184,7 +184,7 @@ func TestWriteAttribute(t *testing.T) {
 				Required:         false,
 			},
 			want: mdAttribute{
-				item: "    - [**`number_attribute`**](#attr-number_attribute-2): *(Optional `number`, Forces new resource)*<a name=\"attr-number_attribute-2\"></a>",
+				item: "    - [**`number_attribute`**](#attr-number_attribute-parent_var_name): *(Optional `number`, Forces new resource)*<a name=\"attr-number_attribute-parent_var_name\"></a>",
 			},
 		},
 		{
@@ -199,7 +199,7 @@ func TestWriteAttribute(t *testing.T) {
 				Required:         false,
 			},
 			want: mdAttribute{
-				item: "- [**`bool_attribute`**](#attr-bool_attribute-0): *(Optional `bool`)*<a name=\"attr-bool_attribute-0\"></a>",
+				item: "- [**`bool_attribute`**](#attr-bool_attribute-parent_var_name): *(Optional `bool`)*<a name=\"attr-bool_attribute-parent_var_name\"></a>",
 			},
 		},
 		{
@@ -213,7 +213,7 @@ func TestWriteAttribute(t *testing.T) {
 				Default: []byte("123"),
 			},
 			want: mdAttribute{
-				item:        "  - [**`i_have_a_default`**](#attr-i_have_a_default-1): *(Optional `number`)*<a name=\"attr-i_have_a_default-1\"></a>",
+				item:        "  - [**`i_have_a_default`**](#attr-i_have_a_default-parent_var_name): *(Optional `number`)*<a name=\"attr-i_have_a_default-parent_var_name\"></a>",
 				description: "  Default is `123`.",
 			},
 		},
@@ -222,7 +222,7 @@ func TestWriteAttribute(t *testing.T) {
 			buf := &bytes.Buffer{}
 
 			writer := newTestWriter(t, buf)
-			err := writer.writeAttribute(tt.attr)
+			err := writer.writeAttribute(tt.attr, "parent_var_name")
 			assert.NoError(t, err)
 
 			assertMarkdownHasAttribute(t, buf, tt.want)

@@ -133,17 +133,17 @@ See [variables.tf] and [examples/] for details and use-cases.
 
   Each object in the list accepts the following attributes:
 
-  - [**`role`**](#attr-role-1): *(**Required** `string`)*<a name="attr-role-1"></a>
+  - [**`role`**](#attr-role-policy_bindings): *(**Required** `string`)*<a name="attr-role-policy_bindings"></a>
 
     The role that should be applied.
 
-  - [**`members`**](#attr-members-1): *(Optional `set(string)`)*<a name="attr-members-1"></a>
+  - [**`members`**](#attr-members-policy_bindings): *(Optional `set(string)`)*<a name="attr-members-policy_bindings"></a>
 
     Identities that will be granted the privilege in `role`.
 
     Default is `"var.members"`.
 
-  - [**`condition`**](#attr-condition-1): *(Optional `object(condition)`)*<a name="attr-condition-1"></a>
+  - [**`condition`**](#attr-condition-policy_bindings): *(Optional `object(condition)`)*<a name="attr-condition-policy_bindings"></a>
 
     An IAM Condition for a given binding.
 
@@ -158,15 +158,15 @@ See [variables.tf] and [examples/] for details and use-cases.
 
     The object accepts the following attributes:
 
-    - [**`expression`**](#attr-expression-2): *(**Required** `string`)*<a name="attr-expression-2"></a>
+    - [**`expression`**](#attr-expression-condition-policy_bindings): *(**Required** `string`)*<a name="attr-expression-condition-policy_bindings"></a>
 
       Textual representation of an expression in Common Expression Language syntax.
 
-    - [**`title`**](#attr-title-2): *(**Required** `string`)*<a name="attr-title-2"></a>
+    - [**`title`**](#attr-title-condition-policy_bindings): *(**Required** `string`)*<a name="attr-title-condition-policy_bindings"></a>
 
       A title for the expression, i.e. a short string describing its purpose.
 
-    - [**`description`**](#attr-description-2): *(Optional `string`)*<a name="attr-description-2"></a>
+    - [**`description`**](#attr-description-condition-policy_bindings): *(Optional `string`)*<a name="attr-description-condition-policy_bindings"></a>
 
       An optional description of the expression. This is a longer text which describes the expression, e.g. when hovered over it in a UI.
 
