@@ -153,8 +153,7 @@ END
 
           attribute "members" {
             type = set(string)
-            # BUG: `var.members` should not be a string - currently it fails as HCL tries to evaluate the expression
-            default = "var.members"
+            default = var.members
             description = "Identities that will be granted the privilege in `role`."
           }
 
