@@ -141,7 +141,7 @@ See [variables.tf] and [examples/] for details and use-cases.
 
     Identities that will be granted the privilege in `role`.
 
-    Default is `"var.members"`.
+    Default is `var.members`.
 
   - [**`condition`**](#attr-condition-policy_bindings): *(Optional `object(condition)`)*<a name="attr-condition-policy_bindings"></a>
 

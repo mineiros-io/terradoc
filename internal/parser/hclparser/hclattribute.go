@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/ext/typeexpr"
+	"github.com/hashicorp/hcl/v2/hclwrite"
 	"github.com/mineiros-io/terradoc/internal/entities"
 	"github.com/mineiros-io/terradoc/internal/types"
 	"github.com/zclconf/go-cty/cty"
@@ -63,6 +64,10 @@ func (a *hclAttribute) Bool() (bool, error) {
 func (a *hclAttribute) RawJSON() (json.RawMessage, error) {
 	if a.isNil() {
 		return nil, nil
+	}
+
+	if len(a.Expr.Variables()) > 0 {
+		return getRawVariables(a.Expr), nil
 	}
 
 	val, diags := a.Expr.Value(nil)
@@ -148,4 +153,16 @@ func getTerraformCollectionType(ctyType cty.Type) (entities.TerraformType, error
 
 	return entities.TerraformType{},
 		fmt.Errorf("could not get type information for %q", typeexpr.TypeString(ctyType))
+}
+
+func getRawVariables(expr hcl.Expression) json.RawMessage {
+	var varValue []byte
+
+	for _, exprVar := range expr.Variables() {
+		tk := hclwrite.TokensForTraversal(exprVar)
+
+		varValue = append(varValue, tk.Bytes()...)
+	}
+
+	return varValue
 }
