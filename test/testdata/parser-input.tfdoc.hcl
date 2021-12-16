@@ -19,10 +19,15 @@ END
     section {
       title = "example"
 
-      variable "name" {
-        type        = string
-        description = "describes the name of the last person who bothered to change this file"
-        default     = "nathan"
+      variable "person" {
+        type = object(person)
+        description = "describes the last person who bothered to change this file"
+
+        attribute "name" {
+          type        = string
+          description = "the person's name"
+          default     = "nathan"
+        }
       }
     }
 
@@ -31,8 +36,7 @@ END
       content = "an excuse to mention alcohol"
 
       variable "beers" {
-        type        = list(any)
-        readme_type = "list(beer)"
+        type        = list(beer)
 
         description = "a list of beers"
         default     = []
@@ -47,6 +51,10 @@ beers = [
     name = "guinness"
     type = "stout"
     abv  = 4.2
+    tags = [
+      "dark",
+      "irish",
+    ]
   }
 ]
 END
@@ -71,6 +79,14 @@ END
           description = "beer's alcohol by volume content"
 
           forces_recreation = true
+        }
+
+        attribute "tags" {
+          type = list(string)
+
+          description = "a list of tags for the beer"
+
+          default = []
         }
       }
     }

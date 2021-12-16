@@ -6,10 +6,8 @@ import (
 	"strings"
 
 	"github.com/hashicorp/hcl/v2"
-	"github.com/hashicorp/hcl/v2/ext/typeexpr"
 	"github.com/hashicorp/hcl/v2/hclwrite"
 	"github.com/mineiros-io/terradoc/internal/entities"
-	"github.com/mineiros-io/terradoc/internal/types"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/convert"
 	ctyjson "github.com/zclconf/go-cty/cty/json"
@@ -86,73 +84,25 @@ func (a *hclAttribute) RawJSON() (json.RawMessage, error) {
 	return json.RawMessage(src), nil
 }
 
-func (a *hclAttribute) TerraformType() (entities.TerraformType, error) {
+func (a *hclAttribute) Type() (entities.Type, error) {
 	if a.isNil() {
-		return entities.TerraformType{}, nil
+		return entities.Type{}, nil
 	}
 
-	val, diags := typeexpr.TypeConstraint(a.Expr)
+	return getTypeFromExpression(a.Expr)
+}
+
+func (a *hclAttribute) TypeFromString() (entities.Type, error) {
+	if a.isNil() {
+		return entities.Type{}, nil
+	}
+
+	val, diags := a.Expr.Value(nil)
 	if diags.HasErrors() {
-		return entities.TerraformType{},
-			fmt.Errorf("could not convert %q to TerraformType: %v", a.Name, diags.Errs())
+		return entities.Type{}, fmt.Errorf("could not fetch type string value for %q: %v", a.Name, diags.Errs())
 	}
 
-	switch {
-	case val.IsPrimitiveType():
-		return getTerraformPrimitiveType(val)
-	case val.IsCollectionType():
-		return getTerraformCollectionType(val)
-	case val.IsObjectType():
-		return getTerraformObjectType(val)
-	case val.IsTupleType():
-		return getTerraformTupleType(val)
-	case val.HasDynamicTypes():
-		return entities.TerraformType{Type: types.TerraformAny}, nil
-	}
-
-	return entities.TerraformType{}, fmt.Errorf("could not generate TerraformType for attribute %q", a.Name)
-
-}
-
-func getTerraformPrimitiveType(ctyType cty.Type) (entities.TerraformType, error) {
-	typeName := typeexpr.TypeString(ctyType)
-
-	tfType, exists := types.TerraformTypes[typeName]
-	if !exists {
-		return entities.TerraformType{}, fmt.Errorf("could not find TerraformType for cty type %q", typeName)
-	}
-
-	return entities.TerraformType{Type: tfType}, nil
-}
-
-func getTerraformObjectType(cty.Type) (entities.TerraformType, error) {
-	// TODO
-	return entities.TerraformType{Type: types.TerraformObject}, nil
-}
-
-func getTerraformTupleType(cty.Type) (entities.TerraformType, error) {
-	// TODO
-	return entities.TerraformType{Type: types.TerraformTuple}, nil
-}
-
-func getTerraformCollectionType(ctyType cty.Type) (entities.TerraformType, error) {
-	nested := typeexpr.TypeString(ctyType.ElementType())
-	nestedType, exists := types.TerraformTypes[nested]
-	if !exists {
-		return entities.TerraformType{}, fmt.Errorf("could not find TerraformType for %q", nested)
-	}
-
-	switch {
-	case ctyType.IsListType():
-		return entities.TerraformType{NestedType: nestedType, Type: types.TerraformList}, nil
-	case ctyType.IsSetType():
-		return entities.TerraformType{NestedType: nestedType, Type: types.TerraformSet}, nil
-	case ctyType.IsMapType():
-		return entities.TerraformType{NestedType: nestedType, Type: types.TerraformMap}, nil
-	}
-
-	return entities.TerraformType{},
-		fmt.Errorf("could not get type information for %q", typeexpr.TypeString(ctyType))
+	return getTypeFromString(val.AsString())
 }
 
 func getRawVariables(expr hcl.Expression) json.RawMessage {

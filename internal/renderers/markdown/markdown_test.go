@@ -41,9 +41,7 @@ func TestRender(t *testing.T) {
 							{
 								Name: "simple_string",
 								Type: entities.Type{
-									TerraformType: entities.TerraformType{
-										Type: types.TerraformString,
-									},
+									TFType: types.TerraformString,
 								},
 								Description: "A simple string",
 							},
@@ -57,11 +55,9 @@ func TestRender(t *testing.T) {
 								Name:    "test_objects",
 								Default: []byte("[]"),
 								Type: entities.Type{
-									ReadmeType: "list(test_object)",
-									TerraformType: entities.TerraformType{
-										Type:       types.TerraformList,
-										NestedType: types.TerraformAny,
-									},
+									TFType:            types.TerraformList,
+									NestedTFType:      types.TerraformObject,
+									NestedTFTypeLabel: "test_object",
 								},
 								Attributes: []entities.Attribute{
 									{
@@ -69,9 +65,7 @@ func TestRender(t *testing.T) {
 										Name:        "name",
 										Description: "A string",
 										Type: entities.Type{
-											TerraformType: entities.TerraformType{
-												Type: types.TerraformString,
-											},
+											TFType: types.TerraformString,
 										},
 									},
 									{
@@ -79,9 +73,8 @@ func TestRender(t *testing.T) {
 										Name:        "something_complex",
 										Description: "Some other object",
 										Type: entities.Type{
-											TerraformType: entities.TerraformType{
-												Type: types.TerraformAny,
-											},
+											TFType:      types.TerraformObject,
+											TFTypeLabel: "nested_object",
 										},
 										Attributes: []entities.Attribute{
 											{
@@ -89,9 +82,7 @@ func TestRender(t *testing.T) {
 												Name:        "nested_string",
 												Description: "a nested string",
 												Type: entities.Type{
-													TerraformType: entities.TerraformType{
-														Type: types.TerraformString,
-													},
+													TFType: types.TerraformString,
 												},
 											},
 										},

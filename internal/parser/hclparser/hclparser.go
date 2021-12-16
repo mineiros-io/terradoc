@@ -15,7 +15,7 @@ const (
 	contentAttributeName          = "content"
 	descriptionAttributeName      = "description"
 	typeAttributeName             = "type"
-	readmeTypeAttributeName       = "readme_type"
+	readmeTypeAttributeName       = "readmeType"
 	defaultAttributeName          = "default"
 	requiredAttributeName         = "required"
 	forcesRecreationAttributeName = "forces_recreation"
@@ -93,22 +93,4 @@ func getAttribute(attrs hcl.Attributes, name string) *hclAttribute {
 	}
 
 	return &hclAttribute{}
-}
-
-func getType(attrs hcl.Attributes, attrName string) (entities.Type, error) {
-	readmeType, err := getAttribute(attrs, readmeTypeAttributeName).String()
-	if err != nil {
-		return entities.Type{}, err
-	}
-
-	terraformType, err := getAttribute(attrs, typeAttributeName).TerraformType()
-	if err != nil {
-		return entities.Type{}, err
-	}
-
-	return entities.Type{
-		TerraformType: terraformType,
-		ReadmeType:    readmeType,
-		Name:          attrName,
-	}, nil
 }

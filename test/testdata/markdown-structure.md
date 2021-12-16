@@ -23,17 +23,17 @@ We can add infinite subsections!
 
   Default is `[]`.
 
-  Each object in the list accepts the following attributes:
+  Each `test_object` object in the list accepts the following attributes:
 
   - [**`name`**](#attr-name-test_objects): *(Optional `string`)*<a name="attr-name-test_objects"></a>
 
     A string
 
-  - [**`something_complex`**](#attr-something_complex-test_objects): *(Optional `any`)*<a name="attr-something_complex-test_objects"></a>
+  - [**`something_complex`**](#attr-something_complex-test_objects): *(Optional `object(nested_object)`)*<a name="attr-something_complex-test_objects"></a>
 
     Some other object
 
-    The object accepts the following attributes:
+    The `nested_object` object accepts the following attributes:
 
     - [**`nested_string`**](#attr-nested_string-something_complex-test_objects): *(Optional `string`)*<a name="attr-nested_string-something_complex-test_objects"></a>
 

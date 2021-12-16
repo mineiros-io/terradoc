@@ -81,8 +81,7 @@ END
         }
 
         variable "module_depends_on" {
-          type = list(any)
-          readme_type = "list(dependencies)"
+          type = list(dependencies)
           description = "A list of dependencies. Any object can be _assigned_ to this list to define a hidden external dependency."
           readme_example = <<END
 module_depends_on = [
@@ -135,8 +134,7 @@ END
         }
 
         variable "policy_bindings" {
-          type = list(any)
-          readme_type = "list(policy_bindings)"
+          type = list(policy_bindings)
           description = "A list of IAM policy bindings."
           readme_example = <<END
 policy_bindings = [{
@@ -158,8 +156,7 @@ END
           }
 
           attribute "condition" {
-            type = any
-            readme_type = "object(condition)"
+            type = object(condition)
             description = "An IAM Condition for a given binding."
             readme_example = <<END
 condition = {

@@ -1,11 +1,19 @@
 {{- define "variableType" -}}
-{{- if .ReadmeType -}}
-  {{- .ReadmeType -}}
-{{- else -}}
-    {{- if .TerraformType.HasNestedType -}}
-        {{- .TerraformType.Type -}}({{.TerraformType.NestedType}})
+    {{- if .HasNestedType -}}
+        {{template "nestedVariableType" .}}
     {{- else -}}
-        {{- .TerraformType.Type -}}
+        {{- if .TFTypeLabel -}}
+            {{- .TFType -}}({{ .TFTypeLabel }})
+        {{- else -}}
+            {{- .TFType -}}
+        {{- end -}}
     {{- end -}}
 {{- end -}}
+
+{{- define "nestedVariableType" -}}
+    {{- if .NestedTFTypeLabel -}}
+        {{- .TFType -}}({{.NestedTFTypeLabel}})
+    {{- else -}}
+        {{- .TFType -}}({{.NestedTFType}})
+    {{- end -}}
 {{- end -}}
