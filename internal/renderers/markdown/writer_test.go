@@ -168,7 +168,7 @@ func TestWriteAttribute(t *testing.T) {
 				Required:         true,
 			},
 			want: mdAttribute{
-				item:        "  - [**`string_attribute`**](#attr-string_attribute-parent_var_name): *(**Required** `string`, Forces new resource)*<a name=\"attr-string_attribute-parent_var_name\"></a>",
+				item:        "  - [**`string_attribute`**](#attr-parent_var_name-string_attribute): *(**Required** `string`, Forces new resource)*<a name=\"attr-parent_var_name-string_attribute\"></a>",
 				description: "  i am this attribute's description",
 			},
 		},
@@ -184,7 +184,7 @@ func TestWriteAttribute(t *testing.T) {
 				Required:         false,
 			},
 			want: mdAttribute{
-				item: "    - [**`number_attribute`**](#attr-number_attribute-parent_var_name): *(Optional `number`, Forces new resource)*<a name=\"attr-number_attribute-parent_var_name\"></a>",
+				item: "    - [**`number_attribute`**](#attr-parent_var_name-number_attribute): *(Optional `number`, Forces new resource)*<a name=\"attr-parent_var_name-number_attribute\"></a>",
 			},
 		},
 		{
@@ -199,7 +199,7 @@ func TestWriteAttribute(t *testing.T) {
 				Required:         false,
 			},
 			want: mdAttribute{
-				item: "- [**`bool_attribute`**](#attr-bool_attribute-parent_var_name): *(Optional `bool`)*<a name=\"attr-bool_attribute-parent_var_name\"></a>",
+				item: "- [**`bool_attribute`**](#attr-parent_var_name-bool_attribute): *(Optional `bool`)*<a name=\"attr-parent_var_name-bool_attribute\"></a>",
 			},
 		},
 		{
@@ -213,7 +213,7 @@ func TestWriteAttribute(t *testing.T) {
 				Default: []byte("123"),
 			},
 			want: mdAttribute{
-				item:        "  - [**`i_have_a_default`**](#attr-i_have_a_default-parent_var_name): *(Optional `number`)*<a name=\"attr-i_have_a_default-parent_var_name\"></a>",
+				item:        "  - [**`i_have_a_default`**](#attr-parent_var_name-i_have_a_default): *(Optional `number`)*<a name=\"attr-parent_var_name-i_have_a_default\"></a>",
 				description: "  Default is `123`.",
 			},
 		},

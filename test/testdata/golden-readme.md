@@ -133,17 +133,17 @@ See [variables.tf] and [examples/] for details and use-cases.
 
   Each `policy_bindings` object in the list accepts the following attributes:
 
-  - [**`role`**](#attr-role-policy_bindings): *(**Required** `string`)*<a name="attr-role-policy_bindings"></a>
+  - [**`role`**](#attr-policy_bindings-role): *(**Required** `string`)*<a name="attr-policy_bindings-role"></a>
 
     The role that should be applied.
 
-  - [**`members`**](#attr-members-policy_bindings): *(Optional `set(string)`)*<a name="attr-members-policy_bindings"></a>
+  - [**`members`**](#attr-policy_bindings-members): *(Optional `set(string)`)*<a name="attr-policy_bindings-members"></a>
 
     Identities that will be granted the privilege in `role`.
 
     Default is `var.members`.
 
-  - [**`condition`**](#attr-condition-policy_bindings): *(Optional `object(condition)`)*<a name="attr-condition-policy_bindings"></a>
+  - [**`condition`**](#attr-policy_bindings-condition): *(Optional `object(condition)`)*<a name="attr-policy_bindings-condition"></a>
 
     An IAM Condition for a given binding.
 
@@ -158,15 +158,15 @@ See [variables.tf] and [examples/] for details and use-cases.
 
     The `condition` object accepts the following attributes:
 
-    - [**`expression`**](#attr-expression-condition-policy_bindings): *(**Required** `string`)*<a name="attr-expression-condition-policy_bindings"></a>
+    - [**`expression`**](#attr-policy_bindings-condition-expression): *(**Required** `string`)*<a name="attr-policy_bindings-condition-expression"></a>
 
       Textual representation of an expression in Common Expression Language syntax.
 
-    - [**`title`**](#attr-title-condition-policy_bindings): *(**Required** `string`)*<a name="attr-title-condition-policy_bindings"></a>
+    - [**`title`**](#attr-policy_bindings-condition-title): *(**Required** `string`)*<a name="attr-policy_bindings-condition-title"></a>
 
       A title for the expression, i.e. a short string describing its purpose.
 
-    - [**`description`**](#attr-description-condition-policy_bindings): *(Optional `string`)*<a name="attr-description-condition-policy_bindings"></a>
+    - [**`description`**](#attr-policy_bindings-condition-description): *(Optional `string`)*<a name="attr-policy_bindings-condition-description"></a>
 
       An optional description of the expression. This is a longer text which describes the expression, e.g. when hovered over it in a UI.
 

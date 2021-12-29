@@ -171,7 +171,7 @@ func (mw *markdownWriter) writeAttribute(attribute entities.Attribute, parentNam
 			return err
 		}
 
-		nestedParentName := fmt.Sprintf("%s-%s", attribute.Name, parentName)
+		nestedParentName := fmt.Sprintf("%s-%s", parentName, attribute.Name)
 
 		return mw.writeAttributes(attribute.Attributes, nestedParentName)
 	}
