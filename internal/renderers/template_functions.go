@@ -30,6 +30,7 @@ func newLine() string {
 func GetIndent(level int) int {
 	return level*2 + 2
 }
+
 func indent(level int, v string) string {
 	if strings.TrimSpace(v) == "" {
 		return ""
