@@ -131,7 +131,7 @@ See [variables.tf] and [examples/] for details and use-cases.
   }]
   ```
 
-  Each object in the list accepts the following attributes:
+  Each `policy_bindings` object in the list accepts the following attributes:
 
   - [**`role`**](#attr-role-policy_bindings): *(**Required** `string`)*<a name="attr-role-policy_bindings"></a>
 
@@ -156,7 +156,7 @@ See [variables.tf] and [examples/] for details and use-cases.
     }
     ```
 
-    The object accepts the following attributes:
+    The `condition` object accepts the following attributes:
 
     - [**`expression`**](#attr-expression-condition-policy_bindings): *(**Required** `string`)*<a name="attr-expression-condition-policy_bindings"></a>
 

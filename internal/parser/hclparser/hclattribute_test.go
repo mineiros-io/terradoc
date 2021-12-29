@@ -125,7 +125,7 @@ func TestAttributeToJSONValue(t *testing.T) {
 	}
 }
 
-func TestAttributeToTerraformTypeValidPrimaryType(t *testing.T) {
+func TestAttributeToTypeValidPrimaryType(t *testing.T) {
 	for _, tt := range []struct {
 		desc                  string
 		exprValue             string
@@ -150,15 +150,19 @@ func TestAttributeToTerraformTypeValidPrimaryType(t *testing.T) {
 		t.Run(tt.desc, func(t *testing.T) {
 			attr := newTypeAttribute(tt.exprValue, tt.exprValue)
 
-			res, err := attr.TerraformType()
+			res, err := attr.Type()
 			assert.NoError(t, err)
 
-			assert.EqualInts(t, int(tt.expectedTerraformType), int(res.Type))
+			assert.EqualInts(t, int(tt.expectedTerraformType), int(res.TFType))
+			// ensure that nested values are empty
+			assert.EqualStrings(t, "", res.TFTypeLabel)
+			assert.EqualStrings(t, "", res.NestedTFTypeLabel)
+			assert.EqualInts(t, int(types.TerraformEmptyType), int(res.NestedTFType))
 		})
 	}
 }
 
-func TestAttributeToTerraformTypeInvalidTypes(t *testing.T) {
+func TestAttributeToTypeInvalidTypes(t *testing.T) {
 	for _, tt := range []struct {
 		desc             string
 		exprValue        string
@@ -167,40 +171,43 @@ func TestAttributeToTerraformTypeInvalidTypes(t *testing.T) {
 		{
 			desc:             "when an invalid primary type is given",
 			exprValue:        "foo",
-			expectedErrorMSG: "The keyword \"foo\" is not a valid type specification",
+			expectedErrorMSG: "type \"foo\" is invalid",
 		},
 		{
 			desc:             "when type is a list without arguments",
 			exprValue:        "list",
-			expectedErrorMSG: "The list type constructor requires one argument specifying the element type",
+			expectedErrorMSG: "type \"list\" needs an argument",
 		},
 		{
 			desc:             "when type is an object without definition",
 			exprValue:        "object",
-			expectedErrorMSG: "The object type constructor requires one argument specifying the attribute types and values as a map",
+			expectedErrorMSG: "type \"object\" needs an argument",
 		},
 		{
 			desc:             "when type is a tuple without definition",
 			exprValue:        "tuple",
-			expectedErrorMSG: "The tuple type constructor requires one argument specifying the element types as a list",
+			expectedErrorMSG: "type \"tuple\" needs an argument",
 		},
 		{
 			desc:             "when type is a map without definition",
 			exprValue:        "map",
-			expectedErrorMSG: "The map type constructor requires one argument specifying the element type",
+			expectedErrorMSG: "type \"map\" needs an argument",
 		},
 	} {
 		t.Run(tt.desc, func(t *testing.T) {
 			attr := newTypeAttribute(tt.exprValue, tt.exprValue)
 
-			res, err := attr.TerraformType()
+			res, err := attr.Type()
 			assert.Error(t, err)
 
 			if !strings.Contains(err.Error(), tt.expectedErrorMSG) {
 				t.Errorf("Expected error to contain %q. Got %q instead", tt.expectedErrorMSG, err.Error())
 			}
 
-			assert.EqualInts(t, int(types.TerraformEmptyType), int(res.Type))
+			assert.EqualInts(t, int(types.TerraformEmptyType), int(res.TFType))
+			assert.EqualInts(t, int(types.TerraformEmptyType), int(res.NestedTFType))
+			assert.EqualStrings(t, "", res.TFTypeLabel)
+			assert.EqualStrings(t, "", res.NestedTFTypeLabel)
 		})
 	}
 }

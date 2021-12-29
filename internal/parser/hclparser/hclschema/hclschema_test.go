@@ -68,6 +68,7 @@ func TestAttributeSchema(t *testing.T) {
 
 	// schema attributes
 	assertHasAttribute(t, s, "type", true)
+	assertHasAttribute(t, s, "readme_type", false)
 	assertHasAttribute(t, s, "description", false)
 	assertHasAttribute(t, s, "required", false)
 	assertHasAttribute(t, s, "forces_recreation", false)

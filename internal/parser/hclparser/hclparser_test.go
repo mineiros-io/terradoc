@@ -45,14 +45,23 @@ Section contents support anything markdown and allow us to make references like 
 										Title: "example",
 										Variables: []entities.Variable{
 											{
-												Name: "name",
+												Name: "person",
 												Type: entities.Type{
-													TerraformType: entities.TerraformType{
-														Type: types.TerraformString,
+													TFType:      types.TerraformObject,
+													TFTypeLabel: "person",
+												},
+												Description: "describes the last person who bothered to change this file",
+												Default:     json.RawMessage("nathan"),
+												Attributes: []entities.Attribute{
+													{
+														Name: "name",
+														Type: entities.Type{
+															TFType: types.TerraformString,
+														},
+														Description: "the person's name",
+														Default:     json.RawMessage("nathan"),
 													},
 												},
-												Description: "describes the name of the last person who bothered to change this file",
-												Default:     json.RawMessage("nathan"),
 											},
 										},
 									},
@@ -64,11 +73,9 @@ Section contents support anything markdown and allow us to make references like 
 											{
 												Name: "beers",
 												Type: entities.Type{
-													TerraformType: entities.TerraformType{
-														Type:       types.TerraformList,
-														NestedType: types.TerraformAny,
-													},
-													ReadmeType: "list(beer)",
+													TFType:            types.TerraformList,
+													NestedTFType:      types.TerraformObject,
+													NestedTFTypeLabel: "beer",
 												},
 												Description:      "a list of beers",
 												Default:          json.RawMessage("[]"),
@@ -79,9 +86,7 @@ Section contents support anything markdown and allow us to make references like 
 													{
 														Name: "name",
 														Type: entities.Type{
-															TerraformType: entities.TerraformType{
-																Type: types.TerraformString,
-															},
+															TFType: types.TerraformString,
 														},
 														Description:      "the name of the beer",
 														ForcesRecreation: false,
@@ -89,9 +94,7 @@ Section contents support anything markdown and allow us to make references like 
 													{
 														Name: "type",
 														Type: entities.Type{
-															TerraformType: entities.TerraformType{
-																Type: types.TerraformString,
-															},
+															TFType: types.TerraformString,
 														},
 														Description:      "the type of the beer",
 														ForcesRecreation: true,
@@ -99,12 +102,18 @@ Section contents support anything markdown and allow us to make references like 
 													{
 														Name: "abv",
 														Type: entities.Type{
-															TerraformType: entities.TerraformType{
-																Type: types.TerraformNumber,
-															},
+															TFType: types.TerraformNumber,
 														},
 														Description:      "beer's alcohol by volume content",
 														ForcesRecreation: true,
+													},
+													{
+														Name: "tags",
+														Type: entities.Type{
+															TFType:       types.TerraformList,
+															NestedTFType: types.TerraformString,
+														},
+														Description: "a list of tags for the beer",
 													},
 												},
 											},
@@ -332,8 +341,11 @@ func assertVariableEquals(t *testing.T, want, got entities.Variable) {
 	// redundant since we're finding the variable by name
 	assert.EqualStrings(t, want.Name, got.Name)
 	assert.EqualStrings(t, want.Description, got.Description)
-	assert.EqualInts(t, int(want.Type.TerraformType.Type), int(got.Type.TerraformType.Type))
-	assert.EqualInts(t, int(want.Type.TerraformType.NestedType), int(got.Type.TerraformType.NestedType))
+	assert.EqualStrings(t, want.Type.TFType.String(), got.Type.TFType.String())
+	assert.EqualStrings(t, want.Type.TFTypeLabel, got.Type.TFTypeLabel)
+
+	assert.EqualStrings(t, want.Type.NestedTFType.String(), got.Type.NestedTFType.String())
+	assert.EqualStrings(t, want.Type.NestedTFTypeLabel, got.Type.NestedTFTypeLabel)
 
 	assertEqualAttributes(t, want.Attributes, got.Attributes)
 }
@@ -375,8 +387,12 @@ func assertAttributeEquals(t *testing.T, want, got entities.Attribute) {
 	// redundant since we're finding the attribute by name
 	assert.EqualStrings(t, want.Name, got.Name)
 	assert.EqualStrings(t, want.Description, got.Description)
-	assert.EqualInts(t, int(want.Type.TerraformType.Type), int(got.Type.TerraformType.Type))
-	assert.EqualInts(t, int(want.Type.TerraformType.NestedType), int(got.Type.TerraformType.NestedType))
+
+	assert.EqualStrings(t, want.Type.TFType.String(), got.Type.TFType.String())
+	assert.EqualStrings(t, want.Type.TFTypeLabel, got.Type.TFTypeLabel)
+
+	assert.EqualStrings(t, want.Type.NestedTFType.String(), got.Type.NestedTFType.String())
+	assert.EqualStrings(t, want.Type.NestedTFTypeLabel, got.Type.NestedTFTypeLabel)
 
 	assertEqualAttributes(t, want.Attributes, got.Attributes)
 }

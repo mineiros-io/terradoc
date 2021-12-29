@@ -120,10 +120,6 @@ func VariableSchema() *hcl.BodySchema {
 				Required: true,
 			},
 			{
-				Name:     "readme_type",
-				Required: false,
-			},
-			{
 				Name:     "description",
 				Required: false,
 			},
@@ -141,6 +137,10 @@ func VariableSchema() *hcl.BodySchema {
 			},
 			{
 				Name:     "readme_example",
+				Required: false,
+			},
+			{
+				Name:     "readme_type",
 				Required: false,
 			},
 		},
@@ -173,15 +173,15 @@ func AttributeSchema() *hcl.BodySchema {
 				Required: false,
 			},
 			{
-				Name:     "readme_type",
-				Required: false,
-			},
-			{
 				Name:     "default",
 				Required: false,
 			},
 			{
 				Name:     "readme_example",
+				Required: false,
+			},
+			{
+				Name:     "readme_type",
 				Required: false,
 			},
 		},

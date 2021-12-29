@@ -70,7 +70,7 @@ func TestWriteVariable(t *testing.T) {
 			variable: entities.Variable{
 				Name: "string_variable",
 				Type: entities.Type{
-					TerraformType: entities.TerraformType{Type: types.TerraformString},
+					TFType: types.TerraformString,
 				},
 				ForcesRecreation: true,
 				Required:         true,
@@ -88,7 +88,7 @@ func TestWriteVariable(t *testing.T) {
 			variable: entities.Variable{
 				Name: "number_variable",
 				Type: entities.Type{
-					TerraformType: entities.TerraformType{Type: types.TerraformNumber},
+					TFType: types.TerraformNumber,
 				},
 				ForcesRecreation: true,
 				Required:         false,
@@ -104,7 +104,7 @@ func TestWriteVariable(t *testing.T) {
 			variable: entities.Variable{
 				Name: "bool_variable",
 				Type: entities.Type{
-					TerraformType: entities.TerraformType{Type: types.TerraformBool},
+					TFType: types.TerraformBool,
 				},
 				ForcesRecreation: false,
 				Required:         false,
@@ -118,7 +118,7 @@ func TestWriteVariable(t *testing.T) {
 			variable: entities.Variable{
 				Name: "obj_variable",
 				Type: entities.Type{
-					TerraformType: entities.TerraformType{Type: types.TerraformObject},
+					TFType: types.TerraformObject,
 				},
 				ForcesRecreation: true,
 				Required:         true,
@@ -162,7 +162,7 @@ func TestWriteAttribute(t *testing.T) {
 				Name:        "string_attribute",
 				Description: "i am this attribute's description",
 				Type: entities.Type{
-					TerraformType: entities.TerraformType{Type: types.TerraformString},
+					TFType: types.TerraformString,
 				},
 				ForcesRecreation: true,
 				Required:         true,
@@ -178,7 +178,7 @@ func TestWriteAttribute(t *testing.T) {
 				Level: 2,
 				Name:  "number_attribute",
 				Type: entities.Type{
-					TerraformType: entities.TerraformType{Type: types.TerraformNumber},
+					TFType: types.TerraformNumber,
 				},
 				ForcesRecreation: true,
 				Required:         false,
@@ -193,7 +193,7 @@ func TestWriteAttribute(t *testing.T) {
 				Level: 0,
 				Name:  "bool_attribute",
 				Type: entities.Type{
-					TerraformType: entities.TerraformType{Type: types.TerraformBool},
+					TFType: types.TerraformBool,
 				},
 				ForcesRecreation: false,
 				Required:         false,
@@ -208,7 +208,7 @@ func TestWriteAttribute(t *testing.T) {
 				Level: 1,
 				Name:  "i_have_a_default",
 				Type: entities.Type{
-					TerraformType: entities.TerraformType{Type: types.TerraformNumber},
+					TFType: types.TerraformNumber,
 				},
 				Default: []byte("123"),
 			},
