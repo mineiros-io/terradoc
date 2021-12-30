@@ -55,9 +55,10 @@ var tests = []struct {
 		wantTypeLabel: "my_object_name",
 	},
 	{
-		expression:    `map(my_object_name)`,
-		wantType:      types.TerraformMap,
-		wantTypeLabel: "my_object_name",
+		expression:          `map(my_object_name)`,
+		wantType:            types.TerraformMap,
+		wantNestedType:      types.TerraformObject,
+		wantNestedTypeLabel: "my_object_name",
 	},
 	{
 		expression:    `object(another_object_name)`,
