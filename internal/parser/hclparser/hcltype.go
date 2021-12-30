@@ -163,7 +163,7 @@ func getEvalContextForExpr(expr hcl.Expression) *hcl.EvalContext {
 	return &hcl.EvalContext{
 		Functions: map[string]function.Function{
 			"object": complexTypeFunc(types.TerraformObject),
-			"map":    complexTypeFunc(types.TerraformMap),
+			"map":    nestedTypeFunc(types.TerraformMap),
 			"list":   nestedTypeFunc(types.TerraformList),
 			"set":    nestedTypeFunc(types.TerraformSet),
 		},
