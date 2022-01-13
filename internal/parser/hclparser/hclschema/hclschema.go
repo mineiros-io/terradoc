@@ -108,6 +108,10 @@ func SectionSchema() *hcl.BodySchema {
 				Type:       "variable",
 				LabelNames: []string{"name"},
 			},
+			{
+				Type:       "output",
+				LabelNames: []string{"name"},
+			},
 		},
 	}
 }
@@ -148,6 +152,21 @@ func VariableSchema() *hcl.BodySchema {
 			{
 				Type:       "attribute",
 				LabelNames: []string{"name"},
+			},
+		},
+	}
+}
+
+func OutputSchema() *hcl.BodySchema {
+	return &hcl.BodySchema{
+		Attributes: []hcl.AttributeSchema{
+			{
+				Name:     "type",
+				Required: true,
+			},
+			{
+				Name:     "description",
+				Required: false,
 			},
 		},
 	}

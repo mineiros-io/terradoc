@@ -90,6 +90,25 @@ END
         }
       }
     }
+
+    section {
+      title = "Outputs!"
+
+      output "obj_output" {
+        type = object(an_object_label)
+        description = "an example object"
+      }
+
+      output "string_output" {
+        type = string
+        description = "a string"
+      }
+
+      output "list_output" {
+        type = list(example)
+        description = "a list of example objects"
+      }
+    }
   }
 }
 

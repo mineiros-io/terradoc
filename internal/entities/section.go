@@ -8,6 +8,8 @@ type Section struct {
 	Content string `json:"content,omitempty"`
 	// Variables is a collection of variable definitions contained in the section block.
 	Variables []Variable `json:"variables,omitempty"`
+	// Ouputs is a collection of output definitions contained in the section block.
+	Outputs []Output `json:"outputs,omitempty"`
 	// SubSections is a collection of nested sections contained in the section block.
 	SubSections []Section `json:"subsections,omitempty"`
 	// Level is the nesting of this section
