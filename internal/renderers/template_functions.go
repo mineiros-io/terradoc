@@ -32,18 +32,26 @@ func GetIndent(level int) int {
 }
 
 func indent(level int, v string) string {
-	if strings.TrimSpace(v) == "" {
+	indent := strings.Repeat(" ", level)
+
+	trimmedString := strings.TrimSpace(v)
+	if trimmedString == "" {
 		return ""
 	}
 
-	indent := strings.Repeat(" ", level)
+	lines := strings.SplitAfter(trimmedString, "\n")
 
-	lines := strings.SplitAfter(v, "\n")
-	if len(lines[len(lines)-1]) == 0 {
-		lines = lines[:len(lines)-1]
+	var result string
+
+	for _, line := range lines {
+		if strings.Trim(line, " ") == "\n" {
+			result += "\n"
+		} else {
+			result += indent + line
+		}
 	}
 
-	return strings.Join(append([]string{""}, lines...), indent)
+	return result
 }
 
 func repeat(str string, n int) string {
