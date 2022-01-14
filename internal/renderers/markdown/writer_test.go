@@ -26,13 +26,67 @@ func TestWriteSection(t *testing.T) {
 		{
 			desc: "with description and 4 levels",
 			section: entities.Section{
-				Level:   4,
-				Title:   "I AM THE TITLE!",
-				Content: "Dude, this is a section",
+				Level: 4,
+				Title: "I AM THE TITLE!",
+				Content: `Basic usage for granting an AWS Account with Account ID ` + "`123456789012`" + ` access to assume a role that grants
+      full access to AWS Simple Storage Service (S3)
+      ` + "```hcl" + `
+      module "role-s3-full-access" {
+        source  = "mineiros-io/iam-role/aws"
+        version = "~> 0.6.0"
+
+        name = "S3FullAccess"
+
+        assume_role_principals = [
+          {
+            type        = "AWS"
+            identifiers = ["arn:aws:iam::123456789012:root"]
+          }
+        ]
+
+        policy_statements = [
+          {
+            sid = "FullS3Access"
+
+            effect    = "Allow"
+            actions   = ["s3:*"]
+            resources = ["*"]
+          }
+        ]
+      }
+      ` + "```" + `
+`,
 			},
 			want: mdSection{
-				heading:     "#### I AM THE TITLE!",
-				description: "Dude, this is a section",
+				heading: "#### I AM THE TITLE!",
+				description: `Basic usage for granting an AWS Account with Account ID ` + "`123456789012`" + ` access to assume a role that grants
+      full access to AWS Simple Storage Service (S3)
+      ` + "```hcl" + `
+      module "role-s3-full-access" {
+        source  = "mineiros-io/iam-role/aws"
+        version = "~> 0.6.0"
+
+        name = "S3FullAccess"
+
+        assume_role_principals = [
+          {
+            type        = "AWS"
+            identifiers = ["arn:aws:iam::123456789012:root"]
+          }
+        ]
+
+        policy_statements = [
+          {
+            sid = "FullS3Access"
+
+            effect    = "Allow"
+            actions   = ["s3:*"]
+            resources = ["*"]
+          }
+        ]
+      }
+      ` + "```" + `
+`,
 			},
 		},
 		{
@@ -286,7 +340,7 @@ func assertMarkdownHasVariable(t *testing.T, buf *bytes.Buffer, md mdVariable) {
 
 	if md.readmeExample != "" {
 		// TODO: what's a better way of checking that indentation is right?
-		want += fmt.Sprintf("\n  Example:\n\n  ```hcl\n  %s  \n  ```\n", md.readmeExample)
+		want += fmt.Sprintf("\n  Example:\n\n  ```hcl\n  %s\n  ```\n", md.readmeExample)
 	}
 
 	want += "\n"

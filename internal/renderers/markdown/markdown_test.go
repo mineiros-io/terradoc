@@ -107,7 +107,6 @@ func TestRender(t *testing.T) {
 	want := string(bytes.TrimSpace(wantContent))
 
 	if diff := cmp.Diff(got, want); diff != "" {
-		t.Logf("\n\nWANT:\n%q\n\nGOT:\n%q\n", want, got)
 		t.Errorf("Expected golden file to match result (-want +got):\n%s", diff)
 	}
 }
