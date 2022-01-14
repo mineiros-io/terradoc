@@ -193,17 +193,17 @@ END
 
   section {
     title = "Module Attributes Reference"
-    content = <<END
-The following attributes are exported in the outputs of the module:
+    content = "The following attributes are exported in the outputs of the module:"
 
-- **`module_enabled`**
+    output "module_enabled" {
+      type = bool
+      description = "Whether this module is enabled."
+    }
 
-  Whether this module is enabled.
-
-- **`iam`**
-
-  All attributes of the created `iam_binding` or `iam_member` or `iam_policy` resource according to the mode.
-END
+    output "iam" {
+      type = object(iam_output)
+      description = "All attributes of the created `iam_binding` or `iam_member` or `iam_policy` resource according to the mode."
+    }
   }
 
 
