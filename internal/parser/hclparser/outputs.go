@@ -53,9 +53,10 @@ func createOutputFromHCLAttributes(attrs hcl.Attributes, name string) (entities.
 	}
 
 	// type definition
-	output.Type, err = getAttribute(attrs, typeAttributeName).Type()
+	output.Type, err = getAttribute(attrs, typeAttributeName).OutputType()
 	if err != nil {
 		return entities.Output{}, err
+
 	}
 
 	return output, nil
