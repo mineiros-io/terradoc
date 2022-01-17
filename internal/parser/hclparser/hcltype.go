@@ -149,23 +149,24 @@ func getTypeFromString(str string) (entities.Type, error) {
 }
 
 func getVariablesMap(expr hcl.Expression) map[string]cty.Value {
-	myMap := make(map[string]cty.Value)
+	varMap := make(map[string]cty.Value)
 	for _, variable := range expr.Variables() {
 		name := variable.RootName()
 
-		myMap[name] = cty.StringVal(name)
+		varMap[name] = cty.StringVal(name)
 	}
 
-	return myMap
+	return varMap
 }
 
 func getEvalContextForExpr(expr hcl.Expression) *hcl.EvalContext {
 	return &hcl.EvalContext{
 		Functions: map[string]function.Function{
-			"object": complexTypeFunc(types.TerraformObject),
-			"map":    nestedTypeFunc(types.TerraformMap),
-			"list":   nestedTypeFunc(types.TerraformList),
-			"set":    nestedTypeFunc(types.TerraformSet),
+			"resource": complexTypeFunc(types.TerraformResource),
+			"object":   complexTypeFunc(types.TerraformObject),
+			"map":      nestedTypeFunc(types.TerraformMap),
+			"list":     nestedTypeFunc(types.TerraformList),
+			"set":      nestedTypeFunc(types.TerraformSet),
 		},
 		Variables: getVariablesMap(expr),
 	}

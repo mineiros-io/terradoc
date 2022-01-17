@@ -108,6 +108,11 @@ END
         type = list(example)
         description = "a list of example objects"
       }
+
+      output "resource_output" {
+        type = resource(google_xxxx)
+        description = "a resource output"
+      }
     }
   }
 }

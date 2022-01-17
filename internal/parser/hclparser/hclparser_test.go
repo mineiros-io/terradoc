@@ -147,6 +147,14 @@ Section contents support anything markdown and allow us to make references like 
 													NestedTFTypeLabel: "example",
 												},
 											},
+											{
+												Name:        "resource_output",
+												Description: "a resource output",
+												Type: entities.Type{
+													TFType:      types.TerraformResource,
+													TFTypeLabel: "google_xxxx",
+												},
+											},
 										},
 									},
 								},
