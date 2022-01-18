@@ -20,6 +20,8 @@ var typeObj = map[string]cty.Type{
 	"nestedTypeLabel": cty.String,
 }
 
+var varFunctions, outputFunctions map[string]function.Function
+
 func nestedTypeFunc(tfType types.TerraformType) function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{
@@ -78,8 +80,8 @@ func complexTypeFunc(tfType types.TerraformType) function.Function {
 	})
 }
 
-func getComplexType(expr hcl.Expression) (entities.Type, error) {
-	got, exprDiags := expr.Value(getEvalContextForExpr(expr))
+func getComplexType(expr hcl.Expression, ctxFunctions map[string]function.Function) (entities.Type, error) {
+	got, exprDiags := expr.Value(getEvalContextForExpr(expr, ctxFunctions))
 	if exprDiags.HasErrors() {
 		return entities.Type{}, fmt.Errorf("getting expression value: %v", exprDiags.Errs())
 	}
@@ -115,7 +117,7 @@ func getComplexType(expr hcl.Expression) (entities.Type, error) {
 	}, nil
 }
 
-func getTypeFromExpression(expr hcl.Expression) (entities.Type, error) {
+func getTypeFromExpression(expr hcl.Expression, ctxFunctions map[string]function.Function) (entities.Type, error) {
 	kw := hcl.ExprAsKeyword(expr)
 
 	switch kw {
@@ -134,39 +136,51 @@ func getTypeFromExpression(expr hcl.Expression) (entities.Type, error) {
 		return entities.Type{}, fmt.Errorf("type %q is invalid", kw)
 	}
 
-	return getComplexType(expr)
+	return getComplexType(expr, ctxFunctions)
 }
 
 // this function exists to make it possible to parse `type` attribute expressions and `readme_type`
 // attribute strings in the same way, so they are compatible even though they have different types
-func getTypeFromString(str string) (entities.Type, error) {
+func getTypeFromString(str string, ctxFunctions map[string]function.Function) (entities.Type, error) {
 	expr, parseDiags := hclsyntax.ParseExpression([]byte(str), "", hcl.Pos{Line: 1, Column: 1, Byte: 0})
 	if parseDiags.HasErrors() {
 		return entities.Type{}, fmt.Errorf("parsing type string expression: %v", parseDiags.Errs())
 	}
 
-	return getTypeFromExpression(expr)
+	return getTypeFromExpression(expr, ctxFunctions)
 }
 
 func getVariablesMap(expr hcl.Expression) map[string]cty.Value {
-	myMap := make(map[string]cty.Value)
+	varMap := make(map[string]cty.Value)
 	for _, variable := range expr.Variables() {
 		name := variable.RootName()
 
-		myMap[name] = cty.StringVal(name)
+		varMap[name] = cty.StringVal(name)
 	}
 
-	return myMap
+	return varMap
 }
 
-func getEvalContextForExpr(expr hcl.Expression) *hcl.EvalContext {
+func getEvalContextForExpr(expr hcl.Expression, ctxFunctions map[string]function.Function) *hcl.EvalContext {
 	return &hcl.EvalContext{
-		Functions: map[string]function.Function{
-			"object": complexTypeFunc(types.TerraformObject),
-			"map":    nestedTypeFunc(types.TerraformMap),
-			"list":   nestedTypeFunc(types.TerraformList),
-			"set":    nestedTypeFunc(types.TerraformSet),
-		},
+		Functions: ctxFunctions,
 		Variables: getVariablesMap(expr),
+	}
+}
+
+func init() {
+	varFunctions = map[string]function.Function{
+		"object": complexTypeFunc(types.TerraformObject),
+		"map":    nestedTypeFunc(types.TerraformMap),
+		"list":   nestedTypeFunc(types.TerraformList),
+		"set":    nestedTypeFunc(types.TerraformSet),
+	}
+
+	outputFunctions = map[string]function.Function{
+		"resource": complexTypeFunc(types.TerraformResource),
+		"object":   complexTypeFunc(types.TerraformObject),
+		"map":      nestedTypeFunc(types.TerraformMap),
+		"list":     nestedTypeFunc(types.TerraformList),
+		"set":      nestedTypeFunc(types.TerraformSet),
 	}
 }

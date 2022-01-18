@@ -176,11 +176,11 @@ See [variables.tf] and [examples/] for details and use-cases.
 
 The following attributes are exported in the outputs of the module:
 
-- **`module_enabled`**
+- [**`module_enabled`**](#output-module_enabled): *(`bool`)*<a name="output-module_enabled"></a>
 
   Whether this module is enabled.
 
-- **`iam`**
+- [**`iam`**](#output-iam): *(`object(iam_output)`)*<a name="output-iam"></a>
 
   All attributes of the created `iam_binding` or `iam_member` or `iam_policy` resource according to the mode.
 

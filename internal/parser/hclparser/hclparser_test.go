@@ -119,6 +119,44 @@ Section contents support anything markdown and allow us to make references like 
 											},
 										},
 									},
+									{
+										Level: 3,
+										Title: "Outputs!",
+										Outputs: []entities.Output{
+											{
+												Name:        "obj_output",
+												Description: "an example object",
+												Type: entities.Type{
+													TFType:      types.TerraformObject,
+													TFTypeLabel: "an_object_label",
+												},
+											},
+											{
+												Name:        "string_output",
+												Description: "a string",
+												Type: entities.Type{
+													TFType: types.TerraformString,
+												},
+											},
+											{
+												Name:        "list_output",
+												Description: "a list of example objects",
+												Type: entities.Type{
+													TFType:            types.TerraformList,
+													NestedTFType:      types.TerraformObject,
+													NestedTFTypeLabel: "example",
+												},
+											},
+											{
+												Name:        "resource_output",
+												Description: "a resource output",
+												Type: entities.Type{
+													TFType:      types.TerraformResource,
+													TFTypeLabel: "google_xxxx",
+												},
+											},
+										},
+									},
 								},
 							},
 						},
@@ -301,6 +339,7 @@ func assertSectionEquals(t *testing.T, want, got entities.Section) {
 	assert.EqualInts(t, want.Level, got.Level)
 
 	assertEqualVariables(t, want.Variables, got.Variables)
+	assertEqualOutputs(t, want.Outputs, got.Outputs)
 	assertEqualSections(t, want.SubSections, got.SubSections)
 }
 
@@ -395,4 +434,48 @@ func assertAttributeEquals(t *testing.T, want, got entities.Attribute) {
 	assert.EqualStrings(t, want.Type.NestedTFTypeLabel, got.Type.NestedTFTypeLabel)
 
 	assertEqualAttributes(t, want.Attributes, got.Attributes)
+}
+
+func assertEqualOutputs(t *testing.T, want, got []entities.Output) {
+	t.Helper()
+
+	assert.EqualInts(t, len(want), len(got))
+
+	if len(got) == 0 {
+		return
+	}
+
+	for _, output := range want {
+		assertContainsOutput(t, got, output)
+	}
+}
+
+func assertContainsOutput(t *testing.T, outputsList []entities.Output, want entities.Output) {
+	t.Helper()
+
+	var found bool
+	for _, output := range outputsList {
+		if output.Name == want.Name {
+			found = true
+
+			assertOutputEquals(t, want, output)
+		}
+	}
+
+	if !found {
+		t.Errorf("Expected outputs list to contain %q but didn't find one", want.Name)
+	}
+}
+
+func assertOutputEquals(t *testing.T, want, got entities.Output) {
+	t.Helper()
+
+	// redundant since we're finding the output by name
+	assert.EqualStrings(t, want.Name, got.Name)
+	assert.EqualStrings(t, want.Description, got.Description)
+	assert.EqualStrings(t, want.Type.TFType.String(), got.Type.TFType.String())
+	assert.EqualStrings(t, want.Type.TFTypeLabel, got.Type.TFTypeLabel)
+
+	assert.EqualStrings(t, want.Type.NestedTFType.String(), got.Type.NestedTFType.String())
+	assert.EqualStrings(t, want.Type.NestedTFTypeLabel, got.Type.NestedTFTypeLabel)
 }

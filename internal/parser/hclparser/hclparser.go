@@ -33,6 +33,7 @@ const (
 	refBlockName        = "ref"
 	headerBlockName     = "header"
 	badgeBlockName      = "badge"
+	outputBlockName     = "output"
 )
 
 // Parse reads the content of a io.Reader and returns a Definition entity from its parsed values

@@ -150,7 +150,7 @@ func TestAttributeToTypeValidPrimaryType(t *testing.T) {
 		t.Run(tt.desc, func(t *testing.T) {
 			attr := newTypeAttribute(tt.exprValue, tt.exprValue)
 
-			res, err := attr.Type()
+			res, err := attr.VarType()
 			assert.NoError(t, err)
 
 			assert.EqualInts(t, int(tt.expectedTerraformType), int(res.TFType))
@@ -197,7 +197,7 @@ func TestAttributeToTypeInvalidTypes(t *testing.T) {
 		t.Run(tt.desc, func(t *testing.T) {
 			attr := newTypeAttribute(tt.exprValue, tt.exprValue)
 
-			res, err := attr.Type()
+			res, err := attr.VarType()
 			assert.Error(t, err)
 
 			if !strings.Contains(err.Error(), tt.expectedErrorMSG) {

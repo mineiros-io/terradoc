@@ -81,9 +81,9 @@ func createAttributeFromHCLAttributes(attrs hcl.Attributes, name string, level i
 	// type definition
 	readmeType := getAttribute(attrs, readmeTypeAttributeName)
 	if !readmeType.isNil() {
-		attr.Type, err = readmeType.TypeFromString()
+		attr.Type, err = readmeType.VarTypeFromString()
 	} else {
-		attr.Type, err = getAttribute(attrs, typeAttributeName).Type()
+		attr.Type, err = getAttribute(attrs, typeAttributeName).VarType()
 	}
 
 	if err != nil {

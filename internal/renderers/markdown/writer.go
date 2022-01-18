@@ -20,6 +20,7 @@ const (
 	typeDescriptionTemplateName = "typeDescription"
 	headerTemplateName          = "header"
 	tocTemplateName             = "toc"
+	outputTemplateName          = "output"
 
 	varNestingLevel = 0
 )
@@ -91,6 +92,10 @@ func (mw *markdownWriter) writeSection(section entities.Section) error {
 	}
 
 	if err := mw.writeVariables(section.Variables); err != nil {
+		return err
+	}
+
+	if err := mw.writeOutputs(section.Outputs); err != nil {
 		return err
 	}
 
@@ -202,4 +207,22 @@ func fetchTOCItems(sections []entities.Section, level int) (items []tocItemRende
 	}
 
 	return items
+}
+
+func (mw *markdownWriter) writeOutputs(outputs []entities.Output) error {
+	for _, output := range outputs {
+		if err := mw.writeOutput(output); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (mw *markdownWriter) writeOutput(output entities.Output) error {
+	if err := mw.writeTemplate(outputTemplateName, output); err != nil {
+		return err
+	}
+
+	return nil
 }

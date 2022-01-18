@@ -15,16 +15,18 @@ const (
 	TerraformMap                            // map
 	TerraformObject                         // object
 	TerraformTuple                          // tuple
+	TerraformResource                       // resource
 )
 
 var TerraformTypes = map[string]TerraformType{
-	TerraformBool.String():   TerraformBool,
-	TerraformString.String(): TerraformString,
-	TerraformNumber.String(): TerraformNumber,
-	TerraformAny.String():    TerraformAny,
-	TerraformList.String():   TerraformList,
-	TerraformSet.String():    TerraformSet,
-	TerraformMap.String():    TerraformMap,
-	TerraformObject.String(): TerraformObject,
-	TerraformTuple.String():  TerraformTuple,
+	TerraformBool.String():     TerraformBool,
+	TerraformString.String():   TerraformString,
+	TerraformNumber.String():   TerraformNumber,
+	TerraformAny.String():      TerraformAny,
+	TerraformList.String():     TerraformList,
+	TerraformSet.String():      TerraformSet,
+	TerraformMap.String():      TerraformMap,
+	TerraformObject.String():   TerraformObject,
+	TerraformTuple.String():    TerraformTuple,
+	TerraformResource.String(): TerraformResource,
 }

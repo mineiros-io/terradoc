@@ -288,6 +288,77 @@ func TestWriteAttributeWithNested(t *testing.T) {
 	t.Skip("write rendering tests for nested attributes once we know more about it")
 }
 
+func TestWriteOutput(t *testing.T) {
+	for _, tt := range []struct {
+		desc   string
+		output entities.Output
+		want   mdOutput
+	}{
+		{
+			desc: "",
+			output: entities.Output{
+				Name:        "string_output",
+				Description: "i am an output",
+				Type: entities.Type{
+					TFType: types.TerraformString,
+				},
+			},
+			want: mdOutput{
+				item:        "- [**`string_output`**](#output-string_output): *(`string`)*<a name=\"output-string_output\"></a>",
+				description: "i am an output",
+			},
+		},
+		{
+			desc: "an optional number output with defaults that forces recreation",
+			output: entities.Output{
+				Name: "number_output",
+				Type: entities.Type{
+					TFType: types.TerraformNumber,
+				},
+			},
+			want: mdOutput{
+				item: "- [**`number_output`**](#output-number_output): *(`number`)*<a name=\"output-number_output\"></a>",
+			},
+		},
+		{
+			desc: "a bool output",
+			output: entities.Output{
+				Name: "bool_output",
+				Type: entities.Type{
+					TFType: types.TerraformBool,
+				},
+			},
+			want: mdOutput{
+				item: "- [**`bool_output`**](#output-bool_output): *(`bool`)*<a name=\"output-bool_output\"></a>",
+			},
+		},
+		{
+			desc: "an object output with readme example",
+			output: entities.Output{
+				Name: "obj_output",
+				Type: entities.Type{
+					TFType:      types.TerraformObject,
+					TFTypeLabel: "some_object",
+				},
+			},
+			want: mdOutput{
+				item: "- [**`obj_output`**](#output-obj_output): *(`object(some_object)`)*<a name=\"output-obj_output\"></a>",
+			},
+		},
+	} {
+		t.Run(tt.desc, func(t *testing.T) {
+			buf := &bytes.Buffer{}
+
+			writer := newTestWriter(t, buf)
+
+			err := writer.writeOutput(tt.output)
+			assert.NoError(t, err)
+
+			assertMarkdownHasOutput(t, buf, tt.want)
+		})
+	}
+}
+
 // TODO: rewrite all? :D
 
 type mdSection struct {
@@ -307,6 +378,11 @@ type mdAttribute struct {
 	description   string
 	defaults      string
 	readmeExample string
+}
+
+type mdOutput struct {
+	item        string
+	description string
 }
 
 func assertMarkdownHasSection(t *testing.T, buf *bytes.Buffer, md mdSection) {
@@ -373,6 +449,22 @@ func assertMarkdownHasAttribute(t *testing.T, buf *bytes.Buffer, md mdAttribute)
 
 	if diff := cmp.Diff(want, got); diff != "" {
 		t.Errorf("Expected variable markdown to match (-want +got):\n%s", diff)
+	}
+}
+
+func assertMarkdownHasOutput(t *testing.T, buf *bytes.Buffer, md mdOutput) {
+	t.Helper()
+
+	want := md.item + lineBreak
+
+	if md.description != "" {
+		want += fmt.Sprintf("\n  %s\n", md.description)
+	}
+
+	want += "\n"
+
+	if diff := cmp.Diff(want, buf.String()); diff != "" {
+		t.Errorf("Expected output markdown to match (-want +got):\n%s", diff)
 	}
 }
 

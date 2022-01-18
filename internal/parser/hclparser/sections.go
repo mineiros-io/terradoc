@@ -43,6 +43,13 @@ func parseSection(sectionBlock *hcl.Block, level int) (entities.Section, error) 
 	}
 	section.Variables = variables
 
+	// parse `output` blocks
+	outputs, err := parseOutputs(sectionContent.Blocks.OfType(outputBlockName))
+	if err != nil {
+		return entities.Section{}, fmt.Errorf("parsing section variable: %v", err)
+	}
+	section.Outputs = outputs
+
 	subSectionLevel := level + 1
 	// parse `section` blocks
 	for _, subSectionBlk := range sectionContent.Blocks.OfType(sectionBlockName) {
