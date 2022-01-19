@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/madlambda/spells/assert"
+	"github.com/mineiros-io/terradoc/internal/entities"
 )
 
 //go:embed testdata/*
@@ -23,4 +24,16 @@ func OpenFixture(t *testing.T, filename string) fs.File {
 	assert.NoError(t, err)
 
 	return f
+}
+
+func AssertEqualTypes(t *testing.T, want, got entities.Type) {
+	t.Helper()
+
+	assert.EqualStrings(t, want.TFType.String(), got.TFType.String())
+	assert.EqualStrings(t, want.Label, got.Label)
+
+	if want.Nested != nil {
+		assert.EqualStrings(t, want.Nested.TFType.String(), got.Nested.TFType.String())
+		assert.EqualStrings(t, want.Nested.Label, got.Nested.Label)
+	}
 }

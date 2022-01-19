@@ -9,14 +9,14 @@ import (
 	"github.com/mineiros-io/terradoc/internal/parser/hclparser/hclschema"
 )
 
-func parseOutputs(outputBlocks []*hcl.Block) (outputs []entities.Output, err error) {
+func parseOutputs(outputBlocks hcl.Blocks) (outputs []entities.Output, err error) {
 	for _, outputBlk := range outputBlocks {
-		variable, err := parseOutput(outputBlk)
+		output, err := parseOutput(outputBlk)
 		if err != nil {
-			return nil, fmt.Errorf("parsing variable: %s", err)
+			return nil, fmt.Errorf("parsing output: %s", err)
 		}
 
-		outputs = append(outputs, variable)
+		outputs = append(outputs, output)
 	}
 
 	return outputs, nil
@@ -24,19 +24,19 @@ func parseOutputs(outputBlocks []*hcl.Block) (outputs []entities.Output, err err
 
 func parseOutput(outputBlock *hcl.Block) (entities.Output, error) {
 	if len(outputBlock.Labels) != 1 {
-		return entities.Output{}, errors.New("variable block does not have a name")
+		return entities.Output{}, errors.New("output block does not have a name")
 	}
 
 	outputContent, diags := outputBlock.Body.Content(hclschema.OutputSchema())
 	if diags.HasErrors() {
-		return entities.Output{}, fmt.Errorf("parsing variable: %v", diags.Errs())
+		return entities.Output{}, fmt.Errorf("parsing output: %v", diags.Errs())
 	}
 
-	// variables have only the `name` label
+	// output blocks are required to have a label as defined in the schema
 	name := outputBlock.Labels[0]
 	output, err := createOutputFromHCLAttributes(outputContent.Attributes, name)
 	if err != nil {
-		return entities.Output{}, fmt.Errorf("parsing variable: %s", err)
+		return entities.Output{}, fmt.Errorf("parsing output: %s", err)
 	}
 
 	return output, nil
@@ -56,7 +56,6 @@ func createOutputFromHCLAttributes(attrs hcl.Attributes, name string) (entities.
 	output.Type, err = getAttribute(attrs, typeAttributeName).OutputType()
 	if err != nil {
 		return entities.Output{}, err
-
 	}
 
 	return output, nil

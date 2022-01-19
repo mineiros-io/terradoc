@@ -9,7 +9,6 @@ const (
 	TerraformBool                           // bool
 	TerraformString                         // string
 	TerraformNumber                         // number
-	TerraformAny                            // any
 	TerraformList                           // list
 	TerraformSet                            // set
 	TerraformMap                            // map
@@ -18,15 +17,27 @@ const (
 	TerraformResource                       // resource
 )
 
-var TerraformTypes = map[string]TerraformType{
-	TerraformBool.String():     TerraformBool,
-	TerraformString.String():   TerraformString,
-	TerraformNumber.String():   TerraformNumber,
-	TerraformAny.String():      TerraformAny,
-	TerraformList.String():     TerraformList,
-	TerraformSet.String():      TerraformSet,
-	TerraformMap.String():      TerraformMap,
-	TerraformObject.String():   TerraformObject,
-	TerraformTuple.String():    TerraformTuple,
-	TerraformResource.String(): TerraformResource,
+func TerraformTypes(typename string) (TerraformType, bool) {
+	switch typename {
+	case TerraformBool.String():
+		return TerraformBool, true
+	case TerraformString.String():
+		return TerraformString, true
+	case TerraformNumber.String():
+		return TerraformNumber, true
+	case TerraformList.String():
+		return TerraformList, true
+	case TerraformSet.String():
+		return TerraformSet, true
+	case TerraformMap.String():
+		return TerraformMap, true
+	case TerraformObject.String():
+		return TerraformObject, true
+	case TerraformTuple.String():
+		return TerraformTuple, true
+	case TerraformResource.String():
+		return TerraformResource, true
+	}
+
+	return TerraformEmptyType, false
 }

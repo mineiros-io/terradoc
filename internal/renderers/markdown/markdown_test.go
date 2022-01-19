@@ -55,9 +55,11 @@ func TestRender(t *testing.T) {
 								Name:    "test_objects",
 								Default: []byte("[]"),
 								Type: entities.Type{
-									TFType:            types.TerraformList,
-									NestedTFType:      types.TerraformObject,
-									NestedTFTypeLabel: "test_object",
+									TFType: types.TerraformList,
+									Nested: &entities.Type{
+										TFType: types.TerraformObject,
+										Label:  "test_object",
+									},
 								},
 								Attributes: []entities.Attribute{
 									{
@@ -73,8 +75,8 @@ func TestRender(t *testing.T) {
 										Name:        "something_complex",
 										Description: "Some other object",
 										Type: entities.Type{
-											TFType:      types.TerraformObject,
-											TFTypeLabel: "nested_object",
+											TFType: types.TerraformObject,
+											Label:  "nested_object",
 										},
 										Attributes: []entities.Attribute{
 											{

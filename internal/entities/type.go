@@ -6,14 +6,12 @@ import "github.com/mineiros-io/terradoc/internal/types"
 type Type struct {
 	// TFType is the specific Terraform type definition for this type
 	TFType types.TerraformType `json:"type"`
-	// TFTypeLabel is an optional label for the TerraformType
-	TFTypeLabel string `json:"type_label"`
-	// TFType is an optional Terraform type definition for the nested type
-	NestedTFType types.TerraformType `json:"nested_type"`
-	// TFTypeLabel is an optional label for the nested TerraformType
-	NestedTFTypeLabel string `json:"nested_type_label"`
+	// Label is an optional label for the TerraformType
+	Label string `json:"label"`
+	// Nested is an optional nested type definition
+	Nested *Type `json:"nested,omitempty"`
 }
 
 func (t Type) HasNestedType() bool {
-	return t.NestedTFType != types.TerraformEmptyType
+	return t.Nested != nil
 }

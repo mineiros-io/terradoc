@@ -337,8 +337,8 @@ func TestWriteOutput(t *testing.T) {
 			output: entities.Output{
 				Name: "obj_output",
 				Type: entities.Type{
-					TFType:      types.TerraformObject,
-					TFTypeLabel: "some_object",
+					TFType: types.TerraformObject,
+					Label:  "some_object",
 				},
 			},
 			want: mdOutput{

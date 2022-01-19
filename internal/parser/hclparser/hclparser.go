@@ -7,7 +7,6 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/mineiros-io/terradoc/internal/entities"
-	"github.com/mineiros-io/terradoc/internal/parser/hclparser/hclschema"
 )
 
 const (
@@ -57,41 +56,11 @@ func parseHCL(src []byte, filename string) (entities.Definition, error) {
 	return parseDefinition(f)
 }
 
-func parseDefinition(f *hcl.File) (entities.Definition, error) {
-	def := entities.Definition{}
-
-	definitionContent, diags := f.Body.Content(hclschema.RootSchema())
-	if diags.HasErrors() {
-		return entities.Definition{}, fmt.Errorf("parsing Terradoc definition: %v", diags.Errs())
-	}
-
-	// header
-	header, err := parseHeader(definitionContent.Blocks.OfType(headerBlockName))
-	if err != nil {
-		return entities.Definition{}, fmt.Errorf("parsing header: %v", err)
-	}
-	def.Header = header
-
-	// sections
-	sections, err := parseSections(definitionContent.Blocks.OfType(sectionBlockName))
-	if err != nil {
-		return entities.Definition{}, err
-	}
-	def.Sections = sections
-
-	def.References, err = parseReferences(definitionContent.Blocks.OfType(referencesBlockName))
-	if err != nil {
-		return entities.Definition{}, err
-	}
-
-	return def, nil
-}
-
 func getAttribute(attrs hcl.Attributes, name string) *hclAttribute {
 	attr, exists := attrs[name]
 	if exists {
 		return &hclAttribute{attr}
 	}
 
-	return &hclAttribute{}
+	return nil
 }

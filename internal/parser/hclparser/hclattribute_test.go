@@ -154,10 +154,12 @@ func TestAttributeToTypeValidPrimaryType(t *testing.T) {
 			assert.NoError(t, err)
 
 			assert.EqualInts(t, int(tt.expectedTerraformType), int(res.TFType))
-			// ensure that nested values are empty
-			assert.EqualStrings(t, "", res.TFTypeLabel)
-			assert.EqualStrings(t, "", res.NestedTFTypeLabel)
-			assert.EqualInts(t, int(types.TerraformEmptyType), int(res.NestedTFType))
+			assert.EqualStrings(t, "", res.Label)
+
+			// ensure that type does not have a nested type
+			if res.HasNestedType() {
+				t.Errorf("type %q should not have a nested type", tt.expectedTerraformType)
+			}
 		})
 	}
 }
@@ -205,9 +207,11 @@ func TestAttributeToTypeInvalidTypes(t *testing.T) {
 			}
 
 			assert.EqualInts(t, int(types.TerraformEmptyType), int(res.TFType))
-			assert.EqualInts(t, int(types.TerraformEmptyType), int(res.NestedTFType))
-			assert.EqualStrings(t, "", res.TFTypeLabel)
-			assert.EqualStrings(t, "", res.NestedTFTypeLabel)
+			assert.EqualStrings(t, "", res.Label)
+
+			if res.HasNestedType() {
+				t.Error("empty type cannot have a nested type")
+			}
 		})
 	}
 }

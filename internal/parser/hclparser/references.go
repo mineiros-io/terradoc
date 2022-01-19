@@ -8,7 +8,7 @@ import (
 	"github.com/mineiros-io/terradoc/internal/parser/hclparser/hclschema"
 )
 
-func parseReferences(referencesBlocks []*hcl.Block) ([]entities.Reference, error) {
+func parseReferences(referencesBlocks hcl.Blocks) ([]entities.Reference, error) {
 	switch {
 	case len(referencesBlocks) == 0:
 		return nil, nil
@@ -25,7 +25,7 @@ func parseReferences(referencesBlocks []*hcl.Block) ([]entities.Reference, error
 	return parseRefs(referencesContent.Blocks.OfType(refBlockName))
 }
 
-func parseRefs(refBlocks []*hcl.Block) (refs []entities.Reference, err error) {
+func parseRefs(refBlocks hcl.Blocks) (refs []entities.Reference, err error) {
 	for _, refBlock := range refBlocks {
 		ref, err := parseRef(refBlock)
 		if err != nil {
@@ -39,7 +39,7 @@ func parseRefs(refBlocks []*hcl.Block) (refs []entities.Reference, err error) {
 }
 
 func parseRef(refBlock *hcl.Block) (entities.Reference, error) {
-	// name
+	// reference blocks are required to have a label as defined in the schema
 	name := refBlock.Labels[0]
 
 	refContent, diags := refBlock.Body.Content(hclschema.RefSchema())
@@ -47,7 +47,6 @@ func parseRef(refBlock *hcl.Block) (entities.Reference, error) {
 		return entities.Reference{}, fmt.Errorf("parsing Terradoc `references`: %v", diags.Errs())
 	}
 
-	// value
 	value, err := getAttribute(refContent.Attributes, valueAttributeName).String()
 	if err != nil {
 		return entities.Reference{}, err
