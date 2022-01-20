@@ -47,8 +47,8 @@ Section contents support anything markdown and allow us to make references like 
 											{
 												Name: "person",
 												Type: entities.Type{
-													TFType:      types.TerraformObject,
-													TFTypeLabel: "person",
+													TFType: types.TerraformObject,
+													Label:  "person",
 												},
 												Description: "describes the last person who bothered to change this file",
 												Default:     json.RawMessage("nathan"),
@@ -73,9 +73,11 @@ Section contents support anything markdown and allow us to make references like 
 											{
 												Name: "beers",
 												Type: entities.Type{
-													TFType:            types.TerraformList,
-													NestedTFType:      types.TerraformObject,
-													NestedTFTypeLabel: "beer",
+													TFType: types.TerraformList,
+													Nested: &entities.Type{
+														TFType: types.TerraformObject,
+														Label:  "beer",
+													},
 												},
 												Description:      "a list of beers",
 												Default:          json.RawMessage("[]"),
@@ -110,8 +112,10 @@ Section contents support anything markdown and allow us to make references like 
 													{
 														Name: "tags",
 														Type: entities.Type{
-															TFType:       types.TerraformList,
-															NestedTFType: types.TerraformString,
+															TFType: types.TerraformList,
+															Nested: &entities.Type{
+																TFType: types.TerraformString,
+															},
 														},
 														Description: "a list of tags for the beer",
 													},
@@ -127,8 +131,8 @@ Section contents support anything markdown and allow us to make references like 
 												Name:        "obj_output",
 												Description: "an example object",
 												Type: entities.Type{
-													TFType:      types.TerraformObject,
-													TFTypeLabel: "an_object_label",
+													TFType: types.TerraformObject,
+													Label:  "an_object_label",
 												},
 											},
 											{
@@ -142,17 +146,19 @@ Section contents support anything markdown and allow us to make references like 
 												Name:        "list_output",
 												Description: "a list of example objects",
 												Type: entities.Type{
-													TFType:            types.TerraformList,
-													NestedTFType:      types.TerraformObject,
-													NestedTFTypeLabel: "example",
+													TFType: types.TerraformList,
+													Nested: &entities.Type{
+														TFType: types.TerraformObject,
+														Label:  "example",
+													},
 												},
 											},
 											{
 												Name:        "resource_output",
 												Description: "a resource output",
 												Type: entities.Type{
-													TFType:      types.TerraformResource,
-													TFTypeLabel: "google_xxxx",
+													TFType: types.TerraformResource,
+													Label:  "google_xxxx",
 												},
 											},
 										},
@@ -302,12 +308,6 @@ func assertEqualBadges(t *testing.T, got, want []entities.Badge) {
 func assertEqualSections(t *testing.T, want, got []entities.Section) {
 	t.Helper()
 
-	assert.EqualInts(t, len(want), len(got))
-
-	if len(got) == 0 {
-		return
-	}
-
 	for _, section := range want {
 		assertContainsSection(t, got, section)
 	}
@@ -346,12 +346,6 @@ func assertSectionEquals(t *testing.T, want, got entities.Section) {
 func assertEqualVariables(t *testing.T, want, got []entities.Variable) {
 	t.Helper()
 
-	assert.EqualInts(t, len(want), len(got))
-
-	if len(got) == 0 {
-		return
-	}
-
 	for _, variable := range want {
 		assertContainsVariable(t, got, variable)
 	}
@@ -380,23 +374,14 @@ func assertVariableEquals(t *testing.T, want, got entities.Variable) {
 	// redundant since we're finding the variable by name
 	assert.EqualStrings(t, want.Name, got.Name)
 	assert.EqualStrings(t, want.Description, got.Description)
-	assert.EqualStrings(t, want.Type.TFType.String(), got.Type.TFType.String())
-	assert.EqualStrings(t, want.Type.TFTypeLabel, got.Type.TFTypeLabel)
 
-	assert.EqualStrings(t, want.Type.NestedTFType.String(), got.Type.NestedTFType.String())
-	assert.EqualStrings(t, want.Type.NestedTFTypeLabel, got.Type.NestedTFTypeLabel)
+	test.AssertEqualTypes(t, want.Type, got.Type)
 
 	assertEqualAttributes(t, want.Attributes, got.Attributes)
 }
 
 func assertEqualAttributes(t *testing.T, want, got []entities.Attribute) {
 	t.Helper()
-
-	assert.EqualInts(t, len(want), len(got))
-
-	if len(got) == 0 {
-		return
-	}
 
 	for _, attribute := range want {
 		assertContainsAttribute(t, got, attribute)
@@ -427,23 +412,13 @@ func assertAttributeEquals(t *testing.T, want, got entities.Attribute) {
 	assert.EqualStrings(t, want.Name, got.Name)
 	assert.EqualStrings(t, want.Description, got.Description)
 
-	assert.EqualStrings(t, want.Type.TFType.String(), got.Type.TFType.String())
-	assert.EqualStrings(t, want.Type.TFTypeLabel, got.Type.TFTypeLabel)
-
-	assert.EqualStrings(t, want.Type.NestedTFType.String(), got.Type.NestedTFType.String())
-	assert.EqualStrings(t, want.Type.NestedTFTypeLabel, got.Type.NestedTFTypeLabel)
+	test.AssertEqualTypes(t, want.Type, got.Type)
 
 	assertEqualAttributes(t, want.Attributes, got.Attributes)
 }
 
 func assertEqualOutputs(t *testing.T, want, got []entities.Output) {
 	t.Helper()
-
-	assert.EqualInts(t, len(want), len(got))
-
-	if len(got) == 0 {
-		return
-	}
 
 	for _, output := range want {
 		assertContainsOutput(t, got, output)
@@ -473,9 +448,6 @@ func assertOutputEquals(t *testing.T, want, got entities.Output) {
 	// redundant since we're finding the output by name
 	assert.EqualStrings(t, want.Name, got.Name)
 	assert.EqualStrings(t, want.Description, got.Description)
-	assert.EqualStrings(t, want.Type.TFType.String(), got.Type.TFType.String())
-	assert.EqualStrings(t, want.Type.TFTypeLabel, got.Type.TFTypeLabel)
 
-	assert.EqualStrings(t, want.Type.NestedTFType.String(), got.Type.NestedTFType.String())
-	assert.EqualStrings(t, want.Type.NestedTFTypeLabel, got.Type.NestedTFTypeLabel)
+	test.AssertEqualTypes(t, want.Type, got.Type)
 }

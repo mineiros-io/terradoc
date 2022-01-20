@@ -17,12 +17,8 @@ type hclAttribute struct {
 	*hcl.Attribute
 }
 
-func (a *hclAttribute) isNil() bool {
-	return a.Attribute == nil
-}
-
 func (a *hclAttribute) String() (string, error) {
-	if a.isNil() {
+	if a == nil {
 		return "", nil
 	}
 
@@ -41,7 +37,7 @@ func (a *hclAttribute) String() (string, error) {
 }
 
 func (a *hclAttribute) Bool() (bool, error) {
-	if a.isNil() {
+	if a == nil {
 		return false, nil
 	}
 
@@ -60,7 +56,7 @@ func (a *hclAttribute) Bool() (bool, error) {
 }
 
 func (a *hclAttribute) RawJSON() (json.RawMessage, error) {
-	if a.isNil() {
+	if a == nil {
 		return nil, nil
 	}
 
@@ -85,23 +81,15 @@ func (a *hclAttribute) RawJSON() (json.RawMessage, error) {
 }
 
 func (a *hclAttribute) VarType() (entities.Type, error) {
-	if a.isNil() {
+	if a == nil {
 		return entities.Type{}, nil
 	}
 
-	return getTypeFromExpression(a.Expr, varFunctions)
-}
-
-func (a *hclAttribute) OutputType() (entities.Type, error) {
-	if a.isNil() {
-		return entities.Type{}, nil
-	}
-
-	return getTypeFromExpression(a.Expr, outputFunctions)
+	return getVarTypeFromExpression(a.Expr)
 }
 
 func (a *hclAttribute) VarTypeFromString() (entities.Type, error) {
-	if a.isNil() {
+	if a == nil {
 		return entities.Type{}, nil
 	}
 
@@ -110,7 +98,7 @@ func (a *hclAttribute) VarTypeFromString() (entities.Type, error) {
 		return entities.Type{}, fmt.Errorf("could not fetch type string value for %q: %v", a.Name, diags.Errs())
 	}
 
-	return getTypeFromString(val.AsString(), varFunctions)
+	return getVarTypeFromString(val.AsString(), a.Range.Start)
 }
 
 func getRawVariables(expr hcl.Expression) json.RawMessage {
@@ -123,4 +111,12 @@ func getRawVariables(expr hcl.Expression) json.RawMessage {
 	}
 
 	return varValue
+}
+
+func (a *hclAttribute) OutputType() (entities.Type, error) {
+	if a == nil {
+		return entities.Type{}, nil
+	}
+
+	return getOutputTypeFromExpression(a.Expr)
 }

@@ -12,7 +12,7 @@ const (
 	rootSectionLevel = 1
 )
 
-func parseSections(sectionBlocks []*hcl.Block) (sections []entities.Section, err error) {
+func parseSections(sectionBlocks hcl.Blocks) (sections []entities.Section, err error) {
 	for _, sectionBlock := range sectionBlocks {
 		section, err := parseSection(sectionBlock, rootSectionLevel) // initial level
 		if err != nil {

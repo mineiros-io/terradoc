@@ -6,76 +6,113 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclsyntax"
 	"github.com/madlambda/spells/assert"
+	"github.com/mineiros-io/terradoc/internal/entities"
 	"github.com/mineiros-io/terradoc/internal/types"
+	"github.com/mineiros-io/terradoc/test"
 )
 
 var varTests = []struct {
-	expression          string
-	wantType            types.TerraformType
-	wantTypeLabel       string
-	wantNestedType      types.TerraformType
-	wantNestedTypeLabel string
+	expression string
+	want       entities.Type
 }{
 	{
-		expression:          `list(my_object)`,
-		wantType:            types.TerraformList,
-		wantNestedType:      types.TerraformObject,
-		wantNestedTypeLabel: "my_object",
+		expression: `list(my_object)`,
+		want: entities.Type{
+			TFType: types.TerraformList,
+			Nested: &entities.Type{
+				TFType: types.TerraformObject,
+				Label:  "my_object",
+			},
+		},
 	},
 	{
-		expression:     `list(string)`,
-		wantType:       types.TerraformList,
-		wantNestedType: types.TerraformString,
+		expression: `list(string)`,
+		want: entities.Type{
+			TFType: types.TerraformList,
+			Nested: &entities.Type{
+				TFType: types.TerraformString,
+			},
+		},
 	},
 	{
-		expression:     `set(number)`,
-		wantType:       types.TerraformSet,
-		wantNestedType: types.TerraformNumber,
+		expression: `set(number)`,
+		want: entities.Type{
+			TFType: types.TerraformSet,
+			Nested: &entities.Type{
+				TFType: types.TerraformNumber,
+			},
+		},
 	},
 	{
-		expression:     `list(number)`,
-		wantType:       types.TerraformList,
-		wantNestedType: types.TerraformNumber,
+		expression: `list(number)`,
+		want: entities.Type{
+			TFType: types.TerraformList,
+			Nested: &entities.Type{
+				TFType: types.TerraformNumber,
+			},
+		},
 	},
 	{
-		expression:          `list(another_object)`,
-		wantType:            types.TerraformList,
-		wantNestedType:      types.TerraformObject,
-		wantNestedTypeLabel: "another_object",
+		expression: `list(another_object)`,
+		want: entities.Type{
+			TFType: types.TerraformList,
+			Nested: &entities.Type{
+				TFType: types.TerraformObject,
+				Label:  "another_object",
+			},
+		},
 	},
 	{
-		expression:          `set(another_object)`,
-		wantType:            types.TerraformSet,
-		wantNestedType:      types.TerraformObject,
-		wantNestedTypeLabel: "another_object",
+		expression: `set(another_object)`,
+		want: entities.Type{
+			TFType: types.TerraformSet,
+			Nested: &entities.Type{
+				TFType: types.TerraformObject,
+				Label:  "another_object",
+			},
+		},
 	},
 	{
-		expression:    `object(my_object_name)`,
-		wantType:      types.TerraformObject,
-		wantTypeLabel: "my_object_name",
+		expression: `object(my_object_name)`,
+		want: entities.Type{
+			TFType: types.TerraformObject,
+			Label:  "my_object_name",
+		},
 	},
 	{
-		expression:          `map(my_object_name)`,
-		wantType:            types.TerraformMap,
-		wantNestedType:      types.TerraformObject,
-		wantNestedTypeLabel: "my_object_name",
+		expression: `map(my_object_name)`,
+		want: entities.Type{
+			TFType: types.TerraformMap,
+			Nested: &entities.Type{
+				TFType: types.TerraformObject,
+				Label:  "my_object_name",
+			},
+		},
 	},
 	{
-		expression:    `object(another_object_name)`,
-		wantType:      types.TerraformObject,
-		wantTypeLabel: "another_object_name",
+		expression: `object(another_object_name)`,
+		want: entities.Type{
+			TFType: types.TerraformObject,
+			Label:  "another_object_name",
+		},
 	},
 	{
 		expression: `string`,
-		wantType:   types.TerraformString,
+		want: entities.Type{
+			TFType: types.TerraformString,
+		},
 	},
 	{
 		expression: `number`,
-		wantType:   types.TerraformNumber,
+		want: entities.Type{
+			TFType: types.TerraformNumber,
+		},
 	},
 	{
 		expression: `bool`,
-		wantType:   types.TerraformBool,
+		want: entities.Type{
+			TFType: types.TerraformBool,
+		},
 	},
 }
 
@@ -88,100 +125,131 @@ func TestGetVarTypeFromExpression(t *testing.T) {
 					t.Errorf("Error parsing expression: %v", parseDiags.Errs())
 				}
 
-				got, err := getTypeFromExpression(expr, varFunctions)
+				got, err := getVarTypeFromExpression(expr)
 				assert.NoError(t, err)
 
-				assert.EqualStrings(t, tt.wantType.String(), got.TFType.String())
-				assert.EqualStrings(t, tt.wantTypeLabel, got.TFTypeLabel)
-				assert.EqualStrings(t, tt.wantNestedType.String(), got.NestedTFType.String())
-				assert.EqualStrings(t, tt.wantNestedTypeLabel, got.NestedTFTypeLabel)
+				test.AssertEqualTypes(t, tt.want, got)
 			})
 
 			t.Run("when expression is a string", func(t *testing.T) {
-				got, err := getTypeFromString(tt.expression, varFunctions)
+				got, err := getVarTypeFromString(tt.expression, hcl.Pos{Line: 1, Column: 1, Byte: 0})
 				assert.NoError(t, err)
 
-				assert.EqualStrings(t, tt.wantType.String(), got.TFType.String())
-				assert.EqualStrings(t, tt.wantTypeLabel, got.TFTypeLabel)
-				assert.EqualStrings(t, tt.wantNestedType.String(), got.NestedTFType.String())
-				assert.EqualStrings(t, tt.wantNestedTypeLabel, got.NestedTFTypeLabel)
+				test.AssertEqualTypes(t, tt.want, got)
 			})
 		})
 	}
 }
 
 var outputTests = []struct {
-	expression          string
-	wantType            types.TerraformType
-	wantTypeLabel       string
-	wantNestedType      types.TerraformType
-	wantNestedTypeLabel string
+	expression string
+	want       entities.Type
 }{
 	{
-		expression:          `list(my_object)`,
-		wantType:            types.TerraformList,
-		wantNestedType:      types.TerraformObject,
-		wantNestedTypeLabel: "my_object",
+		expression: `list(my_object)`,
+		want: entities.Type{
+			TFType: types.TerraformList,
+			Nested: &entities.Type{
+				TFType: types.TerraformObject,
+				Label:  "my_object",
+			},
+		},
 	},
 	{
-		expression:     `list(string)`,
-		wantType:       types.TerraformList,
-		wantNestedType: types.TerraformString,
+		expression: `list(string)`,
+		want: entities.Type{
+			TFType: types.TerraformList,
+			Nested: &entities.Type{
+				TFType: types.TerraformString,
+			},
+		},
 	},
 	{
-		expression:     `set(number)`,
-		wantType:       types.TerraformSet,
-		wantNestedType: types.TerraformNumber,
+		expression: `set(number)`,
+		want: entities.Type{
+			TFType: types.TerraformSet,
+			Nested: &entities.Type{
+				TFType: types.TerraformNumber,
+			},
+		},
 	},
 	{
-		expression:     `list(number)`,
-		wantType:       types.TerraformList,
-		wantNestedType: types.TerraformNumber,
+		expression: `list(number)`,
+		want: entities.Type{
+			TFType: types.TerraformList,
+			Nested: &entities.Type{
+				TFType: types.TerraformNumber,
+			},
+		},
 	},
 	{
-		expression:          `list(another_object)`,
-		wantType:            types.TerraformList,
-		wantNestedType:      types.TerraformObject,
-		wantNestedTypeLabel: "another_object",
+		expression: `list(another_object)`,
+		want: entities.Type{
+			TFType: types.TerraformList,
+			Nested: &entities.Type{
+				TFType: types.TerraformObject,
+				Label:  "another_object",
+			},
+		},
 	},
 	{
-		expression:          `set(another_object)`,
-		wantType:            types.TerraformSet,
-		wantNestedType:      types.TerraformObject,
-		wantNestedTypeLabel: "another_object",
+		expression: `set(another_object)`,
+		want: entities.Type{
+			TFType: types.TerraformSet,
+			Nested: &entities.Type{
+				TFType: types.TerraformObject,
+				Label:  "another_object",
+			},
+		},
 	},
 	{
-		expression:    `object(my_object_name)`,
-		wantType:      types.TerraformObject,
-		wantTypeLabel: "my_object_name",
+		expression: `object(my_object_name)`,
+		want: entities.Type{
+			TFType: types.TerraformObject,
+			Label:  "my_object_name",
+		},
 	},
 	{
-		expression:          `map(my_object_name)`,
-		wantType:            types.TerraformMap,
-		wantNestedType:      types.TerraformObject,
-		wantNestedTypeLabel: "my_object_name",
+		expression: `map(my_object_name)`,
+		want: entities.Type{
+			TFType: types.TerraformMap,
+			Nested: &entities.Type{
+				TFType: types.TerraformObject,
+				Label:  "my_object_name",
+			},
+		},
 	},
 	{
-		expression:    `object(another_object_name)`,
-		wantType:      types.TerraformObject,
-		wantTypeLabel: "another_object_name",
+		expression: `object(another_object_name)`,
+		want: entities.Type{
+			TFType: types.TerraformObject,
+			Label:  "another_object_name",
+		},
 	},
 	{
 		expression: `string`,
-		wantType:   types.TerraformString,
+		want: entities.Type{
+			TFType: types.TerraformString,
+		},
 	},
 	{
 		expression: `number`,
-		wantType:   types.TerraformNumber,
+		want: entities.Type{
+			TFType: types.TerraformNumber,
+		},
 	},
 	{
 		expression: `bool`,
-		wantType:   types.TerraformBool,
+		want: entities.Type{
+			TFType: types.TerraformBool,
+		},
 	},
 	{
-		expression:    `resource(foo_bar_baz)`,
-		wantType:      types.TerraformResource,
-		wantTypeLabel: "foo_bar_baz",
+		expression: `resource(foo_bar_baz)`,
+		want: entities.Type{
+			TFType: types.TerraformResource,
+			Label:  "foo_bar_baz",
+		},
 	},
 }
 
@@ -193,13 +261,10 @@ func TestGetOutputTypeFromExpression(t *testing.T) {
 				t.Errorf("Error parsing expression: %v", parseDiags.Errs())
 			}
 
-			got, err := getTypeFromExpression(expr, outputFunctions)
+			got, err := getOutputTypeFromExpression(expr)
 			assert.NoError(t, err)
 
-			assert.EqualStrings(t, tt.wantType.String(), got.TFType.String())
-			assert.EqualStrings(t, tt.wantTypeLabel, got.TFTypeLabel)
-			assert.EqualStrings(t, tt.wantNestedType.String(), got.NestedTFType.String())
-			assert.EqualStrings(t, tt.wantNestedTypeLabel, got.NestedTFTypeLabel)
+			test.AssertEqualTypes(t, tt.want, got)
 		})
 	}
 }

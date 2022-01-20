@@ -9,7 +9,7 @@ import (
 	"github.com/mineiros-io/terradoc/internal/parser/hclparser/hclschema"
 )
 
-func parseVariables(variableBlocks []*hcl.Block) (variables []entities.Variable, err error) {
+func parseVariables(variableBlocks hcl.Blocks) (variables []entities.Variable, err error) {
 	for _, varBlk := range variableBlocks {
 		variable, err := parseVariable(varBlk)
 		if err != nil {
@@ -32,7 +32,7 @@ func parseVariable(variableBlock *hcl.Block) (entities.Variable, error) {
 		return entities.Variable{}, fmt.Errorf("parsing variable: %v", diags.Errs())
 	}
 
-	// variables have only the `name` label
+	// variable blocks are required to have a label as defined in the schema
 	name := variableBlock.Labels[0]
 	variable, err := createVariableFromHCLAttributes(variableContent.Attributes, name)
 	if err != nil {
@@ -81,10 +81,10 @@ func createVariableFromHCLAttributes(attrs hcl.Attributes, name string) (entitie
 
 	// type definition
 	readmeType := getAttribute(attrs, readmeTypeAttributeName)
-	if !readmeType.isNil() {
-		variable.Type, err = readmeType.VarTypeFromString()
-	} else {
+	if readmeType == nil {
 		variable.Type, err = getAttribute(attrs, typeAttributeName).VarType()
+	} else {
+		variable.Type, err = readmeType.VarTypeFromString()
 	}
 
 	if err != nil {

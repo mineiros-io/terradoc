@@ -2,8 +2,8 @@
     {{- if .HasNestedType -}}
         {{template "nestedVariableType" .}}
     {{- else -}}
-        {{- if .TFTypeLabel -}}
-            {{- .TFType -}}({{ .TFTypeLabel }})
+        {{- if .Label -}}
+            {{- .TFType -}}({{ .Label }})
         {{- else -}}
             {{- .TFType -}}
         {{- end -}}
@@ -11,9 +11,9 @@
 {{- end -}}
 
 {{- define "nestedVariableType" -}}
-    {{- if .NestedTFTypeLabel -}}
-        {{- .TFType -}}({{.NestedTFTypeLabel}})
+    {{- if .Nested.Label -}}
+        {{- .TFType -}}({{.Nested.Label}})
     {{- else -}}
-        {{- .TFType -}}({{.NestedTFType}})
+        {{- .TFType -}}({{.Nested.TFType}})
     {{- end -}}
 {{- end -}}

@@ -8,7 +8,7 @@ import (
 	"github.com/mineiros-io/terradoc/internal/parser/hclparser/hclschema"
 )
 
-func parseHeader(headerBlocks []*hcl.Block) (entities.Header, error) {
+func parseHeader(headerBlocks hcl.Blocks) (entities.Header, error) {
 	switch {
 	case len(headerBlocks) == 0:
 		return entities.Header{}, nil
@@ -42,6 +42,7 @@ func parseHeader(headerBlocks []*hcl.Block) (entities.Header, error) {
 }
 
 func parseBadge(badgeBlock *hcl.Block) (entities.Badge, error) {
+	// badge blocks are required to have a label as defined in the schema
 	name := badgeBlock.Labels[0]
 
 	badgeContent, diags := badgeBlock.Body.Content(hclschema.BadgeSchema())

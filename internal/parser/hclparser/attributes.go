@@ -8,7 +8,7 @@ import (
 	"github.com/mineiros-io/terradoc/internal/parser/hclparser/hclschema"
 )
 
-func parseVariableAttributes(attributeBlocks []*hcl.Block) (attributes []entities.Attribute, err error) {
+func parseVariableAttributes(attributeBlocks hcl.Blocks) (attributes []entities.Attribute, err error) {
 	const variableAttributeLevel = 1
 
 	for _, attrBlk := range attributeBlocks {
@@ -33,7 +33,9 @@ func parseAttribute(attrBlock *hcl.Block, level int) (entities.Attribute, error)
 		return entities.Attribute{}, fmt.Errorf("expected single 'name' label, got %v", attrBlock.Labels)
 	}
 
+	// variable blocks are required to have a label as defined in the schema
 	name := attrBlock.Labels[0]
+
 	attr, err := createAttributeFromHCLAttributes(attrContent.Attributes, name, level)
 	if err != nil {
 		return entities.Attribute{}, fmt.Errorf("parsing attribute: %s", err)
@@ -80,10 +82,10 @@ func createAttributeFromHCLAttributes(attrs hcl.Attributes, name string, level i
 
 	// type definition
 	readmeType := getAttribute(attrs, readmeTypeAttributeName)
-	if !readmeType.isNil() {
-		attr.Type, err = readmeType.VarTypeFromString()
-	} else {
+	if readmeType == nil {
 		attr.Type, err = getAttribute(attrs, typeAttributeName).VarType()
+	} else {
+		attr.Type, err = readmeType.VarTypeFromString()
 	}
 
 	if err != nil {
