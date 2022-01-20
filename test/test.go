@@ -32,8 +32,17 @@ func AssertEqualTypes(t *testing.T, want, got entities.Type) {
 	assert.EqualStrings(t, want.TFType.String(), got.TFType.String())
 	assert.EqualStrings(t, want.Label, got.Label)
 
+	if want.Nested == nil && got.Nested != nil {
+		t.Fatalf("wanted nested to be nil but got %+v", got.Nested)
+	}
+
 	if want.Nested != nil {
+		if got.Nested == nil {
+			t.Fatal("wanted a nested type but found none")
+		}
+
 		assert.EqualStrings(t, want.Nested.TFType.String(), got.Nested.TFType.String())
 		assert.EqualStrings(t, want.Nested.Label, got.Nested.Label)
 	}
+
 }

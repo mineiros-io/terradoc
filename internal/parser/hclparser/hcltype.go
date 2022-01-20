@@ -21,6 +21,68 @@ func getOutputTypeFromExpression(expr hcl.Expression) (entities.Type, error) {
 	return getTypeFromExpression(expr, outputFunctions())
 }
 
+func agetTypeFromExpression(expr hcl.Expression) (entities.Type, error) {
+	kw := hcl.ExprAsKeyword(expr)
+	switch kw {
+	case "bool":
+		return entities.Type{TFType: types.TerraformBool}, nil
+	case "string":
+		return entities.Type{TFType: types.TerraformString}, nil
+	case "number":
+		return entities.Type{TFType: types.TerraformNumber}, nil
+	}
+
+	call, diags := hcl.ExprCall(expr)
+	if diags.HasErrors() {
+		return entities.Type{}, fmt.Errorf("getting type from expression: %v", diags.Errs())
+	}
+
+	switch call.Name {
+	case "bool", "string", "number", "any":
+		return entities.Type{}, fmt.Errorf("%q does not accept any argument", call.Name)
+	}
+
+	if len(call.Arguments) != 1 {
+		return entities.Type{}, fmt.Errorf("%q accepts only 1 argument", call.Name)
+	}
+
+	switch call.Name {
+	case "list":
+		nestedType, err := agetTypeFromExpression(call.Arguments[0])
+
+		return entities.Type{
+			TFType: types.TerraformList,
+			Nested: &nestedType,
+		}, err
+
+	case "set":
+		nestedType, err := agetTypeFromExpression(call.Arguments[0])
+
+		return entities.Type{
+			TFType: types.TerraformSet,
+			Nested: &nestedType,
+		}, err
+
+	case "map":
+		nestedType, err := agetTypeFromExpression(call.Arguments[0])
+
+		return entities.Type{
+			TFType: types.TerraformSet,
+			Nested: &nestedType,
+		}, err
+	case "object":
+		// objectLabel := hcl.ExprAsKeyword(call.Arguments[0])
+		objectLabel := "xunda"
+
+		return entities.Type{
+			TFType: types.TerraformObject,
+			Label:  objectLabel,
+		}, nil
+	}
+
+	return entities.Type{}, nil
+}
+
 func getTypeFromExpression(expr hcl.Expression, ctxFunctions map[string]function.Function) (entities.Type, error) {
 	kw := hcl.ExprAsKeyword(expr)
 

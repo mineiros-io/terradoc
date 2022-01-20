@@ -129,6 +129,11 @@ func TestGetVarTypeFromExpression(t *testing.T) {
 				assert.NoError(t, err)
 
 				test.AssertEqualTypes(t, tt.want, got)
+
+				// new approach
+				nGot, err := agetTypeFromExpression(expr)
+				assert.NoError(t, err)
+				test.AssertEqualTypes(t, tt.want, nGot)
 			})
 
 			t.Run("when expression is a string", func(t *testing.T) {
@@ -267,4 +272,18 @@ func TestGetOutputTypeFromExpression(t *testing.T) {
 			test.AssertEqualTypes(t, tt.want, got)
 		})
 	}
+}
+
+func TestX(t *testing.T) {
+	expression := `list(my_object)`
+
+	expr, _ := hclsyntax.ParseExpression([]byte(expression), "", hcl.Pos{Line: 1, Column: 1, Byte: 0})
+
+	a, b := hcl.ExprCall(expr)
+	if b.HasErrors() {
+		t.Fatalf("ERROR: %v", b.Errs())
+	}
+
+	t.Logf("NAME: %q", a.Name)
+	t.Logf("ARGUMENTS: %q", a.Arguments[0])
 }
