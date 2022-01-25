@@ -1,28 +1,28 @@
 header {
   image = "https://raw.githubusercontent.com/mineiros-io/brand/3bffd30e8bdbbde32c143e2650b2faa55f1df3ea/mineiros-primary-logo.svg"
-  url = "https://mineiros.io/?ref=terraform-google-secret-manager-iam"
+  url   = "https://mineiros.io/?ref=terraform-google-secret-manager-iam"
 
   badge "terraform" {
     image = "https://img.shields.io/badge/Terraform-1.x-623CE4.svg?logo=terraform"
-    url = "https://github.com/hashicorp/terraform/releases"
-    text = "Terraform Version"
+    url   = "https://github.com/hashicorp/terraform/releases"
+    text  = "Terraform Version"
   }
 
-  badge "google-provider"{
+  badge "google-provider" {
     image = "https://img.shields.io/badge/google-3.x-1A73E8.svg?logo=terraform"
-    url = "https://github.com/terraform-providers/terraform-provider-google/releases"
-    text = "Google Provider Version"
+    url   = "https://github.com/terraform-providers/terraform-provider-google/releases"
+    text  = "Google Provider Version"
   }
 
   badge "slack" {
     image = "https://img.shields.io/badge/slack-@mineiros--community-f32752.svg?logo=slack"
-    url = "https://mineiros.io/slack"
-    text = "Join Slack"
+    url   = "https://mineiros.io/slack"
+    text  = "Join Slack"
   }
 }
 
 section {
-  title = "terraform-google-secret-manager-iam"
+  title   = "terraform-google-secret-manager-iam"
   content = <<END
 A [Terraform](https://www.terraform.io) module to create a [Google Secret Manager IAM](https://cloud.google.com/secret-manager/docs/access-control) on [Google Cloud Services (GCP)](https://cloud.google.com/).
 
@@ -37,7 +37,7 @@ END
   toc = true
 
   section {
-    title = "Module Features"
+    title   = "Module Features"
     content = <<END
 This module implements the following terraform resources:
 
@@ -48,7 +48,7 @@ END
   }
 
   section {
-    title = "Getting Started"
+    title   = "Getting Started"
     content = <<END
 Most basic usage just setting required arguments:
 
@@ -65,7 +65,7 @@ END
   }
 
   section {
-    title = "Module Argument Reference"
+    title   = "Module Argument Reference"
     content = "See [variables.tf] and [examples/] for details and use-cases."
 
     section {
@@ -75,14 +75,14 @@ END
         title = "Module Configuration"
 
         variable "module_enabled" {
-          type = bool
+          type        = bool
           description = "Specifies whether resources in the module will be created."
-          default = true
+          default     = true
         }
 
         variable "module_depends_on" {
-          type = list(dependencies)
-          description = "A list of dependencies. Any object can be _assigned_ to this list to define a hidden external dependency."
+          type           = list(dependencies)
+          description    = "A list of dependencies. Any object can be _assigned_ to this list to define a hidden external dependency."
           readme_example = <<END
 module_depends_on = [
   google_network.network
@@ -95,14 +95,14 @@ END
         title = "Main Resource Configuration"
 
         variable "secret_id" {
-          required = true
-          type = string
+          required    = true
+          type        = string
           description = "The id of the secret."
         }
 
         variable "members" {
-          type = set(string)
-          default = []
+          type        = set(string)
+          default     = []
           description = <<-END
             Identities that will be granted the privilege in role. Each entry can have one of the following values:
             - `allUsers`: A special identifier that represents anyone who is on the internet; with or without a Google account.
@@ -118,24 +118,24 @@ END
         }
 
         variable "role" {
-          type = string
+          type        = string
           description = "The role that should be applied. Note that custom roles must be of the format `[projects|organizations]/{parent-name}/roles/{role-name}`."
         }
 
         variable "project" {
-          type = string
+          type        = string
           description = "The ID of the project in which the resource belongs. If it is not provided, the project will be parsed from the identifier of the parent resource. If no project is provided in the parent identifier and no project is specified, the provider project is used."
         }
 
         variable "authoritative" {
           description = "Whether to exclusively set (authoritative mode) or add (non-authoritative/additive mode) members to the role."
-          type = bool
-          default = true
+          type        = bool
+          default     = true
         }
 
         variable "policy_bindings" {
-          type = list(policy_bindings)
-          description = "A list of IAM policy bindings."
+          type           = list(policy_bindings)
+          description    = "A list of IAM policy bindings."
           readme_example = <<END
 policy_bindings = [{
   role    = "roles/secretmanager.secretAccessor"
@@ -145,19 +145,19 @@ END
 
           attribute "role" {
             description = "The role that should be applied."
-            required = true
-            type = string
+            required    = true
+            type        = string
           }
 
           attribute "members" {
-            type = set(string)
-            default = var.members
+            type        = set(string)
+            default     = var.members
             description = "Identities that will be granted the privilege in `role`."
           }
 
           attribute "condition" {
-            type = object(condition)
-            description = "An IAM Condition for a given binding."
+            type           = object(condition)
+            description    = "An IAM Condition for a given binding."
             readme_example = <<END
 condition = {
   expression = "request.time < timestamp(\"2022-01-01T00:00:00Z\")"
@@ -166,19 +166,19 @@ condition = {
 END
 
             attribute "expression" {
-              type = string
-              required = true
+              type        = string
+              required    = true
               description = "Textual representation of an expression in Common Expression Language syntax."
             }
 
             attribute "title" {
-              type = string
-              required = true
+              type        = string
+              required    = true
               description = "A title for the expression, i.e. a short string describing its purpose."
             }
 
             attribute "description" {
-              type = string
+              type        = string
               description = "An optional description of the expression. This is a longer text which describes the expression, e.g. when hovered over it in a UI."
             }
           }
@@ -192,16 +192,16 @@ END
   }
 
   section {
-    title = "Module Attributes Reference"
+    title   = "Module Attributes Reference"
     content = "The following attributes are exported in the outputs of the module:"
 
     output "module_enabled" {
-      type = bool
+      type        = bool
       description = "Whether this module is enabled."
     }
 
     output "iam" {
-      type = object(iam_output)
+      type        = object(iam_output)
       description = "All attributes of the created `iam_binding` or `iam_member` or `iam_policy` resource according to the mode."
     }
   }
@@ -211,7 +211,7 @@ END
     title = "External Documentation"
 
     section {
-      title = "Google Documentation"
+      title   = "Google Documentation"
       content = <<END
 - Secret Manager: <https://cloud.google.com/secret-manager/docs>
 - Secret Manager Access Control: <https://cloud.google.com/secret-manager/docs/access-control>
@@ -220,7 +220,7 @@ END
     }
 
     section {
-      title = "Terraform Google Provider Documentation"
+      title   = "Terraform Google Provider Documentation"
       content = <<END
 - <https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret>
 - <https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret_iam>
@@ -229,7 +229,7 @@ END
   }
 
   section {
-    title = "Module Versioning"
+    title   = "Module Versioning"
     content = <<END
 This Module follows the principles of [Semantic Versioning (SemVer)].
 
@@ -241,7 +241,7 @@ Given a version number `MAJOR.MINOR.PATCH`, we increment the:
 END
 
     section {
-      title = "Backwards compatibility in `0.0.z` and `0.y.z` version"
+      title   = "Backwards compatibility in `0.0.z` and `0.y.z` version"
       content = <<END
 - Backwards compatibility in versions `0.0.z` is **not guaranteed** when `z` is increased. (Initial development)
 - Backwards compatibility in versions `0.y.z` is **not guaranteed** when `y` is increased. (Pre-release)
@@ -250,7 +250,7 @@ END
   }
 
   section {
-    title = "About Mineiros"
+    title   = "About Mineiros"
     content = <<END
 [Mineiros][homepage] is a remote-first company headquartered in Berlin, Germany
 that solves development, automation and security challenges in cloud infrastructure.
@@ -265,12 +265,12 @@ END
   }
 
   section {
-    title = "Reporting Issues"
+    title   = "Reporting Issues"
     content = "We use GitHub [Issues] to track community reported issues and missing features."
   }
 
   section {
-    title = "Contributing"
+    title   = "Contributing"
     content = <<END
 Contributions are always encouraged and welcome! For the process of accepting changes, we use
 [Pull Requests]. If you'd like more information, please see our [Contribution Guidelines].
@@ -278,7 +278,7 @@ END
   }
 
   section {
-    title = "Makefile Targets"
+    title   = "Makefile Targets"
     content = <<END
 This repository comes with a handy [Makefile].
 Run `make help` to see details on each available target.
@@ -286,7 +286,7 @@ END
   }
 
   section {
-    title = "License"
+    title   = "License"
     content = <<END
 [![license][badge-license]][apache20]
 
