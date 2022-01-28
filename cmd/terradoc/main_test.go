@@ -23,7 +23,7 @@ var (
 	expectedFormatOutput   = "formatted-input.tfdoc.hcl"
 )
 
-var dir, terradocBinPath string
+var terradocBinPath string
 
 func TestMain(m *testing.M) {
 	fmt.Println("Building tool...")
@@ -32,17 +32,15 @@ func TestMain(m *testing.M) {
 		binName += ".exe"
 	}
 
-	var err error
-
-	dir, err = os.Getwd()
+	binTmpdir, err := os.MkdirTemp("", "cmd-terradoc-test-")
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Cannot get current directory: %v", err)
+		fmt.Fprintf(os.Stderr, "Cannot create temp dir: %v", err)
 		os.Exit(1)
 	}
-	terradocBinPath = filepath.Join(dir, binName)
 
-	build := exec.Command("go", "build", "-o", binName)
+	terradocBinPath = filepath.Join(binTmpdir, binName)
 
+	build := exec.Command("go", "build", "-o", terradocBinPath)
 	err = build.Run()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Cannot build %q: %v", binName, err)
@@ -54,8 +52,10 @@ func TestMain(m *testing.M) {
 	result := m.Run()
 
 	fmt.Println("Cleaning up...")
-
-	os.Remove(binName)
+	err = os.RemoveAll(binTmpdir)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Cannot clean up temp dir %q: %v", binTmpdir, err)
+	}
 
 	os.Exit(result)
 }
