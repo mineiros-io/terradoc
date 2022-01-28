@@ -16,10 +16,14 @@ import (
 )
 
 var (
-	binName                   = "terradoc"
-	inputFixtureName          = "golden-input.tfdoc.hcl"
-	expectedOutputFixtureName = "golden-readme.md"
+	binName                = "terradoc"
+	generateInput          = "golden-input.tfdoc.hcl"
+	formatInput            = "unformatted-input.tfdoc.hcl"
+	expectedGenerateOutput = "golden-readme.md"
+	expectedFormatOutput   = "formatted-input.tfdoc.hcl"
 )
+
+var terradocBinPath string
 
 func TestMain(m *testing.M) {
 	fmt.Println("Building tool...")
@@ -28,9 +32,16 @@ func TestMain(m *testing.M) {
 		binName += ".exe"
 	}
 
-	build := exec.Command("go", "build", "-o", binName)
+	binTmpdir, err := os.MkdirTemp("", "cmd-terradoc-test-")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Cannot create temp dir: %v", err)
+		os.Exit(1)
+	}
 
-	err := build.Run()
+	terradocBinPath = filepath.Join(binTmpdir, binName)
+
+	build := exec.Command("go", "build", "-o", terradocBinPath)
+	err = build.Run()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Cannot build %q: %v", binName, err)
 		os.Exit(1)
@@ -41,44 +52,40 @@ func TestMain(m *testing.M) {
 	result := m.Run()
 
 	fmt.Println("Cleaning up...")
-
-	os.Remove(binName)
+	err = os.RemoveAll(binTmpdir)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Cannot clean up temp dir %q: %v", binTmpdir, err)
+	}
 
 	os.Exit(result)
 }
 
-func TestTerradocCLI(t *testing.T) {
-	dir, err := os.Getwd()
-	assert.NoError(t, err)
-
-	// set up input file and content - TODO: structure this better
-	inputContent := test.ReadFixture(t, inputFixtureName)
-
+func TestGenerate(t *testing.T) {
+	inputContent := test.ReadFixture(t, generateInput)
+	// create tempfile
 	inputFile, err := ioutil.TempFile("", "terradoc-input-")
+	assert.NoError(t, err)
+	// write content to tempfile
+	_, err = inputFile.Write(inputContent)
 	assert.NoError(t, err)
 
 	defer inputFile.Close()
 
-	_, err = inputFile.Write(inputContent)
-	assert.NoError(t, err)
-
-	cmdPath := filepath.Join(dir, binName)
-
-	expectedOutput := test.ReadFixture(t, expectedOutputFixtureName)
+	expectedOutput := test.ReadFixture(t, expectedGenerateOutput)
 
 	t.Run("ReadFromFile", func(t *testing.T) {
-		cmd := exec.Command(cmdPath, inputFile.Name())
+		cmd := exec.Command(terradocBinPath, "generate", inputFile.Name())
 
 		output, err := cmd.CombinedOutput()
 		assert.NoError(t, err)
 
-		if diff := cmp.Diff(output, expectedOutput); diff != "" {
+		if diff := cmp.Diff(expectedOutput, output); diff != "" {
 			t.Errorf("Result is not expected (-want +got):\n%s", diff)
 		}
 	})
 
 	t.Run("ReadFromSTDIN", func(t *testing.T) {
-		cmd := exec.Command(cmdPath)
+		cmd := exec.Command(terradocBinPath, "generate", "-")
 
 		cmdStdIn, err := cmd.StdinPipe()
 		assert.NoError(t, err)
@@ -91,18 +98,18 @@ func TestTerradocCLI(t *testing.T) {
 		output, err := cmd.CombinedOutput()
 		assert.NoError(t, err)
 
-		if diff := cmp.Diff(output, expectedOutput); diff != "" {
+		if diff := cmp.Diff(expectedOutput, output); diff != "" {
 			t.Errorf("Result is not expected (-want +got):\n%s", diff)
 		}
 	})
 
 	t.Run("WriteToStdout", func(t *testing.T) {
-		cmd := exec.Command(cmdPath, inputFile.Name())
+		cmd := exec.Command(terradocBinPath, "generate", inputFile.Name())
 
 		output, err := cmd.CombinedOutput()
 		assert.NoError(t, err)
 
-		if diff := cmp.Diff(output, expectedOutput); diff != "" {
+		if diff := cmp.Diff(expectedOutput, output); diff != "" {
 			t.Errorf("Result is not expected (-want +got):\n%s", diff)
 		}
 	})
@@ -112,7 +119,7 @@ func TestTerradocCLI(t *testing.T) {
 		assert.NoError(t, err)
 		defer f.Close()
 
-		cmd := exec.Command(cmdPath, "-o", f.Name(), inputFile.Name())
+		cmd := exec.Command(terradocBinPath, "generate", "-o", f.Name(), inputFile.Name())
 
 		err = cmd.Run()
 		assert.NoError(t, err)
@@ -120,7 +127,49 @@ func TestTerradocCLI(t *testing.T) {
 		result, err := ioutil.ReadAll(f)
 		assert.NoError(t, err)
 
-		if diff := cmp.Diff(result, expectedOutput); diff != "" {
+		if diff := cmp.Diff(expectedOutput, result); diff != "" {
+			t.Errorf("Result is not expected (-want +got):\n%s", diff)
+		}
+	})
+}
+
+func TestFormat(t *testing.T) {
+	unformattedInput := test.ReadFixture(t, formatInput)
+	// create another file with unformattedFile content to test overwrites
+	inputFile, err := ioutil.TempFile("", "terradoc-fmt-output-")
+	assert.NoError(t, err)
+	// write unformatted input to file
+	_, err = inputFile.Write(unformattedInput)
+	assert.NoError(t, err)
+
+	defer inputFile.Close()
+
+	expectedFormattedOutput := test.ReadFixture(t, expectedFormatOutput)
+
+	t.Run("WriteToStdout", func(t *testing.T) {
+		cmd := exec.Command(terradocBinPath, "fmt", inputFile.Name())
+
+		output, err := cmd.CombinedOutput()
+		assert.NoError(t, err)
+
+		if diff := cmp.Diff(expectedFormattedOutput, output); diff != "" {
+			t.Errorf("Result is not expected (-want +got):\n%s", diff)
+		}
+	})
+
+	t.Run("OverwriteFile", func(t *testing.T) {
+		cmd := exec.Command(terradocBinPath, "fmt", "-w", inputFile.Name())
+
+		_, err := cmd.CombinedOutput()
+		assert.NoError(t, err)
+
+		_, err = inputFile.Seek(0, 0)
+		assert.NoError(t, err)
+
+		persistedResult, err := ioutil.ReadAll(inputFile)
+		assert.NoError(t, err)
+
+		if diff := cmp.Diff(expectedFormattedOutput, persistedResult); diff != "" {
 			t.Errorf("Result is not expected (-want +got):\n%s", diff)
 		}
 	})

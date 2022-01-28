@@ -1,10 +1,10 @@
 header {
   image = "https://raw.githubusercontent.com/mineiros-io/brand/3bffd30e8bdbbde32c143e2650b2faa55f1df3ea/mineiros-primary-logo.svg"
-  url = "https://www.mineiros.io"
+  url   = "https://www.mineiros.io"
 }
 
 section {
-  title = "root section"
+  title   = "root section"
   content = <<END
 This is the root section content.
 
@@ -20,7 +20,7 @@ END
       title = "example"
 
       variable "person" {
-        type = object(person)
+        type        = object(person)
         description = "describes the last person who bothered to change this file"
 
         attribute "name" {
@@ -32,11 +32,11 @@ END
     }
 
     section {
-      title = "section of beers"
+      title   = "section of beers"
       content = "an excuse to mention alcohol"
 
       variable "beers" {
-        type        = list(beer)
+        type = list(beer)
 
         description = "a list of beers"
         default     = []
@@ -95,22 +95,22 @@ END
       title = "Outputs!"
 
       output "obj_output" {
-        type = object(an_object_label)
+        type        = object(an_object_label)
         description = "an example object"
       }
 
       output "string_output" {
-        type = string
+        type        = string
         description = "a string"
       }
 
       output "list_output" {
-        type = list(example)
+        type        = list(example)
         description = "a list of example objects"
       }
 
       output "resource_output" {
-        type = resource(google_xxxx)
+        type        = resource(google_xxxx)
         description = "a resource output"
       }
     }
