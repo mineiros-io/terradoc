@@ -1,4 +1,4 @@
-package hclparser
+package tfdocparser
 
 import (
 	"errors"
@@ -6,7 +6,8 @@ import (
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/mineiros-io/terradoc/internal/entities"
-	"github.com/mineiros-io/terradoc/internal/parser/hclparser/hclschema"
+	"github.com/mineiros-io/terradoc/internal/parsers/hclparser"
+	"github.com/mineiros-io/terradoc/internal/schemas/tfdocschema"
 )
 
 func parseVariables(variableBlocks hcl.Blocks) (variables []entities.Variable, err error) {
@@ -27,7 +28,7 @@ func parseVariable(variableBlock *hcl.Block) (entities.Variable, error) {
 		return entities.Variable{}, errors.New("variable block does not have a name")
 	}
 
-	variableContent, diags := variableBlock.Body.Content(hclschema.VariableSchema())
+	variableContent, diags := variableBlock.Body.Content(tfdocschema.VariableSchema())
 	if diags.HasErrors() {
 		return entities.Variable{}, fmt.Errorf("parsing variable: %v", diags.Errs())
 	}
@@ -54,35 +55,35 @@ func createVariableFromHCLAttributes(attrs hcl.Attributes, name string) (entitie
 
 	variable := entities.Variable{Name: name}
 
-	variable.Description, err = getAttribute(attrs, descriptionAttributeName).String()
+	variable.Description, err = hclparser.GetAttribute(attrs, descriptionAttributeName).String()
 	if err != nil {
 		return entities.Variable{}, err
 	}
 
-	variable.Default, err = getAttribute(attrs, defaultAttributeName).RawJSON()
+	variable.Default, err = hclparser.GetAttribute(attrs, defaultAttributeName).RawJSON()
 	if err != nil {
 		return entities.Variable{}, err
 	}
 
-	variable.Required, err = getAttribute(attrs, requiredAttributeName).Bool()
+	variable.Required, err = hclparser.GetAttribute(attrs, requiredAttributeName).Bool()
 	if err != nil {
 		return entities.Variable{}, err
 	}
 
-	variable.ForcesRecreation, err = getAttribute(attrs, forcesRecreationAttributeName).Bool()
+	variable.ForcesRecreation, err = hclparser.GetAttribute(attrs, forcesRecreationAttributeName).Bool()
 	if err != nil {
 		return entities.Variable{}, err
 	}
 
-	variable.ReadmeExample, err = getAttribute(attrs, readmeExampleAttributeName).String()
+	variable.ReadmeExample, err = hclparser.GetAttribute(attrs, readmeExampleAttributeName).String()
 	if err != nil {
 		return entities.Variable{}, err
 	}
 
 	// type definition
-	readmeType := getAttribute(attrs, readmeTypeAttributeName)
+	readmeType := hclparser.GetAttribute(attrs, readmeTypeAttributeName)
 	if readmeType == nil {
-		variable.Type, err = getAttribute(attrs, typeAttributeName).VarType()
+		variable.Type, err = hclparser.GetAttribute(attrs, typeAttributeName).VarType()
 	} else {
 		variable.Type, err = readmeType.VarTypeFromString()
 	}

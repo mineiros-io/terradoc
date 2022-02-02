@@ -1,11 +1,12 @@
-package hclparser
+package tfdocparser
 
 import (
 	"fmt"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/mineiros-io/terradoc/internal/entities"
-	"github.com/mineiros-io/terradoc/internal/parser/hclparser/hclschema"
+	"github.com/mineiros-io/terradoc/internal/parsers/hclparser"
+	"github.com/mineiros-io/terradoc/internal/schemas/tfdocschema"
 )
 
 const (
@@ -26,7 +27,7 @@ func parseSections(sectionBlocks hcl.Blocks) (sections []entities.Section, err e
 }
 
 func parseSection(sectionBlock *hcl.Block, level int) (entities.Section, error) {
-	sectionContent, diags := sectionBlock.Body.Content(hclschema.SectionSchema())
+	sectionContent, diags := sectionBlock.Body.Content(tfdocschema.SectionSchema())
 	if diags.HasErrors() {
 		return entities.Section{}, fmt.Errorf("parsing Terradoc section: %v", diags.Errs())
 	}
@@ -69,17 +70,17 @@ func createSectionFromHCLAttributes(attrs hcl.Attributes, level int) (entities.S
 
 	section := entities.Section{Level: level}
 
-	section.Title, err = getAttribute(attrs, titleAttributeName).String()
+	section.Title, err = hclparser.GetAttribute(attrs, titleAttributeName).String()
 	if err != nil {
 		return entities.Section{}, err
 	}
 
-	section.Content, err = getAttribute(attrs, contentAttributeName).String()
+	section.Content, err = hclparser.GetAttribute(attrs, contentAttributeName).String()
 	if err != nil {
 		return entities.Section{}, err
 	}
 
-	section.TOC, err = getAttribute(attrs, tocAttributeName).Bool()
+	section.TOC, err = hclparser.GetAttribute(attrs, tocAttributeName).Bool()
 	if err != nil {
 		return entities.Section{}, err
 	}

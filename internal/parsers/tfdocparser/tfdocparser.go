@@ -1,10 +1,9 @@
-package hclparser
+package tfdocparser
 
 import (
 	"fmt"
 	"io"
 
-	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/mineiros-io/terradoc/internal/entities"
 )
@@ -54,13 +53,4 @@ func parseHCL(src []byte, filename string) (entities.Definition, error) {
 	}
 
 	return parseDefinition(f)
-}
-
-func getAttribute(attrs hcl.Attributes, name string) *hclAttribute {
-	attr, exists := attrs[name]
-	if exists {
-		return &hclAttribute{attr}
-	}
-
-	return nil
 }

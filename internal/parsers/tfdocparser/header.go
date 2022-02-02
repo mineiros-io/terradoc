@@ -1,11 +1,12 @@
-package hclparser
+package tfdocparser
 
 import (
 	"fmt"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/mineiros-io/terradoc/internal/entities"
-	"github.com/mineiros-io/terradoc/internal/parser/hclparser/hclschema"
+	"github.com/mineiros-io/terradoc/internal/parsers/hclparser"
+	"github.com/mineiros-io/terradoc/internal/schemas/tfdocschema"
 )
 
 func parseHeader(headerBlocks hcl.Blocks) (entities.Header, error) {
@@ -18,7 +19,7 @@ func parseHeader(headerBlocks hcl.Blocks) (entities.Header, error) {
 
 	headerBlock := headerBlocks[0]
 
-	headerContent, diags := headerBlock.Body.Content(hclschema.HeaderSchema())
+	headerContent, diags := headerBlock.Body.Content(tfdocschema.HeaderSchema())
 	if diags.HasErrors() {
 		return entities.Header{}, fmt.Errorf("parsing Terradoc header: %v", diags.Errs())
 	}
@@ -45,7 +46,7 @@ func parseBadge(badgeBlock *hcl.Block) (entities.Badge, error) {
 	// badge blocks are required to have a label as defined in the schema
 	name := badgeBlock.Labels[0]
 
-	badgeContent, diags := badgeBlock.Body.Content(hclschema.BadgeSchema())
+	badgeContent, diags := badgeBlock.Body.Content(tfdocschema.BadgeSchema())
 	if diags.HasErrors() {
 		return entities.Badge{}, fmt.Errorf("parsing badge: %v", diags.Errs())
 	}
@@ -57,14 +58,14 @@ func createHeaderFromHCLAttributes(attrs hcl.Attributes) (entities.Header, error
 	header := entities.Header{}
 
 	// image
-	image, err := getAttribute(attrs, imageAttributeName).String()
+	image, err := hclparser.GetAttribute(attrs, imageAttributeName).String()
 	if err != nil {
 		return entities.Header{}, err
 	}
 	header.Image = image
 
 	// url
-	url, err := getAttribute(attrs, urlAttributeName).String()
+	url, err := hclparser.GetAttribute(attrs, urlAttributeName).String()
 	if err != nil {
 		return entities.Header{}, err
 	}
@@ -77,21 +78,21 @@ func createBadgeFromHCLAttributes(attrs hcl.Attributes, name string) (entities.B
 	badge := entities.Badge{Name: name}
 
 	// image
-	image, err := getAttribute(attrs, imageAttributeName).String()
+	image, err := hclparser.GetAttribute(attrs, imageAttributeName).String()
 	if err != nil {
 		return entities.Badge{}, err
 	}
 	badge.Image = image
 
 	// url
-	url, err := getAttribute(attrs, urlAttributeName).String()
+	url, err := hclparser.GetAttribute(attrs, urlAttributeName).String()
 	if err != nil {
 		return entities.Badge{}, err
 	}
 	badge.URL = url
 
 	// url
-	text, err := getAttribute(attrs, textAttributeName).String()
+	text, err := hclparser.GetAttribute(attrs, textAttributeName).String()
 	if err != nil {
 		return entities.Badge{}, err
 	}

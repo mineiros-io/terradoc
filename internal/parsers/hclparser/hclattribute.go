@@ -13,11 +13,11 @@ import (
 	ctyjson "github.com/zclconf/go-cty/cty/json"
 )
 
-type hclAttribute struct {
+type HCLAttribute struct {
 	*hcl.Attribute
 }
 
-func (a *hclAttribute) String() (string, error) {
+func (a *HCLAttribute) String() (string, error) {
 	if a == nil {
 		return "", nil
 	}
@@ -36,7 +36,7 @@ func (a *hclAttribute) String() (string, error) {
 	return strings.TrimSpace(strVal.AsString()), nil
 }
 
-func (a *hclAttribute) Bool() (bool, error) {
+func (a *HCLAttribute) Bool() (bool, error) {
 	if a == nil {
 		return false, nil
 	}
@@ -55,7 +55,11 @@ func (a *hclAttribute) Bool() (bool, error) {
 	return boolVal.True(), nil
 }
 
-func (a *hclAttribute) RawJSON() (json.RawMessage, error) {
+func (a *HCLAttribute) Keyword() string {
+	return hcl.ExprAsKeyword(a.Expr)
+}
+
+func (a *HCLAttribute) RawJSON() (json.RawMessage, error) {
 	if a == nil {
 		return nil, nil
 	}
@@ -80,15 +84,15 @@ func (a *hclAttribute) RawJSON() (json.RawMessage, error) {
 	return json.RawMessage(src), nil
 }
 
-func (a *hclAttribute) VarType() (entities.Type, error) {
+func (a *HCLAttribute) VarType() (entities.Type, error) {
 	if a == nil {
 		return entities.Type{}, nil
 	}
 
-	return getVarTypeFromExpression(a.Expr)
+	return GetVarTypeFromExpression(a.Expr)
 }
 
-func (a *hclAttribute) VarTypeFromString() (entities.Type, error) {
+func (a *HCLAttribute) VarTypeFromString() (entities.Type, error) {
 	if a == nil {
 		return entities.Type{}, nil
 	}
@@ -113,10 +117,10 @@ func getRawVariables(expr hcl.Expression) json.RawMessage {
 	return varValue
 }
 
-func (a *hclAttribute) OutputType() (entities.Type, error) {
+func (a *HCLAttribute) OutputType() (entities.Type, error) {
 	if a == nil {
 		return entities.Type{}, nil
 	}
 
-	return getOutputTypeFromExpression(a.Expr)
+	return GetOutputTypeFromExpression(a.Expr)
 }

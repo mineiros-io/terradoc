@@ -1,15 +1,15 @@
-package hclparser
+package tfdocparser
 
 import (
 	"fmt"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/mineiros-io/terradoc/internal/entities"
-	"github.com/mineiros-io/terradoc/internal/parser/hclparser/hclschema"
+	"github.com/mineiros-io/terradoc/internal/schemas/tfdocschema"
 )
 
 func parseDefinition(f *hcl.File) (entities.Definition, error) {
-	definitionContent, diags := f.Body.Content(hclschema.RootSchema())
+	definitionContent, diags := f.Body.Content(tfdocschema.RootSchema())
 	if diags.HasErrors() {
 		return entities.Definition{}, fmt.Errorf("parsing Terradoc definition: %v", diags.Errs())
 	}

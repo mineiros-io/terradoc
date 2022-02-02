@@ -1,4 +1,4 @@
-package hclparser
+package tfdocparser
 
 import (
 	"errors"
@@ -6,7 +6,8 @@ import (
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/mineiros-io/terradoc/internal/entities"
-	"github.com/mineiros-io/terradoc/internal/parser/hclparser/hclschema"
+	"github.com/mineiros-io/terradoc/internal/parsers/hclparser"
+	"github.com/mineiros-io/terradoc/internal/schemas/tfdocschema"
 )
 
 func parseOutputs(outputBlocks hcl.Blocks) (outputs []entities.Output, err error) {
@@ -27,7 +28,7 @@ func parseOutput(outputBlock *hcl.Block) (entities.Output, error) {
 		return entities.Output{}, errors.New("output block does not have a name")
 	}
 
-	outputContent, diags := outputBlock.Body.Content(hclschema.OutputSchema())
+	outputContent, diags := outputBlock.Body.Content(tfdocschema.OutputSchema())
 	if diags.HasErrors() {
 		return entities.Output{}, fmt.Errorf("parsing output: %v", diags.Errs())
 	}
@@ -47,13 +48,13 @@ func createOutputFromHCLAttributes(attrs hcl.Attributes, name string) (entities.
 
 	output := entities.Output{Name: name}
 
-	output.Description, err = getAttribute(attrs, descriptionAttributeName).String()
+	output.Description, err = hclparser.GetAttribute(attrs, descriptionAttributeName).String()
 	if err != nil {
 		return entities.Output{}, err
 	}
 
 	// type definition
-	output.Type, err = getAttribute(attrs, typeAttributeName).OutputType()
+	output.Type, err = hclparser.GetAttribute(attrs, typeAttributeName).OutputType()
 	if err != nil {
 		return entities.Output{}, err
 	}

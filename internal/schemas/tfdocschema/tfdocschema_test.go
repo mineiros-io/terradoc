@@ -1,14 +1,14 @@
-package hclschema_test
+package tfdocschema_test
 
 import (
 	"testing"
 
 	"github.com/hashicorp/hcl/v2"
-	"github.com/mineiros-io/terradoc/internal/parser/hclparser/hclschema"
+	"github.com/mineiros-io/terradoc/internal/schemas/tfdocschema"
 )
 
 func TestRootSchema(t *testing.T) {
-	s := hclschema.RootSchema()
+	s := tfdocschema.RootSchema()
 
 	if len(s.Attributes) > 0 {
 		t.Errorf("Expected root schema to not have attributes. Found %+v instead", s.Attributes)
@@ -22,7 +22,7 @@ func TestRootSchema(t *testing.T) {
 }
 
 func TestSectionSchema(t *testing.T) {
-	s := hclschema.SectionSchema()
+	s := tfdocschema.SectionSchema()
 
 	// schema attributes
 	assertHasAttribute(t, s, "title", false)
@@ -44,7 +44,7 @@ func TestSectionSchema(t *testing.T) {
 }
 
 func TestVariableSchema(t *testing.T) {
-	s := hclschema.VariableSchema()
+	s := tfdocschema.VariableSchema()
 
 	// schema attributes
 	assertHasAttribute(t, s, "type", true)
@@ -64,7 +64,7 @@ func TestVariableSchema(t *testing.T) {
 }
 
 func TestAttributeSchema(t *testing.T) {
-	s := hclschema.AttributeSchema()
+	s := tfdocschema.AttributeSchema()
 
 	// schema attributes
 	assertHasAttribute(t, s, "type", true)

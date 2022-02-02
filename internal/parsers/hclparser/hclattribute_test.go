@@ -111,7 +111,7 @@ func TestAttributeToJSONValue(t *testing.T) {
 		t.Run(tt.desc, func(t *testing.T) {
 			// test that the returned value is not an escaped json string
 			expr := hcltest.MockExprLiteral(cty.StringVal(tt.value))
-			attr := &hclAttribute{&hcl.Attribute{Expr: expr}}
+			attr := &HCLAttribute{&hcl.Attribute{Expr: expr}}
 
 			res, err := attr.RawJSON()
 			assert.NoError(t, err)
@@ -240,18 +240,18 @@ func (expr fakeHCLExpression) Value(_ *hcl.EvalContext) (cty.Value, hcl.Diagnost
 	return expr.value, nil
 }
 
-func newMockAttribute(name string, returnValue cty.Value) *hclAttribute {
+func newMockAttribute(name string, returnValue cty.Value) *HCLAttribute {
 	fakeExpr := &fakeHCLExpression{
 		value: returnValue,
 	}
 	attr := &hcl.Attribute{Name: name, Expr: fakeExpr}
 
-	return &hclAttribute{attr}
+	return &HCLAttribute{attr}
 }
 
-func newTypeAttribute(name, typeStr string) *hclAttribute {
+func newTypeAttribute(name, typeStr string) *HCLAttribute {
 	expr := hcltest.MockExprVariable(typeStr)
 	attr := &hcl.Attribute{Name: name, Expr: expr}
 
-	return &hclAttribute{attr}
+	return &HCLAttribute{attr}
 }

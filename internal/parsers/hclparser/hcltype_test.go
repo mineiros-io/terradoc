@@ -125,7 +125,7 @@ func TestGetVarTypeFromExpression(t *testing.T) {
 					t.Errorf("Error parsing expression: %v", parseDiags.Errs())
 				}
 
-				got, err := getVarTypeFromExpression(expr)
+				got, err := GetVarTypeFromExpression(expr)
 				assert.NoError(t, err)
 
 				test.AssertEqualTypes(t, tt.want, got)
@@ -261,7 +261,7 @@ func TestGetOutputTypeFromExpression(t *testing.T) {
 				t.Errorf("Error parsing expression: %v", parseDiags.Errs())
 			}
 
-			got, err := getOutputTypeFromExpression(expr)
+			got, err := GetOutputTypeFromExpression(expr)
 			assert.NoError(t, err)
 
 			test.AssertEqualTypes(t, tt.want, got)

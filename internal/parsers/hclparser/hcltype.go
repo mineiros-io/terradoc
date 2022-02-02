@@ -13,11 +13,11 @@ import (
 	"github.com/zclconf/go-cty/cty/gocty"
 )
 
-func getVarTypeFromExpression(expr hcl.Expression) (entities.Type, error) {
+func GetVarTypeFromExpression(expr hcl.Expression) (entities.Type, error) {
 	return getTypeFromExpression(expr, varFunctions())
 }
 
-func getOutputTypeFromExpression(expr hcl.Expression) (entities.Type, error) {
+func GetOutputTypeFromExpression(expr hcl.Expression) (entities.Type, error) {
 	return getTypeFromExpression(expr, outputFunctions())
 }
 
@@ -56,7 +56,7 @@ func getVarTypeFromString(str string, startRange hcl.Pos) (entities.Type, error)
 		return entities.Type{}, fmt.Errorf("parsing type string expression: %v", parseDiags.Errs())
 	}
 
-	return getVarTypeFromExpression(expr)
+	return GetVarTypeFromExpression(expr)
 }
 
 func getComplexType(expr hcl.Expression, ctxFunctions map[string]function.Function) (entities.Type, error) {

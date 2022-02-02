@@ -1,11 +1,12 @@
-package hclparser
+package tfdocparser
 
 import (
 	"fmt"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/mineiros-io/terradoc/internal/entities"
-	"github.com/mineiros-io/terradoc/internal/parser/hclparser/hclschema"
+	"github.com/mineiros-io/terradoc/internal/parsers/hclparser"
+	"github.com/mineiros-io/terradoc/internal/schemas/tfdocschema"
 )
 
 func parseVariableAttributes(attributeBlocks hcl.Blocks) (attributes []entities.Attribute, err error) {
@@ -24,7 +25,7 @@ func parseVariableAttributes(attributeBlocks hcl.Blocks) (attributes []entities.
 }
 
 func parseAttribute(attrBlock *hcl.Block, level int) (entities.Attribute, error) {
-	attrContent, diags := attrBlock.Body.Content(hclschema.AttributeSchema())
+	attrContent, diags := attrBlock.Body.Content(tfdocschema.AttributeSchema())
 	if diags.HasErrors() {
 		return entities.Attribute{}, fmt.Errorf("parsing attribute block: %v", diags.Errs())
 	}
@@ -60,30 +61,30 @@ func createAttributeFromHCLAttributes(attrs hcl.Attributes, name string, level i
 
 	attr := entities.Attribute{Name: name, Level: level}
 
-	attr.Description, err = getAttribute(attrs, descriptionAttributeName).String()
+	attr.Description, err = hclparser.GetAttribute(attrs, descriptionAttributeName).String()
 	if err != nil {
 		return entities.Attribute{}, err
 	}
 
-	attr.Required, err = getAttribute(attrs, requiredAttributeName).Bool()
+	attr.Required, err = hclparser.GetAttribute(attrs, requiredAttributeName).Bool()
 	if err != nil {
 		return entities.Attribute{}, err
 	}
 
-	attr.ForcesRecreation, err = getAttribute(attrs, forcesRecreationAttributeName).Bool()
+	attr.ForcesRecreation, err = hclparser.GetAttribute(attrs, forcesRecreationAttributeName).Bool()
 	if err != nil {
 		return entities.Attribute{}, err
 	}
 
-	attr.ReadmeExample, err = getAttribute(attrs, readmeExampleAttributeName).String()
+	attr.ReadmeExample, err = hclparser.GetAttribute(attrs, readmeExampleAttributeName).String()
 	if err != nil {
 		return entities.Attribute{}, err
 	}
 
 	// type definition
-	readmeType := getAttribute(attrs, readmeTypeAttributeName)
+	readmeType := hclparser.GetAttribute(attrs, readmeTypeAttributeName)
 	if readmeType == nil {
-		attr.Type, err = getAttribute(attrs, typeAttributeName).VarType()
+		attr.Type, err = hclparser.GetAttribute(attrs, typeAttributeName).VarType()
 	} else {
 		attr.Type, err = readmeType.VarTypeFromString()
 	}
@@ -92,7 +93,7 @@ func createAttributeFromHCLAttributes(attrs hcl.Attributes, name string, level i
 		return entities.Attribute{}, err
 	}
 
-	attr.Default, err = getAttribute(attrs, defaultAttributeName).RawJSON()
+	attr.Default, err = hclparser.GetAttribute(attrs, defaultAttributeName).RawJSON()
 	if err != nil {
 		return entities.Attribute{}, err
 	}

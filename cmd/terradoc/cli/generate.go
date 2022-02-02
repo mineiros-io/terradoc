@@ -5,7 +5,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/mineiros-io/terradoc/internal/parser/hclparser"
+	"github.com/mineiros-io/terradoc/internal/parsers/tfdocparser"
 	"github.com/mineiros-io/terradoc/internal/renderers/markdown"
 )
 
@@ -17,17 +17,17 @@ type GenerateCmd struct {
 func (g GenerateCmd) Run() error {
 	r, rCloser, err := openInput(g.InputFile)
 	if err != nil {
-		return fmt.Errorf("opening input: %s\n", err)
+		return err
 	}
 	defer rCloser()
 
 	w, wCloser, err := getOutputWriter(g.OutputFile)
 	if err != nil {
-		return fmt.Errorf("creating writer: %s\n", err)
+		return err
 	}
 	defer wCloser()
 
-	def, err := hclparser.Parse(r, r.Name())
+	def, err := tfdocparser.Parse(r, r.Name())
 	if err != nil {
 		return fmt.Errorf("parsing input: %v", err)
 	}
@@ -47,7 +47,7 @@ func openInput(path string) (*os.File, func(), error) {
 
 	f, err := os.Open(path)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("opening input %q: %v", path, err)
 	}
 
 	closer := func() {
