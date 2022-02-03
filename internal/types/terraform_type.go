@@ -15,6 +15,7 @@ const (
 	TerraformObject                         // object
 	TerraformTuple                          // tuple
 	TerraformResource                       // resource
+	TerraformModule                         // module
 )
 
 func TerraformTypes(typename string) (TerraformType, bool) {
@@ -37,6 +38,8 @@ func TerraformTypes(typename string) (TerraformType, bool) {
 		return TerraformTuple, true
 	case TerraformResource.String():
 		return TerraformResource, true
+	case TerraformModule.String():
+		return TerraformModule, true
 	}
 
 	return TerraformEmptyType, false
