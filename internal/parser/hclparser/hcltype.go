@@ -188,6 +188,7 @@ func varFunctions() map[string]function.Function {
 
 func outputFunctions() map[string]function.Function {
 	return map[string]function.Function{
+		"module":   complexTypeFunc(types.TerraformModule),
 		"resource": complexTypeFunc(types.TerraformResource),
 		"object":   complexTypeFunc(types.TerraformObject),
 		"map":      nestedTypeFunc(types.TerraformMap),
