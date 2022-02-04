@@ -18,11 +18,12 @@ func _() {
 	_ = x[TerraformObject-7]
 	_ = x[TerraformTuple-8]
 	_ = x[TerraformResource-9]
+	_ = x[TerraformModule-10]
 }
 
-const _TerraformType_name = "emptyboolstringnumberlistsetmapobjecttupleresource"
+const _TerraformType_name = "emptyboolstringnumberlistsetmapobjecttupleresourcemodule"
 
-var _TerraformType_index = [...]uint8{0, 5, 9, 15, 21, 25, 28, 31, 37, 42, 50}
+var _TerraformType_index = [...]uint8{0, 5, 9, 15, 21, 25, 28, 31, 37, 42, 50, 56}
 
 func (i TerraformType) String() string {
 	if i < 0 || i >= TerraformType(len(_TerraformType_index)-1) {
