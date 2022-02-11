@@ -1,5 +1,5 @@
 # Set default shell to bash
-SHELL := /bin/bash -o pipefail -o errexit -o nounset 
+SHELL := /bin/bash -o pipefail -o errexit -o nounset
 
 .PHONY: default
 default: help
@@ -16,8 +16,8 @@ lint:
 
 ## test code
 .PHONY: test
-test: 
-	go test -race -coverprofile=coverage.txt -covermode=atomic ./...
+test:
+	go test -shuffle=on -race -coverprofile=coverage.txt -covermode=atomic ./...
 
 ## Build terradoc into bin directory
 .PHONY: build

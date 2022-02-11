@@ -17,3 +17,27 @@ type Section struct {
 	// TOC is a flag for generating table of contents for nested sections
 	TOC bool `json:"-"`
 }
+
+func (s Section) AllVariables() (result VariableCollection) {
+	for _, v := range s.Variables {
+		result = append(result, v)
+	}
+
+	for _, s := range s.SubSections {
+		result = append(result, s.AllVariables()...)
+	}
+
+	return result
+}
+
+func (s Section) AllOutputs() (result OutputCollection) {
+	for _, o := range s.Outputs {
+		result = append(result, o)
+	}
+
+	for _, s := range s.SubSections {
+		result = append(result, s.AllOutputs()...)
+	}
+
+	return result
+}

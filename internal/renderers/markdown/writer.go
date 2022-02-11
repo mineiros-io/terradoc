@@ -41,7 +41,7 @@ func newMarkdownWriter(writer io.Writer) (*markdownWriter, error) {
 	return &markdownWriter{writer: writer, templ: t}, nil
 }
 
-func (mw *markdownWriter) writeDefinition(definition entities.Definition) error {
+func (mw *markdownWriter) writeDefinition(definition entities.Doc) error {
 	if err := mw.writeHeader(definition.Header); err != nil {
 		return err
 	}

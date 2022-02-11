@@ -6,7 +6,7 @@ import (
 	"github.com/mineiros-io/terradoc/internal/entities"
 )
 
-func Render(writer io.Writer, definition entities.Definition) error {
+func Render(writer io.Writer, definition entities.Doc) error {
 	mdWriter, err := newMarkdownWriter(writer)
 	if err != nil {
 		return err

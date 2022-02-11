@@ -9,3 +9,15 @@ type Output struct {
 	// Description is an optional output description
 	Description string `json:"description,omitempty"`
 }
+
+type OutputCollection []Output
+
+func (oc OutputCollection) OutputByName(name string) (Output, bool) {
+	for _, o := range oc {
+		if o.Name == name {
+			return o, true
+		}
+	}
+
+	return Output{}, false
+}

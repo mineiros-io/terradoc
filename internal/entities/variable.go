@@ -4,6 +4,18 @@ import (
 	"encoding/json"
 )
 
+type VariableCollection []Variable
+
+func (vc VariableCollection) VarByName(name string) (Variable, bool) {
+	for _, v := range vc {
+		if v.Name == name {
+			return v, true
+		}
+	}
+
+	return Variable{}, false
+}
+
 // Variable represents a `variable` block from the input file.
 type Variable struct {
 	// Name as defined in the `variable` block label.
