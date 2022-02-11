@@ -14,7 +14,7 @@ type variableValidation struct {
 	documented entities.Variable
 }
 
-func Validate(doc entities.Doc, varsFile entities.VariablesFile) validators.Summary {
+func Validate(doc entities.TFDoc, varsFile entities.VariablesFile) validators.Summary {
 	summary := validators.Summary{Type: CheckType}
 
 	validationResult := validateVariables(doc.AllVariables(), varsFile.Variables)

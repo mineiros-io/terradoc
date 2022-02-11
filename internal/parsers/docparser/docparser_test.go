@@ -17,12 +17,12 @@ func TestParse(t *testing.T) {
 	for _, tt := range []struct {
 		desc      string
 		inputFile string
-		want      entities.Doc
+		want      entities.TFDoc
 	}{
 		{
 			desc:      "with a valid input",
 			inputFile: "parser-input.tfdoc.hcl",
-			want: entities.Doc{
+			want: entities.TFDoc{
 				Header: entities.Header{
 					Image: "https://raw.githubusercontent.com/mineiros-io/brand/3bffd30e8bdbbde32c143e2650b2faa55f1df3ea/mineiros-primary-logo.svg",
 					URL:   "https://www.mineiros.io",
@@ -280,7 +280,7 @@ section {
 	}
 }
 
-func assertEqualDefinitions(t *testing.T, want, got entities.Doc) {
+func assertEqualDefinitions(t *testing.T, want, got entities.TFDoc) {
 	t.Helper()
 
 	assertEqualHeader(t, want.Header, got.Header)

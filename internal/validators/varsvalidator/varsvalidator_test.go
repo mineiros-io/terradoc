@@ -135,10 +135,10 @@ func TestValidate(t *testing.T) {
 	}
 }
 
-func definitionFromVariables(variables entities.VariableCollection) entities.Doc {
+func definitionFromVariables(variables entities.VariableCollection) entities.TFDoc {
 	section := entities.Section{Variables: variables}
 
-	return entities.Doc{Sections: []entities.Section{section}}
+	return entities.TFDoc{Sections: []entities.Section{section}}
 }
 
 func variableFileFromVariables(variables entities.VariableCollection) entities.VariablesFile {

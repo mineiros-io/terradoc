@@ -1,7 +1,7 @@
 package entities
 
-// Doc represents a parsed source file.
-type Doc struct {
+// TFDoc represents a parsed source file.
+type TFDoc struct {
 	// Header is the header section block from the source file
 	Header Header
 	// Sections is a collection of sections defined in the source file.
@@ -25,7 +25,7 @@ type Badge struct {
 	Name  string `json:"name"`  // Name is an identifier for the badge
 }
 
-func (d Doc) AllVariables() (result []Variable) {
+func (d TFDoc) AllVariables() (result []Variable) {
 	for _, s := range d.Sections {
 		result = append(result, s.AllVariables()...)
 	}
@@ -33,7 +33,7 @@ func (d Doc) AllVariables() (result []Variable) {
 	return result
 }
 
-func (d Doc) AllOutputs() (result []Output) {
+func (d TFDoc) AllOutputs() (result []Output) {
 	for _, s := range d.Sections {
 		result = append(result, s.AllOutputs()...)
 	}

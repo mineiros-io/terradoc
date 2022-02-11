@@ -8,29 +8,29 @@ import (
 	"github.com/mineiros-io/terradoc/internal/schemas/docschema"
 )
 
-func parseDoc(f *hcl.File) (entities.Doc, error) {
+func parseDoc(f *hcl.File) (entities.TFDoc, error) {
 	docContent, diags := f.Body.Content(docschema.RootSchema())
 	if diags.HasErrors() {
-		return entities.Doc{}, fmt.Errorf("parsing Terradoc doc: %v", diags.Errs())
+		return entities.TFDoc{}, fmt.Errorf("parsing Terradoc doc: %v", diags.Errs())
 	}
 
 	var err error
 
-	def := entities.Doc{}
+	def := entities.TFDoc{}
 
 	def.Header, err = parseHeader(docContent.Blocks.OfType(headerBlockName))
 	if err != nil {
-		return entities.Doc{}, fmt.Errorf("parsing header: %v", err)
+		return entities.TFDoc{}, fmt.Errorf("parsing header: %v", err)
 	}
 
 	def.Sections, err = parseSections(docContent.Blocks.OfType(sectionBlockName))
 	if err != nil {
-		return entities.Doc{}, err
+		return entities.TFDoc{}, err
 	}
 
 	def.References, err = parseReferences(docContent.Blocks.OfType(referencesBlockName))
 	if err != nil {
-		return entities.Doc{}, err
+		return entities.TFDoc{}, err
 	}
 
 	return def, nil

@@ -135,10 +135,10 @@ func TestValidate(t *testing.T) {
 	}
 }
 
-func definitionFromOutputs(outputs entities.OutputCollection) entities.Doc {
+func definitionFromOutputs(outputs entities.OutputCollection) entities.TFDoc {
 	section := entities.Section{Outputs: outputs}
 
-	return entities.Doc{Sections: []entities.Section{section}}
+	return entities.TFDoc{Sections: []entities.Section{section}}
 }
 
 func outputFileFromOutputs(outputs entities.OutputCollection) entities.OutputsFile {

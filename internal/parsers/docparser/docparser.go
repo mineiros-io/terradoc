@@ -35,21 +35,21 @@ const (
 )
 
 // Parse reads the content of a io.Reader and returns a Definition entity from its parsed values
-func Parse(r io.Reader, filename string) (entities.Doc, error) {
+func Parse(r io.Reader, filename string) (entities.TFDoc, error) {
 	src, err := io.ReadAll(r)
 	if err != nil {
-		return entities.Doc{}, err
+		return entities.TFDoc{}, err
 	}
 
 	return parseHCL(src, filename)
 }
 
-func parseHCL(src []byte, filename string) (entities.Doc, error) {
+func parseHCL(src []byte, filename string) (entities.TFDoc, error) {
 	p := hclparse.NewParser()
 
 	f, diags := p.ParseHCL(src, filename)
 	if diags.HasErrors() {
-		return entities.Doc{}, fmt.Errorf("parsing HCL: %v", diags.Errs())
+		return entities.TFDoc{}, fmt.Errorf("parsing HCL: %v", diags.Errs())
 	}
 
 	return parseDoc(f)

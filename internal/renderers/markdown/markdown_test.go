@@ -14,7 +14,7 @@ import (
 )
 
 func TestRender(t *testing.T) {
-	definition := entities.Doc{
+	definition := entities.TFDoc{
 		Header: entities.Header{
 			Image:  "",
 			URL:    "",
