@@ -13,17 +13,18 @@ import (
 func TestFormat(t *testing.T) {
 	unformattedInput := test.ReadFixture(t, formatInput)
 	// create another file with unformattedFile content to test overwrites
-	inputFile, err := ioutil.TempFile("", "terradoc-fmt-output-")
-	assert.NoError(t, err)
-	// write unformatted input to file
-	_, err = inputFile.Write(unformattedInput)
-	assert.NoError(t, err)
-
-	defer inputFile.Close()
 
 	expectedFormattedOutput := test.ReadFixture(t, expectedFormatOutput)
 
 	t.Run("WriteToStdout", func(t *testing.T) {
+		inputFile, err := ioutil.TempFile(t.TempDir(), "terradoc-fmt-output-")
+		assert.NoError(t, err)
+		// write unformatted input to file
+		_, err = inputFile.Write(unformattedInput)
+		assert.NoError(t, err)
+
+		defer inputFile.Close()
+
 		cmd := exec.Command(terradocBinPath, "fmt", inputFile.Name())
 
 		output, err := cmd.CombinedOutput()
@@ -35,9 +36,17 @@ func TestFormat(t *testing.T) {
 	})
 
 	t.Run("OverwriteFile", func(t *testing.T) {
+		inputFile, err := ioutil.TempFile(t.TempDir(), "terradoc-fmt-output-")
+		assert.NoError(t, err)
+		// write unformatted input to file
+		_, err = inputFile.Write(unformattedInput)
+		assert.NoError(t, err)
+
+		defer inputFile.Close()
+
 		cmd := exec.Command(terradocBinPath, "fmt", "-w", inputFile.Name())
 
-		_, err := cmd.CombinedOutput()
+		_, err = cmd.CombinedOutput()
 		assert.NoError(t, err)
 
 		_, err = inputFile.Seek(0, 0)

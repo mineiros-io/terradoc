@@ -1,4 +1,4 @@
-package variablesparser
+package varsparser
 
 import (
 	"errors"
@@ -9,8 +9,7 @@ import (
 	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/mineiros-io/terradoc/internal/entities"
 	"github.com/mineiros-io/terradoc/internal/parsers/hclparser"
-	"github.com/mineiros-io/terradoc/internal/schemas/variablesschema"
-	"github.com/mineiros-io/terradoc/internal/types"
+	"github.com/mineiros-io/terradoc/internal/schemas/varsschema"
 )
 
 func Parse(r io.Reader, filename string) (entities.VariablesFile, error) {
@@ -30,7 +29,7 @@ func parseVariablesHCL(src []byte, filename string) (entities.VariablesFile, err
 		return entities.VariablesFile{}, fmt.Errorf("parsing HCL: %v", diags.Errs())
 	}
 
-	content, diags := f.Body.Content(variablesschema.RootSchema())
+	content, diags := f.Body.Content(varsschema.RootSchema())
 	if diags.HasErrors() {
 		return entities.VariablesFile{}, fmt.Errorf("getting body content: %v", diags.Errs())
 	}
@@ -61,7 +60,7 @@ func parseVariable(variableBlock *hcl.Block) (entities.Variable, error) {
 		return entities.Variable{}, errors.New("variable block must have a single label")
 	}
 
-	variableContent, diags := variableBlock.Body.Content(variablesschema.VariableSchema())
+	variableContent, diags := variableBlock.Body.Content(varsschema.VariableSchema())
 	if diags.HasErrors() {
 		return entities.Variable{}, fmt.Errorf("parsing variable: %v", diags.Errs())
 	}
@@ -87,8 +86,10 @@ func createVariableFromHCLAttributes(attrs hcl.Attributes, name string) (entitie
 	}
 
 	// type definition
-	tfType, _ := types.TerraformTypes(hclparser.GetAttribute(attrs, "type").Keyword())
-	variable.Type = entities.Type{TFType: tfType}
+	variable.Type, err = hclparser.GetAttribute(attrs, "type").VarType()
+	if err != nil {
+		return entities.Variable{}, err
+	}
 
 	return variable, nil
 }

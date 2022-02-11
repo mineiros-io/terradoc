@@ -3,92 +3,104 @@ package main_test
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os/exec"
 	"strings"
 	"testing"
 
 	"github.com/madlambda/spells/assert"
+	"github.com/mineiros-io/terradoc/internal/validators"
 	"github.com/mineiros-io/terradoc/test"
 )
 
 func TestValidateVariables(t *testing.T) {
 	tests := []struct {
 		desc                     string
-		tfdocFixture             string
-		variablesFixture         string
+		doc                      string
+		variables                string
 		wantMissingDocumentation []string
 		wantMissingDefinition    []string
-		wantTypeMismatch         []string
+		wantTypeMismatch         []validators.TypeMismatchResult
 		wantError                bool
 	}{
 		{
-			desc:             "when `variables.tf` and terradoc file have the same variables",
-			tfdocFixture:     "validate/complete.tfdoc.hcl",
-			variablesFixture: "validate/complete-variables.tf",
+			desc:      "when `variables.tf` and terradoc file have the same variables",
+			doc:       "validate/complete.tfdoc.hcl",
+			variables: "validate/complete-variables.tf",
 		},
 		{
 			desc:                     "when `variables.tf` has missing variables",
-			tfdocFixture:             "validate/complete.tfdoc.hcl",
-			variablesFixture:         "validate/missing-variables.tf",
+			doc:                      "validate/complete.tfdoc.hcl",
+			variables:                "validate/missing-variables.tf",
 			wantMissingDocumentation: []string{},
 			wantMissingDefinition:    []string{"beer"},
-			wantTypeMismatch:         []string{},
 			wantError:                true,
 		},
 		{
 			desc:                     "when terradoc file has missing variables",
-			tfdocFixture:             "validate/missing-variables.tfdoc.hcl",
-			variablesFixture:         "validate/complete-variables.tf",
+			doc:                      "validate/missing-variables.tfdoc.hcl",
+			variables:                "validate/complete-variables.tf",
 			wantMissingDocumentation: []string{"beer"},
 			wantMissingDefinition:    []string{},
-			wantTypeMismatch:         []string{},
 			wantError:                true,
 		},
 		{
 			desc:                     "when `variables.tf` has type mismatch",
-			tfdocFixture:             "validate/complete.tfdoc.hcl",
-			variablesFixture:         "validate/type-mismatch.tf",
+			doc:                      "validate/complete.tfdoc.hcl",
+			variables:                "validate/type-mismatch.tf",
 			wantMissingDocumentation: []string{},
 			wantMissingDefinition:    []string{},
-			wantTypeMismatch:         []string{"number"},
-			wantError:                true,
+			wantTypeMismatch: []validators.TypeMismatchResult{
+				{
+					Name:           "number",
+					DefinedType:    "list(string)",
+					DocumentedType: "number",
+				},
+			},
+			wantError: true,
 		},
 		{
 			desc:                     "when `variables.tf` has type mismatch and missing variables",
-			tfdocFixture:             "validate/complete.tfdoc.hcl",
-			variablesFixture:         "validate/type-mismatch-with-missing.tf",
+			doc:                      "validate/complete.tfdoc.hcl",
+			variables:                "validate/type-mismatch-with-missing.tf",
 			wantMissingDocumentation: []string{},
 			wantMissingDefinition:    []string{"beer"},
-			wantTypeMismatch:         []string{"person"},
-			wantError:                true,
+			wantTypeMismatch: []validators.TypeMismatchResult{
+				{
+					Name:           "person",
+					DefinedType:    "string",
+					DocumentedType: "object(person)",
+				},
+			},
+			wantError: true,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.desc, func(t *testing.T) {
-			tfdoc := test.ReadFixture(t, tt.tfdocFixture)
-			tfdocFile, err := ioutil.TempFile("", "terradoc-validate-tfdoc-")
+			doc := test.ReadFixture(t, tt.doc)
+			docFile, err := ioutil.TempFile(t.TempDir(), "terradoc-validate-doc-")
 			assert.NoError(t, err)
-			_, err = tfdocFile.Write(tfdoc)
+			_, err = docFile.Write(doc)
 			assert.NoError(t, err)
 
-			variables := test.ReadFixture(t, tt.variablesFixture)
-			variablesFile, err := ioutil.TempFile("", "terradoc-validate-variables-")
+			variables := test.ReadFixture(t, tt.variables)
+			variablesFile, err := ioutil.TempFile(t.TempDir(), "terradoc-validate-variables-")
 			assert.NoError(t, err)
 			_, err = variablesFile.Write(variables)
 			assert.NoError(t, err)
 
-			cmd := exec.Command(terradocBinPath, "validate", tfdocFile.Name(), "-v", variablesFile.Name())
+			cmd := exec.Command(terradocBinPath, "validate", docFile.Name(), "-v", variablesFile.Name())
 
 			output, err := cmd.CombinedOutput()
 
 			gotResult := splitOutputMessages(t, output)
 
 			if tt.wantError {
-				assertHasMissingDocumentation(t, tfdocFile.Name(), gotResult.missingDocumentation, tt.wantMissingDocumentation)
+				assert.Error(t, err)
+
+				assertHasMissingDocumentation(t, docFile.Name(), gotResult.missingDocumentation, tt.wantMissingDocumentation)
 				assertHasMissingDefinition(t, variablesFile.Name(), gotResult.missingDefinition, tt.wantMissingDefinition)
-				assertHasTypeMismatch(t, gotResult.typeMismatch, tt.wantTypeMismatch)
+				assertHasTypeMismatch(t, docFile.Name(), variablesFile.Name(), tt.wantTypeMismatch, gotResult.typeMismatch)
 			} else {
 				assert.NoError(t, err)
 			}
@@ -112,7 +124,7 @@ func splitOutputMessages(t *testing.T, output []byte) validationResult {
 			result.missingDefinition = append(result.missingDefinition, oo)
 		case strings.HasPrefix(oo, "Missing variable documentation:"):
 			result.missingDocumentation = append(result.missingDocumentation, oo)
-		case strings.HasPrefix(oo, "Variable type mismatch:"):
+		case strings.HasPrefix(oo, "Type mismatch for variable:"):
 			result.typeMismatch = append(result.typeMismatch, oo)
 		}
 	}
@@ -157,7 +169,6 @@ func assertHasMissingDefinition(t *testing.T, filename string, got, want []strin
 		found := false
 
 		completeWantString := fmt.Sprintf("Missing variable definition: %q is not defined in %q", wantStr, filename)
-
 		for _, msg := range got {
 			if msg == completeWantString {
 				found = true
@@ -172,17 +183,17 @@ func assertHasMissingDefinition(t *testing.T, filename string, got, want []strin
 	}
 }
 
-func assertHasTypeMismatch(t *testing.T, got, want []string) {
+func assertHasTypeMismatch(t *testing.T, docFilename, defFilename string, want []validators.TypeMismatchResult, got []string) {
 	t.Helper()
 
 	if len(got) != len(want) {
 		t.Errorf("wanted %v but got %v", want, got)
 	}
 
-	for _, wantStr := range want {
+	for _, tm := range want {
 		found := false
 
-		completeWantString := fmt.Sprintf("Variable type mismatch: %q", wantStr)
+		completeWantString := fmt.Sprintf("Type mismatch for variable: %q is documented as %q in %q but defined as %q in %q", tm.Name, tm.DocumentedType, docFilename, tm.DefinedType, defFilename)
 
 		for _, msg := range got {
 			if msg == completeWantString {
@@ -193,7 +204,7 @@ func assertHasTypeMismatch(t *testing.T, got, want []string) {
 		}
 
 		if !found {
-			t.Errorf("wanted output to have type mismatch for %q but didn't find it", wantStr)
+			t.Errorf("wanted output to have type mismatch for %q but didn't find it", tm.Name)
 		}
 	}
 }

@@ -1,4 +1,4 @@
-package tfdocschema
+package docschema
 
 import "github.com/hashicorp/hcl/v2"
 

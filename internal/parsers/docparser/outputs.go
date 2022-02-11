@@ -1,4 +1,4 @@
-package tfdocparser
+package docparser
 
 import (
 	"errors"
@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/mineiros-io/terradoc/internal/entities"
 	"github.com/mineiros-io/terradoc/internal/parsers/hclparser"
-	"github.com/mineiros-io/terradoc/internal/schemas/tfdocschema"
+	"github.com/mineiros-io/terradoc/internal/schemas/docschema"
 )
 
 func parseOutputs(outputBlocks hcl.Blocks) (outputs []entities.Output, err error) {
@@ -28,7 +28,7 @@ func parseOutput(outputBlock *hcl.Block) (entities.Output, error) {
 		return entities.Output{}, errors.New("output block does not have a name")
 	}
 
-	outputContent, diags := outputBlock.Body.Content(tfdocschema.OutputSchema())
+	outputContent, diags := outputBlock.Body.Content(docschema.OutputSchema())
 	if diags.HasErrors() {
 		return entities.Output{}, fmt.Errorf("parsing output: %v", diags.Errs())
 	}

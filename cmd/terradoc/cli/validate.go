@@ -5,29 +5,30 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/mineiros-io/terradoc/internal/parsers/docparser"
 	"github.com/mineiros-io/terradoc/internal/parsers/outputsparser"
-	"github.com/mineiros-io/terradoc/internal/parsers/tfdocparser"
-	"github.com/mineiros-io/terradoc/internal/parsers/variablesparser"
+	"github.com/mineiros-io/terradoc/internal/parsers/varsparser"
+	"github.com/mineiros-io/terradoc/internal/validators"
 	"github.com/mineiros-io/terradoc/internal/validators/outputsvalidator"
-	"github.com/mineiros-io/terradoc/internal/validators/variablesvalidator"
+	"github.com/mineiros-io/terradoc/internal/validators/varsvalidator"
 )
 
 type ValidateCmd struct {
-	TFDocFile     string `arg:"" help:"Input file." type:"existingfile"`
+	DocFile       string `arg:"" help:"Input file." type:"existingfile"`
 	VariablesFile string `name:"variables" optional:"" short:"v" help:"Variables file" type:"existingfile"`
 	OutputsFile   string `name:"outputs" short:"o" optional:"" help:"Outputs file" type:"existingfile"`
 }
 
 func (vcm ValidateCmd) Run() error {
 	var hasVarsErrors, hasOutputsErrors bool
-	// TFDOC
-	t, tCloser, err := openInput(vcm.TFDocFile)
+	// DOC
+	t, tCloser, err := openInput(vcm.DocFile)
 	if err != nil {
 		return err
 	}
 	defer tCloser()
 
-	tfdoc, err := tfdocparser.Parse(t, t.Name())
+	doc, err := docparser.Parse(t, t.Name())
 	if err != nil {
 		return err
 	}
@@ -40,17 +41,16 @@ func (vcm ValidateCmd) Run() error {
 		}
 		defer vCloser()
 
-		tfvars, err := variablesparser.Parse(v, v.Name())
+		tfvars, err := varsparser.Parse(v, v.Name())
 		if err != nil {
 			return err
 		}
 
-		varsSummary := variablesvalidator.Validate(tfdoc, tfvars)
+		varsSummary := varsvalidator.Validate(doc, tfvars)
 
-		printVariablesValidationSummary(varsSummary, v.Name(), t.Name())
+		printValidationSummary(varsSummary, t.Name(), v.Name())
 
-		// TODO
-		hasVarsErrors = !varsSummary.Valid()
+		hasVarsErrors = !varsSummary.Success()
 	}
 
 	// OUTPUTS
@@ -66,12 +66,11 @@ func (vcm ValidateCmd) Run() error {
 			return err
 		}
 
-		outputsSummary := outputsvalidator.Validate(tfdoc, tfoutputs)
+		outputsSummary := outputsvalidator.Validate(doc, tfoutputs)
 
-		printOutputsValidationSummary(outputsSummary, o.Name(), t.Name())
+		printValidationSummary(outputsSummary, t.Name(), o.Name())
 
-		// TODO
-		hasOutputsErrors = !outputsSummary.Valid()
+		hasOutputsErrors = !outputsSummary.Success()
 	}
 
 	if hasVarsErrors || hasOutputsErrors {
@@ -81,30 +80,17 @@ func (vcm ValidateCmd) Run() error {
 	return nil
 }
 
-func printVariablesValidationSummary(summary variablesvalidator.VariablesValidationSummary, varsFilename, tfdocFilename string) {
-	for _, mVar := range summary.MissingDefinition {
-		fmt.Fprintf(os.Stderr, "Missing variable definition: %q is not defined in %q\n", mVar.Name, varsFilename)
+func printValidationSummary(summary validators.Summary, docFilename, defFilename string) {
+	for _, missingDef := range summary.MissingDefinition {
+		fmt.Fprintf(os.Stderr, "Missing %s definition: %q is not defined in %q\n", summary.Type, missingDef, defFilename)
 	}
 
-	for _, mVar := range summary.MissingDocumentation {
-		fmt.Fprintf(os.Stderr, "Missing variable documentation: %q is not documented in %q\n", mVar.Name, tfdocFilename)
+	for _, missingDoc := range summary.MissingDocumentation {
+		fmt.Fprintf(os.Stderr, "Missing %s documentation: %q is not documented in %q\n", summary.Type, missingDoc, docFilename)
 	}
 
-	for _, mVar := range summary.TypeMismatch {
-		fmt.Fprintf(os.Stderr, "Variable type mismatch: %q\n", mVar.Name)
-	}
-}
-
-func printOutputsValidationSummary(summary outputsvalidator.OutputsValidationSummary, outputsFilename, tfdocFilename string) {
-	for _, mOutput := range summary.MissingDefinition {
-		fmt.Fprintf(os.Stderr, "Missing output definition: %q is not defined in %q\n", mOutput.Name, outputsFilename)
+	for _, tMismatch := range summary.TypeMismatch {
+		fmt.Fprintf(os.Stderr, "Type mismatch for %s: %q is documented as %q in %q but defined as %q in %q\n", summary.Type, tMismatch.Name, tMismatch.DocumentedType, docFilename, tMismatch.DefinedType, defFilename)
 	}
 
-	for _, mOutput := range summary.MissingDocumentation {
-		fmt.Fprintf(os.Stderr, "Missing output documentation: %q is not documented in %q\n", mOutput.Name, tfdocFilename)
-	}
-
-	for _, mOutput := range summary.TypeMismatch {
-		fmt.Fprintf(os.Stderr, "Output type mismatch: %q\n", mOutput.Name)
-	}
 }

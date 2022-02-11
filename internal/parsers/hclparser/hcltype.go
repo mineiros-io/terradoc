@@ -25,7 +25,7 @@ func getTypeFromExpression(expr hcl.Expression, ctxFunctions map[string]function
 	kw := hcl.ExprAsKeyword(expr)
 
 	switch kw {
-	case "string", "number", "bool":
+	case "string", "number", "bool", "any":
 		tfType, ok := types.TerraformTypes(kw)
 		if !ok {
 			return entities.Type{}, fmt.Errorf("could not get terraform type for %q", kw)

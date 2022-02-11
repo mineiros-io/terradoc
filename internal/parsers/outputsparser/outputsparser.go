@@ -44,8 +44,8 @@ func parseOutputsHCL(src []byte, filename string) (entities.OutputsFile, error) 
 }
 
 func parseOutputs(outputBlocks hcl.Blocks) (outputs []entities.Output, err error) {
-	for _, varBlk := range outputBlocks {
-		output, err := parseOutput(varBlk)
+	for _, outBlk := range outputBlocks {
+		output, err := parseOutput(outBlk)
 		if err != nil {
 			return nil, fmt.Errorf("parsing output: %s", err)
 		}
@@ -58,7 +58,7 @@ func parseOutputs(outputBlocks hcl.Blocks) (outputs []entities.Output, err error
 
 func parseOutput(outputBlock *hcl.Block) (entities.Output, error) {
 	if len(outputBlock.Labels) != 1 {
-		return entities.Output{}, errors.New("output block does not have a name")
+		return entities.Output{}, errors.New("output block must have a single label")
 	}
 
 	outputContent, diags := outputBlock.Body.Content(outputsschema.OutputSchema())

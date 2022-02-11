@@ -1,4 +1,4 @@
-package tfdocparser_test
+package docparser_test
 
 import (
 	"bytes"
@@ -8,7 +8,7 @@ import (
 
 	"github.com/madlambda/spells/assert"
 	"github.com/mineiros-io/terradoc/internal/entities"
-	"github.com/mineiros-io/terradoc/internal/parsers/tfdocparser"
+	"github.com/mineiros-io/terradoc/internal/parsers/docparser"
 	"github.com/mineiros-io/terradoc/internal/types"
 	"github.com/mineiros-io/terradoc/test"
 )
@@ -17,12 +17,12 @@ func TestParse(t *testing.T) {
 	for _, tt := range []struct {
 		desc      string
 		inputFile string
-		want      entities.Definition
+		want      entities.Doc
 	}{
 		{
 			desc:      "with a valid input",
 			inputFile: "parser-input.tfdoc.hcl",
-			want: entities.Definition{
+			want: entities.Doc{
 				Header: entities.Header{
 					Image: "https://raw.githubusercontent.com/mineiros-io/brand/3bffd30e8bdbbde32c143e2650b2faa55f1df3ea/mineiros-primary-logo.svg",
 					URL:   "https://www.mineiros.io",
@@ -174,7 +174,7 @@ Section contents support anything markdown and allow us to make references like 
 		t.Run(tt.desc, func(t *testing.T) {
 			r := test.OpenFixture(t, tt.inputFile)
 			// parsed definition
-			definition, err := tfdocparser.Parse(r, "foo")
+			definition, err := docparser.Parse(r, "foo")
 			assert.NoError(t, err)
 
 			assertEqualDefinitions(t, tt.want, definition) //
@@ -270,7 +270,7 @@ section {
 		t.Run(tt.desc, func(t *testing.T) {
 			r := bytes.NewBufferString(tt.content)
 
-			_, err := tfdocparser.Parse(r, "foo-file")
+			_, err := docparser.Parse(r, "foo-file")
 			assert.Error(t, err)
 
 			if !strings.Contains(err.Error(), tt.wantErrorMsgContains) {
@@ -280,7 +280,7 @@ section {
 	}
 }
 
-func assertEqualDefinitions(t *testing.T, want, got entities.Definition) {
+func assertEqualDefinitions(t *testing.T, want, got entities.Doc) {
 	t.Helper()
 
 	assertEqualHeader(t, want.Header, got.Header)

@@ -5,23 +5,25 @@ import (
 
 	"github.com/mineiros-io/terradoc/internal/entities"
 	"github.com/mineiros-io/terradoc/internal/types"
+	"github.com/mineiros-io/terradoc/internal/validators"
 	"github.com/mineiros-io/terradoc/internal/validators/outputsvalidator"
+	"github.com/mineiros-io/terradoc/test"
 )
 
 func TestValidate(t *testing.T) {
 	tests := []struct {
 		desc               string
-		tfdocOutputs       entities.OutputCollection
+		docOutputs         entities.OutputCollection
 		outputsFileOutputs entities.OutputCollection
 		wantMissingDoc     []string
 		wantMissingDef     []string
-		wantTypeMismatch   []string
+		wantTypeMismatch   []validators.TypeMismatchResult
 	}{
 		{
 
 			desc:               "when an output is missing from outputs file",
 			outputsFileOutputs: entities.OutputCollection{},
-			tfdocOutputs: entities.OutputCollection{
+			docOutputs: entities.OutputCollection{
 				{
 					Name: "name",
 					Type: entities.Type{TFType: types.TerraformString},
@@ -30,18 +32,18 @@ func TestValidate(t *testing.T) {
 			wantMissingDef: []string{"name"},
 		},
 		{
-			desc: "when an output is missing from tfdoc file",
+			desc: "when an output is missing from doc file",
 			outputsFileOutputs: entities.OutputCollection{
 				{
 					Name: "age",
 					Type: entities.Type{TFType: types.TerraformNumber},
 				},
 			},
-			tfdocOutputs:   entities.OutputCollection{},
+			docOutputs:     entities.OutputCollection{},
 			wantMissingDoc: []string{"age"},
 		},
 		{
-			desc: "when tfdoc and outputs file have the same outputs",
+			desc: "when doc and outputs file have the same outputs",
 			outputsFileOutputs: entities.OutputCollection{
 				{
 					Name: "name",
@@ -52,7 +54,7 @@ func TestValidate(t *testing.T) {
 					Type: entities.Type{TFType: types.TerraformNumber},
 				},
 			},
-			tfdocOutputs: entities.OutputCollection{
+			docOutputs: entities.OutputCollection{
 				{
 					Name: "name",
 					Type: entities.Type{TFType: types.TerraformString},
@@ -64,24 +66,30 @@ func TestValidate(t *testing.T) {
 			},
 		},
 		{
-			desc: "when an output has different types on tfdoc and outputs file",
+			desc: "when an output has different types on doc and outputs file",
 			outputsFileOutputs: entities.OutputCollection{
 				{
 					Name: "age",
 					Type: entities.Type{TFType: types.TerraformNumber},
 				},
 			},
-			tfdocOutputs: entities.OutputCollection{
+			docOutputs: entities.OutputCollection{
 				{
 					Name: "age",
 					Type: entities.Type{TFType: types.TerraformString},
 				},
 			},
-			wantTypeMismatch: []string{"age"},
+			wantTypeMismatch: []validators.TypeMismatchResult{
+				{
+					Name:           "age",
+					DefinedType:    "number",
+					DocumentedType: "string",
+				},
+			},
 		},
 		{
-			desc: "when an output is missing from outputs file, another missing from tfdoc and another with type mismatch",
-			tfdocOutputs: entities.OutputCollection{
+			desc: "when an output is missing from outputs file, another missing from doc and another with type mismatch",
+			docOutputs: entities.OutputCollection{
 				{
 					Name: "name",
 					Type: entities.Type{TFType: types.TerraformString},
@@ -101,48 +109,36 @@ func TestValidate(t *testing.T) {
 					Type: entities.Type{TFType: types.TerraformString},
 				},
 			},
-			wantMissingDef:   []string{"name"},
-			wantMissingDoc:   []string{"age"},
-			wantTypeMismatch: []string{"birth"},
+			wantMissingDef: []string{"name"},
+			wantMissingDoc: []string{"age"},
+			wantTypeMismatch: []validators.TypeMismatchResult{
+				{
+					Name:           "birth",
+					DefinedType:    "string",
+					DocumentedType: "bool",
+				},
+			},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.desc, func(t *testing.T) {
-			def := definitionFromOutputs(tt.tfdocOutputs)
+			def := definitionFromOutputs(tt.docOutputs)
 			of := outputFileFromOutputs(tt.outputsFileOutputs)
 
 			got := outputsvalidator.Validate(def, of)
 
-			assertHasOutputs(t, tt.wantMissingDef, got.MissingDefinition)
-			assertHasOutputs(t, tt.wantMissingDoc, got.MissingDocumentation)
-			assertHasOutputs(t, tt.wantTypeMismatch, got.TypeMismatch)
+			test.AssertHasStrings(t, tt.wantMissingDef, got.MissingDefinition)
+			test.AssertHasStrings(t, tt.wantMissingDoc, got.MissingDocumentation)
+			test.AssertHasTypeMismatches(t, tt.wantTypeMismatch, got.TypeMismatch)
 		})
 	}
 }
 
-func assertHasOutputs(t *testing.T, want []string, got entities.OutputCollection) {
-	t.Helper()
-
-	for _, name := range want {
-		found := false
-
-		for _, o := range got {
-			if name == o.Name {
-				found = true
-			}
-		}
-
-		if !found {
-			t.Errorf("wanted %q to be found in %v", name, got)
-		}
-	}
-}
-
-func definitionFromOutputs(outputs entities.OutputCollection) entities.Definition {
+func definitionFromOutputs(outputs entities.OutputCollection) entities.Doc {
 	section := entities.Section{Outputs: outputs}
 
-	return entities.Definition{Sections: []entities.Section{section}}
+	return entities.Doc{Sections: []entities.Section{section}}
 }
 
 func outputFileFromOutputs(outputs entities.OutputCollection) entities.OutputsFile {

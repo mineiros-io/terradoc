@@ -1,4 +1,4 @@
-package variablesschema
+package varsschema
 
 import "github.com/hashicorp/hcl/v2"
 

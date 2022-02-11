@@ -1,4 +1,4 @@
-package tfdocparser
+package docparser
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/mineiros-io/terradoc/internal/entities"
 	"github.com/mineiros-io/terradoc/internal/parsers/hclparser"
-	"github.com/mineiros-io/terradoc/internal/schemas/tfdocschema"
+	"github.com/mineiros-io/terradoc/internal/schemas/docschema"
 )
 
 func parseVariableAttributes(attributeBlocks hcl.Blocks) (attributes []entities.Attribute, err error) {
@@ -25,7 +25,7 @@ func parseVariableAttributes(attributeBlocks hcl.Blocks) (attributes []entities.
 }
 
 func parseAttribute(attrBlock *hcl.Block, level int) (entities.Attribute, error) {
-	attrContent, diags := attrBlock.Body.Content(tfdocschema.AttributeSchema())
+	attrContent, diags := attrBlock.Body.Content(docschema.AttributeSchema())
 	if diags.HasErrors() {
 		return entities.Attribute{}, fmt.Errorf("parsing attribute block: %v", diags.Errs())
 	}

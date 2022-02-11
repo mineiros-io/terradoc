@@ -1,4 +1,4 @@
-package tfdocparser
+package docparser
 
 import (
 	"fmt"
@@ -35,22 +35,22 @@ const (
 )
 
 // Parse reads the content of a io.Reader and returns a Definition entity from its parsed values
-func Parse(r io.Reader, filename string) (entities.Definition, error) {
+func Parse(r io.Reader, filename string) (entities.Doc, error) {
 	src, err := io.ReadAll(r)
 	if err != nil {
-		return entities.Definition{}, err
+		return entities.Doc{}, err
 	}
 
 	return parseHCL(src, filename)
 }
 
-func parseHCL(src []byte, filename string) (entities.Definition, error) {
+func parseHCL(src []byte, filename string) (entities.Doc, error) {
 	p := hclparse.NewParser()
 
 	f, diags := p.ParseHCL(src, filename)
 	if diags.HasErrors() {
-		return entities.Definition{}, fmt.Errorf("parsing HCL: %v", diags.Errs())
+		return entities.Doc{}, fmt.Errorf("parsing HCL: %v", diags.Errs())
 	}
 
-	return parseDefinition(f)
+	return parseDoc(f)
 }

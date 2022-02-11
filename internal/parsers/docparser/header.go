@@ -1,4 +1,4 @@
-package tfdocparser
+package docparser
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/mineiros-io/terradoc/internal/entities"
 	"github.com/mineiros-io/terradoc/internal/parsers/hclparser"
-	"github.com/mineiros-io/terradoc/internal/schemas/tfdocschema"
+	"github.com/mineiros-io/terradoc/internal/schemas/docschema"
 )
 
 func parseHeader(headerBlocks hcl.Blocks) (entities.Header, error) {
@@ -19,7 +19,7 @@ func parseHeader(headerBlocks hcl.Blocks) (entities.Header, error) {
 
 	headerBlock := headerBlocks[0]
 
-	headerContent, diags := headerBlock.Body.Content(tfdocschema.HeaderSchema())
+	headerContent, diags := headerBlock.Body.Content(docschema.HeaderSchema())
 	if diags.HasErrors() {
 		return entities.Header{}, fmt.Errorf("parsing Terradoc header: %v", diags.Errs())
 	}
@@ -46,7 +46,7 @@ func parseBadge(badgeBlock *hcl.Block) (entities.Badge, error) {
 	// badge blocks are required to have a label as defined in the schema
 	name := badgeBlock.Labels[0]
 
-	badgeContent, diags := badgeBlock.Body.Content(tfdocschema.BadgeSchema())
+	badgeContent, diags := badgeBlock.Body.Content(docschema.BadgeSchema())
 	if diags.HasErrors() {
 		return entities.Badge{}, fmt.Errorf("parsing badge: %v", diags.Errs())
 	}

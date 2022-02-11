@@ -1,27 +1,29 @@
-package variablesvalidator_test
+package varsvalidator_test
 
 import (
 	"testing"
 
 	"github.com/mineiros-io/terradoc/internal/entities"
 	"github.com/mineiros-io/terradoc/internal/types"
-	"github.com/mineiros-io/terradoc/internal/validators/variablesvalidator"
+	"github.com/mineiros-io/terradoc/internal/validators"
+	"github.com/mineiros-io/terradoc/internal/validators/varsvalidator"
+	"github.com/mineiros-io/terradoc/test"
 )
 
 func TestValidate(t *testing.T) {
 	tests := []struct {
 		desc                   string
-		tfdocVariables         entities.VariableCollection
+		docVariables           entities.VariableCollection
 		variablesFileVariables entities.VariableCollection
 		wantMissingDoc         []string
 		wantMissingDef         []string
-		wantTypeMismatch       []string
+		wantTypeMismatch       []validators.TypeMismatchResult
 	}{
 		{
 
 			desc:                   "when a variable is missing from variables file",
 			variablesFileVariables: entities.VariableCollection{},
-			tfdocVariables: entities.VariableCollection{
+			docVariables: entities.VariableCollection{
 				{
 					Name: "name",
 					Type: entities.Type{TFType: types.TerraformString},
@@ -30,18 +32,18 @@ func TestValidate(t *testing.T) {
 			wantMissingDef: []string{"name"},
 		},
 		{
-			desc: "when a variable is missing from tfdoc file",
+			desc: "when a variable is missing from doc file",
 			variablesFileVariables: entities.VariableCollection{
 				{
 					Name: "age",
 					Type: entities.Type{TFType: types.TerraformNumber},
 				},
 			},
-			tfdocVariables: entities.VariableCollection{},
+			docVariables:   entities.VariableCollection{},
 			wantMissingDoc: []string{"age"},
 		},
 		{
-			desc: "when tfdoc and variables file have the same variables",
+			desc: "when doc and variables file have the same variables",
 			variablesFileVariables: entities.VariableCollection{
 				{
 					Name: "name",
@@ -52,7 +54,7 @@ func TestValidate(t *testing.T) {
 					Type: entities.Type{TFType: types.TerraformNumber},
 				},
 			},
-			tfdocVariables: entities.VariableCollection{
+			docVariables: entities.VariableCollection{
 				{
 					Name: "name",
 					Type: entities.Type{TFType: types.TerraformString},
@@ -64,24 +66,30 @@ func TestValidate(t *testing.T) {
 			},
 		},
 		{
-			desc: "when a variable has different types on tfdoc and variables file",
+			desc: "when a variable has different types on doc and variables file",
 			variablesFileVariables: entities.VariableCollection{
 				{
 					Name: "age",
 					Type: entities.Type{TFType: types.TerraformNumber},
 				},
 			},
-			tfdocVariables: entities.VariableCollection{
+			docVariables: entities.VariableCollection{
 				{
 					Name: "age",
 					Type: entities.Type{TFType: types.TerraformString},
 				},
 			},
-			wantTypeMismatch: []string{"age"},
+			wantTypeMismatch: []validators.TypeMismatchResult{
+				{
+					Name:           "age",
+					DefinedType:    "number",
+					DocumentedType: "string",
+				},
+			},
 		},
 		{
-			desc: "when a variable is missing from variables file, another missing from tfdoc and another with type mismatch",
-			tfdocVariables: entities.VariableCollection{
+			desc: "when a variable is missing from variables file, another missing from doc and another with type mismatch",
+			docVariables: entities.VariableCollection{
 				{
 					Name: "name",
 					Type: entities.Type{TFType: types.TerraformString},
@@ -101,48 +109,36 @@ func TestValidate(t *testing.T) {
 					Type: entities.Type{TFType: types.TerraformString},
 				},
 			},
-			wantMissingDef:   []string{"name"},
-			wantMissingDoc:   []string{"age"},
-			wantTypeMismatch: []string{"birth"},
+			wantMissingDef: []string{"name"},
+			wantMissingDoc: []string{"age"},
+			wantTypeMismatch: []validators.TypeMismatchResult{
+				{
+					Name:           "birth",
+					DefinedType:    "string",
+					DocumentedType: "bool",
+				},
+			},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.desc, func(t *testing.T) {
-			def := definitionFromVariables(tt.tfdocVariables)
+			def := definitionFromVariables(tt.docVariables)
 			of := variableFileFromVariables(tt.variablesFileVariables)
 
-			got := variablesvalidator.Validate(def, of)
+			got := varsvalidator.Validate(def, of)
 
-			assertHasVariables(t, tt.wantMissingDef, got.MissingDefinition)
-			assertHasVariables(t, tt.wantMissingDoc, got.MissingDocumentation)
-			assertHasVariables(t, tt.wantTypeMismatch, got.TypeMismatch)
+			test.AssertHasStrings(t, tt.wantMissingDef, got.MissingDefinition)
+			test.AssertHasStrings(t, tt.wantMissingDoc, got.MissingDocumentation)
+			test.AssertHasTypeMismatches(t, tt.wantTypeMismatch, got.TypeMismatch)
 		})
 	}
 }
 
-func assertHasVariables(t *testing.T, want []string, got entities.VariableCollection) {
-	t.Helper()
-
-	for _, name := range want {
-		found := false
-
-		for _, o := range got {
-			if name == o.Name {
-				found = true
-			}
-		}
-
-		if !found {
-			t.Errorf("wanted %q to be found in %v", name, got)
-		}
-	}
-}
-
-func definitionFromVariables(variables entities.VariableCollection) entities.Definition {
+func definitionFromVariables(variables entities.VariableCollection) entities.Doc {
 	section := entities.Section{Variables: variables}
 
-	return entities.Definition{Sections: []entities.Section{section}}
+	return entities.Doc{Sections: []entities.Section{section}}
 }
 
 func variableFileFromVariables(variables entities.VariableCollection) entities.VariablesFile {

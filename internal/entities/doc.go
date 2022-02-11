@@ -1,7 +1,7 @@
 package entities
 
-// Definition represents a parsed source file.
-type Definition struct {
+// Doc represents a parsed source file.
+type Doc struct {
 	// Header is the header section block from the source file
 	Header Header
 	// Sections is a collection of sections defined in the source file.
@@ -23,4 +23,20 @@ type Badge struct {
 	URL   string `json:"url"`   // URL is the target url for the badge
 	Text  string `json:"text"`  // Text is the text label for the badge
 	Name  string `json:"name"`  // Name is an identifier for the badge
+}
+
+func (d Doc) AllVariables() (result []Variable) {
+	for _, s := range d.Sections {
+		result = append(result, s.AllVariables()...)
+	}
+
+	return result
+}
+
+func (d Doc) AllOutputs() (result []Output) {
+	for _, s := range d.Sections {
+		result = append(result, s.AllOutputs()...)
+	}
+
+	return result
 }

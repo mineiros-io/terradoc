@@ -1,4 +1,4 @@
-package tfdocparser
+package docparser
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/mineiros-io/terradoc/internal/entities"
 	"github.com/mineiros-io/terradoc/internal/parsers/hclparser"
-	"github.com/mineiros-io/terradoc/internal/schemas/tfdocschema"
+	"github.com/mineiros-io/terradoc/internal/schemas/docschema"
 )
 
 func parseReferences(referencesBlocks hcl.Blocks) ([]entities.Reference, error) {
@@ -18,7 +18,7 @@ func parseReferences(referencesBlocks hcl.Blocks) ([]entities.Reference, error) 
 			fmt.Errorf("parsing references: expected at most 1 `references` block but got %d instead", len(referencesBlocks))
 	}
 
-	referencesContent, diags := referencesBlocks[0].Body.Content(tfdocschema.ReferencesSchema())
+	referencesContent, diags := referencesBlocks[0].Body.Content(docschema.ReferencesSchema())
 	if diags.HasErrors() {
 		return nil, fmt.Errorf("parsing references: %v", diags.Errs())
 	}
@@ -43,7 +43,7 @@ func parseRef(refBlock *hcl.Block) (entities.Reference, error) {
 	// reference blocks are required to have a label as defined in the schema
 	name := refBlock.Labels[0]
 
-	refContent, diags := refBlock.Body.Content(tfdocschema.RefSchema())
+	refContent, diags := refBlock.Body.Content(docschema.RefSchema())
 	if diags.HasErrors() {
 		return entities.Reference{}, fmt.Errorf("parsing Terradoc `references`: %v", diags.Errs())
 	}

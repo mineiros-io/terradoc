@@ -5,7 +5,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/mineiros-io/terradoc/internal/parsers/tfdocparser"
+	"github.com/mineiros-io/terradoc/internal/parsers/docparser"
 	"github.com/mineiros-io/terradoc/internal/renderers/markdown"
 )
 
@@ -27,7 +27,7 @@ func (g GenerateCmd) Run() error {
 	}
 	defer wCloser()
 
-	def, err := tfdocparser.Parse(r, r.Name())
+	def, err := docparser.Parse(r, r.Name())
 	if err != nil {
 		return fmt.Errorf("parsing input: %v", err)
 	}

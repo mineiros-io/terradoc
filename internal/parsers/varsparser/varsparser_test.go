@@ -1,4 +1,4 @@
-package variablesparser_test
+package varsparser_test
 
 import "testing"
 

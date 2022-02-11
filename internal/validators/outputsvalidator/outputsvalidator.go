@@ -5,50 +5,58 @@ import (
 	"github.com/mineiros-io/terradoc/internal/validators"
 )
 
-type OutputsValidationSummary struct {
-	MissingDefinition    entities.OutputCollection
-	MissingDocumentation entities.OutputCollection
-	TypeMismatch         entities.OutputCollection
+const CheckType = "output"
+
+type outputValidationChecks map[string]outputValidation
+
+type outputValidation struct {
+	defined    entities.Output
+	documented entities.Output
 }
 
-func (vs OutputsValidationSummary) Valid() bool {
-	return len(vs.MissingDocumentation) == 0 &&
-		len(vs.MissingDefinition) == 0 &&
-		len(vs.TypeMismatch) == 0
-}
+func Validate(doc entities.Doc, outputsFile entities.OutputsFile) validators.Summary {
+	summary := validators.Summary{Type: CheckType}
 
-// TODO: receive resource or collection of outputs directly?
-func Validate(tfdoc entities.Definition, outputsFile entities.OutputsFile) OutputsValidationSummary {
-	summary := OutputsValidationSummary{}
+	validationResult := validateOutputs(doc.AllOutputs(), outputsFile.Outputs)
 
-	outputsFileOutputs := outputsFile.Outputs
-	// TODO
-	tfdocOutputs := entities.OutputCollection{}
-	for _, s := range tfdoc.Sections {
-		tfdocOutputs = append(tfdocOutputs, s.AllOutputs()...)
-	}
-
-	for _, defOutput := range tfdocOutputs {
-		fOutput, exists := outputsFileOutputs.OutputByName(defOutput.Name)
-		if !exists {
-			summary.MissingDefinition = append(summary.MissingDefinition, defOutput)
-
-			continue
-		}
-
-		if !validators.TypesMatch(&defOutput.Type, &fOutput.Type) {
-			summary.TypeMismatch = append(summary.TypeMismatch, defOutput)
-
-			continue
-		}
-	}
-
-	for _, fOutput := range outputsFileOutputs {
-		_, exists := tfdocOutputs.OutputByName(fOutput.Name)
-		if !exists {
-			summary.MissingDocumentation = append(summary.MissingDocumentation, fOutput)
+	for outputName, check := range validationResult {
+		switch {
+		// TODO: using missing name as indicator of missing output
+		case check.defined.Name == "":
+			summary.MissingDefinition = append(summary.MissingDefinition, outputName)
+		case check.documented.Name == "":
+			summary.MissingDocumentation = append(summary.MissingDocumentation, outputName)
+		case !validators.TypesMatch(&check.defined.Type, &check.documented.Type):
+			summary.TypeMismatch = append(
+				summary.TypeMismatch,
+				validators.TypeMismatchResult{
+					Name:           outputName,
+					DefinedType:    check.defined.Type.AsString(),
+					DocumentedType: check.documented.Type.AsString(),
+				},
+			)
 		}
 	}
 
 	return summary
+}
+
+func validateOutputs(docOutputs, outputsFileOutputs []entities.Output) outputValidationChecks {
+	result := outputValidationChecks{}
+
+	for _, tfOutput := range docOutputs {
+		result[tfOutput.Name] = outputValidation{documented: tfOutput}
+	}
+
+	for _, fOutput := range outputsFileOutputs {
+		val, ok := result[fOutput.Name]
+		if !ok {
+			val = outputValidation{}
+		}
+		val.defined = fOutput
+
+		result[fOutput.Name] = val
+	}
+
+	return result
 }
