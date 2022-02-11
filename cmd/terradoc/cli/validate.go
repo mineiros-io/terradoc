@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/mineiros-io/terradoc/internal/parsers/docparser"
 	"github.com/mineiros-io/terradoc/internal/parsers/outputsparser"
+	"github.com/mineiros-io/terradoc/internal/parsers/tfdocparser"
 	"github.com/mineiros-io/terradoc/internal/parsers/varsparser"
 	"github.com/mineiros-io/terradoc/internal/validators"
 	"github.com/mineiros-io/terradoc/internal/validators/outputsvalidator"
@@ -28,7 +28,7 @@ func (vcm ValidateCmd) Run() error {
 	}
 	defer tCloser()
 
-	doc, err := docparser.Parse(t, t.Name())
+	doc, err := tfdocparser.Parse(t, t.Name())
 	if err != nil {
 		return err
 	}

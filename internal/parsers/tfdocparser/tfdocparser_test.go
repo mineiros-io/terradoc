@@ -1,4 +1,4 @@
-package docparser_test
+package tfdocparser_test
 
 import (
 	"bytes"
@@ -8,7 +8,7 @@ import (
 
 	"github.com/madlambda/spells/assert"
 	"github.com/mineiros-io/terradoc/internal/entities"
-	"github.com/mineiros-io/terradoc/internal/parsers/docparser"
+	"github.com/mineiros-io/terradoc/internal/parsers/tfdocparser"
 	"github.com/mineiros-io/terradoc/internal/types"
 	"github.com/mineiros-io/terradoc/test"
 )
@@ -174,7 +174,7 @@ Section contents support anything markdown and allow us to make references like 
 		t.Run(tt.desc, func(t *testing.T) {
 			r := test.OpenFixture(t, tt.inputFile)
 			// parsed definition
-			definition, err := docparser.Parse(r, "foo")
+			definition, err := tfdocparser.Parse(r, "foo")
 			assert.NoError(t, err)
 
 			assertEqualDefinitions(t, tt.want, definition) //
@@ -270,7 +270,7 @@ section {
 		t.Run(tt.desc, func(t *testing.T) {
 			r := bytes.NewBufferString(tt.content)
 
-			_, err := docparser.Parse(r, "foo-file")
+			_, err := tfdocparser.Parse(r, "foo-file")
 			assert.Error(t, err)
 
 			if !strings.Contains(err.Error(), tt.wantErrorMsgContains) {

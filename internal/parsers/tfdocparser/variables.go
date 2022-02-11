@@ -1,4 +1,4 @@
-package docparser
+package tfdocparser
 
 import (
 	"errors"
