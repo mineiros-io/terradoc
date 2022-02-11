@@ -5,11 +5,11 @@ import (
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/mineiros-io/terradoc/internal/entities"
-	"github.com/mineiros-io/terradoc/internal/schemas/docschema"
+	"github.com/mineiros-io/terradoc/internal/schemas/tfdocschema"
 )
 
 func parseDoc(f *hcl.File) (entities.TFDoc, error) {
-	docContent, diags := f.Body.Content(docschema.RootSchema())
+	docContent, diags := f.Body.Content(tfdocschema.RootSchema())
 	if diags.HasErrors() {
 		return entities.TFDoc{}, fmt.Errorf("parsing Terradoc doc: %v", diags.Errs())
 	}

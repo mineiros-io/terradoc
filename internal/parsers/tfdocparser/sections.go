@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/mineiros-io/terradoc/internal/entities"
 	"github.com/mineiros-io/terradoc/internal/parsers/hclparser"
-	"github.com/mineiros-io/terradoc/internal/schemas/docschema"
+	"github.com/mineiros-io/terradoc/internal/schemas/tfdocschema"
 )
 
 const (
@@ -27,7 +27,7 @@ func parseSections(sectionBlocks hcl.Blocks) (sections []entities.Section, err e
 }
 
 func parseSection(sectionBlock *hcl.Block, level int) (entities.Section, error) {
-	sectionContent, diags := sectionBlock.Body.Content(docschema.SectionSchema())
+	sectionContent, diags := sectionBlock.Body.Content(tfdocschema.SectionSchema())
 	if diags.HasErrors() {
 		return entities.Section{}, fmt.Errorf("parsing Terradoc section: %v", diags.Errs())
 	}

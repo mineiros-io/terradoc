@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/mineiros-io/terradoc/internal/entities"
 	"github.com/mineiros-io/terradoc/internal/parsers/hclparser"
-	"github.com/mineiros-io/terradoc/internal/schemas/docschema"
+	"github.com/mineiros-io/terradoc/internal/schemas/tfdocschema"
 )
 
 func parseVariables(variableBlocks hcl.Blocks) (variables []entities.Variable, err error) {
@@ -28,7 +28,7 @@ func parseVariable(variableBlock *hcl.Block) (entities.Variable, error) {
 		return entities.Variable{}, errors.New("variable block does not have a name")
 	}
 
-	variableContent, diags := variableBlock.Body.Content(docschema.VariableSchema())
+	variableContent, diags := variableBlock.Body.Content(tfdocschema.VariableSchema())
 	if diags.HasErrors() {
 		return entities.Variable{}, fmt.Errorf("parsing variable: %v", diags.Errs())
 	}
