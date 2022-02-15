@@ -10,8 +10,13 @@ import (
 	"github.com/mineiros-io/terradoc/test"
 )
 
+const (
+	formatInput          = "format/unformatted-input.tfdoc.hcl"
+	expectedFormatOutput = "format/formatted-input.tfdoc.hcl"
+)
+
 func TestFormat(t *testing.T) {
-	unformattedInput := test.ReadFixture(t, formatInput)
+	unformattedInput := test.ReadFixture(t, "format/"+formatInput)
 	// create another file with unformattedFile content to test overwrites
 
 	expectedFormattedOutput := test.ReadFixture(t, expectedFormatOutput)

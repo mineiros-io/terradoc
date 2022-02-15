@@ -12,6 +12,34 @@ import (
 	"github.com/mineiros-io/terradoc/test"
 )
 
+var tests = []struct {
+	desc      string
+	tfdoc     string
+	variables string
+	outputs   string
+	want      struct {
+		hasError       bool
+		variableErrors string
+		outputErrors   string
+	}
+}{
+	{
+		desc:      "when no validation errors are found",
+		tfdoc:     "validate/tfdoc-complete.tfdoc.hcl",
+		variables: "validate/variables-complete.tf",
+		outputs:   "validate/outputs-complete.tf",
+		want: struct{
+			hasError: false,
+		}
+	},
+	{
+		desc: "when validation errors are found",
+		tfdoc: "validate/tfdoc-error.tfdoc.hcl",
+		variables: "validate/variables-error.tf",
+		outputs: "validate/outputs-error.tf",
+	},
+}
+
 func TestValidateVariables(t *testing.T) {
 	tests := []struct {
 		desc                     string
@@ -24,12 +52,12 @@ func TestValidateVariables(t *testing.T) {
 	}{
 		{
 			desc:      "when `variables.tf` and terradoc file have the same variables",
-			doc:       "validate/complete.tfdoc.hcl",
+			doc:       "validate/complete-tfdoc.tfdoc.hcl",
 			variables: "validate/complete-variables.tf",
 		},
 		{
 			desc:                     "when `variables.tf` has missing variables",
-			doc:                      "validate/complete.tfdoc.hcl",
+			doc:                      "validate/complete-tfdoc.tfdoc.hcl",
 			variables:                "validate/missing-variables.tf",
 			wantMissingDocumentation: []string{},
 			wantMissingDefinition:    []string{"beer"},
@@ -45,7 +73,7 @@ func TestValidateVariables(t *testing.T) {
 		},
 		{
 			desc:                     "when `variables.tf` has type mismatch",
-			doc:                      "validate/complete.tfdoc.hcl",
+			doc:                      "validate/complete-tfdoc.tfdoc.hcl",
 			variables:                "validate/type-mismatch.tf",
 			wantMissingDocumentation: []string{},
 			wantMissingDefinition:    []string{},
@@ -60,7 +88,7 @@ func TestValidateVariables(t *testing.T) {
 		},
 		{
 			desc:                     "when `variables.tf` has type mismatch and missing variables",
-			doc:                      "validate/complete.tfdoc.hcl",
+			doc:                      "validate/complete-tfdoc.tfdoc.hcl",
 			variables:                "validate/type-mismatch-with-missing.tf",
 			wantMissingDocumentation: []string{},
 			wantMissingDefinition:    []string{"beer"},

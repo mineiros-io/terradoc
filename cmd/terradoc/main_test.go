@@ -9,13 +9,7 @@ import (
 	"testing"
 )
 
-var (
-	binName                = "terradoc"
-	generateInput          = "golden-input.tfdoc.hcl"
-	formatInput            = "unformatted-input.tfdoc.hcl"
-	expectedGenerateOutput = "golden-readme.md"
-	expectedFormatOutput   = "formatted-input.tfdoc.hcl"
-)
+var binName = "terradoc"
 
 var terradocBinPath string
 

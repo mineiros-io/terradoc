@@ -11,6 +11,11 @@ import (
 	"github.com/mineiros-io/terradoc/test"
 )
 
+const (
+	generateInput          = "generate/golden-input.tfdoc.hcl"
+	expectedGenerateOutput = "generate/golden-readme.md"
+)
+
 func TestGenerate(t *testing.T) {
 	inputContent := test.ReadFixture(t, generateInput)
 	// create tempfile
