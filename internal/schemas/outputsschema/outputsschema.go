@@ -16,9 +16,10 @@ func RootSchema() *hcl.BodySchema {
 func OutputSchema() *hcl.BodySchema {
 	return &hcl.BodySchema{
 		Attributes: []hcl.AttributeSchema{
+			// TODO: leaving `value` here even though we don't use it to not break parsing
 			{
-				Name:     "type",
-				Required: true,
+				Name:     "value",
+				Required: false,
 			},
 			{
 				Name:     "description",
