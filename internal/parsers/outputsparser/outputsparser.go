@@ -10,7 +10,6 @@ import (
 	"github.com/mineiros-io/terradoc/internal/entities"
 	"github.com/mineiros-io/terradoc/internal/parsers/hclparser"
 	"github.com/mineiros-io/terradoc/internal/schemas/outputsschema"
-	"github.com/mineiros-io/terradoc/internal/types"
 )
 
 func Parse(r io.Reader, filename string) (entities.OutputsFile, error) {
@@ -77,11 +76,14 @@ func parseOutput(outputBlock *hcl.Block) (entities.Output, error) {
 }
 
 func createOutputFromHCLAttributes(attrs hcl.Attributes, name string) (entities.Output, error) {
+	var err error
 	output := entities.Output{Name: name}
 
-	// type definition
-	tfType, _ := types.TerraformTypes(hclparser.GetAttribute(attrs, "type").Keyword())
-	output.Type = entities.Type{TFType: tfType}
+	// description
+	output.Description, err = hclparser.GetAttribute(attrs, "description").String()
+	if err != nil {
+		return entities.Output{}, err
+	}
 
 	return output, nil
 }
