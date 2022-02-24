@@ -3,6 +3,7 @@ package main_test
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
 	"os/exec"
 	"strings"
 	"testing"
@@ -89,7 +90,9 @@ func TestValidateVariables(t *testing.T) {
 			_, err = variablesFile.Write(variables)
 			assert.NoError(t, err)
 
-			cmd := exec.Command(terradocBinPath, "validate", docFile.Name(), "-v", variablesFile.Name())
+			os.Chdir(os.TempDir())
+
+			cmd := exec.Command(terradocBinPath, "validate", docFile.Name(), "-v")
 
 			output, err := cmd.CombinedOutput()
 

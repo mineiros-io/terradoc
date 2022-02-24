@@ -141,6 +141,6 @@ func definitionFromVariables(variables entities.VariableCollection) entities.Doc
 	return entities.Doc{Sections: []entities.Section{section}}
 }
 
-func variableFileFromVariables(variables entities.VariableCollection) entities.VariablesFile {
-	return entities.VariablesFile{Variables: variables}
+func variableFileFromVariables(variables entities.VariableCollection) entities.ValidationContents {
+	return entities.ValidationContents{Variables: variables}
 }

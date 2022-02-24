@@ -14,7 +14,7 @@ type outputValidation struct {
 	documented entities.Output
 }
 
-func Validate(doc entities.Doc, outputsFile entities.OutputsFile) validators.Summary {
+func Validate(doc entities.Doc, outputsFile entities.ValidationContents) validators.Summary {
 	summary := validators.Summary{Type: CheckType}
 
 	validationResult := validateOutputs(doc.AllOutputs(), outputsFile.Outputs)

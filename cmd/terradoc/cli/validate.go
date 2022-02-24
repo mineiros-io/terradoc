@@ -4,19 +4,20 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/mineiros-io/terradoc/internal/parsers/docparser"
-	"github.com/mineiros-io/terradoc/internal/parsers/outputsparser"
-	"github.com/mineiros-io/terradoc/internal/parsers/varsparser"
+	"github.com/mineiros-io/terradoc/internal/parsers/validationparser"
 	"github.com/mineiros-io/terradoc/internal/validators"
 	"github.com/mineiros-io/terradoc/internal/validators/outputsvalidator"
 	"github.com/mineiros-io/terradoc/internal/validators/varsvalidator"
 )
 
 type ValidateCmd struct {
-	DocFile       string `arg:"" help:"Input file." type:"existingfile"`
-	VariablesFile string `name:"variables" optional:"" short:"v" help:"Variables file" type:"existingfile"`
-	OutputsFile   string `name:"outputs" short:"o" optional:"" help:"Outputs file" type:"existingfile"`
+	DocFile          string `arg:"" help:"Input file." type:"existingfile"`
+	VariablesEnabled bool   `name:"variables" optional:"" short:"v" help:"Whether to validate variables."`
+	OutputsEnabled   bool   `name:"outputs" short:"o" optional:"" help:"Whether to validate outputs."`
 }
 
 func (vcm ValidateCmd) Run() error {
@@ -33,44 +34,68 @@ func (vcm ValidateCmd) Run() error {
 		return err
 	}
 
-	// VARIABLES
-	if vcm.VariablesFile != "" {
-		v, vCloser, err := openInput(vcm.VariablesFile)
+	path, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+
+	allFiles, err := WalkMatch(path, "*.tf")
+	if err != nil {
+		return err
+	}
+
+	// Ignore any folder or file matching ignore array - cold replace with file in future
+	var ignore = []string{"/.terraform/", "/example/", "/.vscode/"}
+
+	var files []string
+	for _, file := range allFiles {
+		contains := false
+
+		for _, ignoreString := range ignore {
+			if !strings.Contains(file, ignoreString) {
+				contains = true
+				break
+			}
+		}
+
+		if !contains {
+			files = append(files, file)
+			fmt.Fprintf(os.Stderr, file, "\n")
+		}
+	}
+
+	hasVarsErrors = false
+	hasOutputsErrors = false
+
+	for _, file := range files {
+		f, vCloser, err := openInput(file)
 		if err != nil {
 			return err
 		}
 		defer vCloser()
 
-		tfvars, err := varsparser.Parse(v, v.Name())
+		tfContent, err := validationparser.Parse(f, f.Name(), vcm.VariablesEnabled, vcm.OutputsEnabled)
 		if err != nil {
 			return err
 		}
 
-		varsSummary := varsvalidator.Validate(doc, tfvars)
+		// VARIABLES
+		varsSummary := varsvalidator.Validate(doc, tfContent)
 
-		printValidationSummary(varsSummary, t.Name(), v.Name())
+		printValidationSummary(varsSummary, t.Name(), f.Name())
 
-		hasVarsErrors = !varsSummary.Success()
-	}
-
-	// OUTPUTS
-	if vcm.OutputsFile != "" {
-		o, oCloser, err := openInput(vcm.OutputsFile)
-		if err != nil {
-			return err
-		}
-		defer oCloser()
-
-		tfoutputs, err := outputsparser.Parse(o, o.Name())
-		if err != nil {
-			return err
+		if !varsSummary.Success() {
+			hasVarsErrors = !varsSummary.Success()
 		}
 
-		outputsSummary := outputsvalidator.Validate(doc, tfoutputs)
+		// OUTPUTS
+		outputsSummary := outputsvalidator.Validate(doc, tfContent)
 
-		printValidationSummary(outputsSummary, t.Name(), o.Name())
+		printValidationSummary(outputsSummary, t.Name(), f.Name())
 
-		hasOutputsErrors = !outputsSummary.Success()
+		if !outputsSummary.Success() {
+			hasOutputsErrors = !outputsSummary.Success()
+		}
 	}
 
 	if hasVarsErrors || hasOutputsErrors {
@@ -93,4 +118,26 @@ func printValidationSummary(summary validators.Summary, docFilename, defFilename
 		fmt.Fprintf(os.Stderr, "Type mismatch for %s: %q is documented as %q in %q but defined as %q in %q\n", summary.Type, tMismatch.Name, tMismatch.DocumentedType, docFilename, tMismatch.DefinedType, defFilename)
 	}
 
+}
+
+func WalkMatch(root, pattern string) ([]string, error) {
+	var matches []string
+	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
+			return nil
+		}
+		if matched, err := filepath.Match(pattern, filepath.Base(path)); err != nil {
+			return err
+		} else if matched {
+			matches = append(matches, path)
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return matches, nil
 }
