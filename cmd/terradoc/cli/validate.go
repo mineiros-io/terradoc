@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/mineiros-io/terradoc/internal/entities"
 	"github.com/mineiros-io/terradoc/internal/parsers/docparser"
 	"github.com/mineiros-io/terradoc/internal/parsers/validationparser"
 	"github.com/mineiros-io/terradoc/internal/validators"
@@ -45,14 +46,14 @@ func (vcm ValidateCmd) Run() error {
 	}
 
 	// Ignore any folder or file matching ignore array - cold replace with file in future
-	var ignore = []string{"/.terraform/", "/example/", "/.vscode/"}
+	var ignore = []string{"/.terraform/", "/example/" /*"/.vscode/",*/, "/test/"}
 
 	var files []string
 	for _, file := range allFiles {
 		contains := false
 
 		for _, ignoreString := range ignore {
-			if !strings.Contains(file, ignoreString) {
+			if strings.Contains(file, ignoreString) {
 				contains = true
 				break
 			}
@@ -67,6 +68,8 @@ func (vcm ValidateCmd) Run() error {
 	hasVarsErrors = false
 	hasOutputsErrors = false
 
+	tfContent := entities.ValidationContents{}
+
 	for _, file := range files {
 		f, vCloser, err := openInput(file)
 		if err != nil {
@@ -74,28 +77,30 @@ func (vcm ValidateCmd) Run() error {
 		}
 		defer vCloser()
 
-		tfContent, err := validationparser.Parse(f, f.Name(), vcm.VariablesEnabled, vcm.OutputsEnabled)
+		content, err := validationparser.Parse(f, f.Name(), vcm.VariablesEnabled, vcm.OutputsEnabled)
 		if err != nil {
 			return err
 		}
 
-		// VARIABLES
-		varsSummary := varsvalidator.Validate(doc, tfContent)
+		tfContent.Variables = append(tfContent.Variables, content.Variables...)
+	}
 
-		printValidationSummary(varsSummary, t.Name(), f.Name())
+	// VARIABLES
+	varsSummary := varsvalidator.Validate(doc, tfContent)
 
-		if !varsSummary.Success() {
-			hasVarsErrors = !varsSummary.Success()
-		}
+	printValidationSummary(varsSummary, t.Name())
 
-		// OUTPUTS
-		outputsSummary := outputsvalidator.Validate(doc, tfContent)
+	if !varsSummary.Success() {
+		hasVarsErrors = !varsSummary.Success()
+	}
 
-		printValidationSummary(outputsSummary, t.Name(), f.Name())
+	// OUTPUTS
+	outputsSummary := outputsvalidator.Validate(doc, tfContent)
 
-		if !outputsSummary.Success() {
-			hasOutputsErrors = !outputsSummary.Success()
-		}
+	printValidationSummary(outputsSummary, t.Name())
+
+	if !outputsSummary.Success() {
+		hasOutputsErrors = !outputsSummary.Success()
 	}
 
 	if hasVarsErrors || hasOutputsErrors {
@@ -105,9 +110,9 @@ func (vcm ValidateCmd) Run() error {
 	return nil
 }
 
-func printValidationSummary(summary validators.Summary, docFilename, defFilename string) {
+func printValidationSummary(summary validators.Summary, docFilename string) {
 	for _, missingDef := range summary.MissingDefinition {
-		fmt.Fprintf(os.Stderr, "Missing %s definition: %q is not defined in %q\n", summary.Type, missingDef, defFilename)
+		fmt.Fprintf(os.Stderr, "Missing %s definition: %q is not defined in .tf files.\n", summary.Type, missingDef)
 	}
 
 	for _, missingDoc := range summary.MissingDocumentation {
@@ -115,7 +120,7 @@ func printValidationSummary(summary validators.Summary, docFilename, defFilename
 	}
 
 	for _, tMismatch := range summary.TypeMismatch {
-		fmt.Fprintf(os.Stderr, "Type mismatch for %s: %q is documented as %q in %q but defined as %q in %q\n", summary.Type, tMismatch.Name, tMismatch.DocumentedType, docFilename, tMismatch.DefinedType, defFilename)
+		fmt.Fprintf(os.Stderr, "Type mismatch for %s: %q is documented as %q in %q but defined as %q in .tf files\n", summary.Type, tMismatch.Name, tMismatch.DocumentedType, docFilename, tMismatch.DefinedType)
 	}
 
 }

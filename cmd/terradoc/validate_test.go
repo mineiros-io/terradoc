@@ -85,7 +85,7 @@ func TestValidateVariables(t *testing.T) {
 			assert.NoError(t, err)
 
 			variables := test.ReadFixture(t, tt.variables)
-			variablesFile, err := ioutil.TempFile(t.TempDir(), "terradoc-validate-variables-")
+			variablesFile, err := ioutil.TempFile(t.TempDir(), "terradoc-validate-variables-*.tf")
 			assert.NoError(t, err)
 			_, err = variablesFile.Write(variables)
 			assert.NoError(t, err)
