@@ -45,8 +45,8 @@ func (vcm ValidateCmd) Run() error {
 		return err
 	}
 
-	// Ignore any folder or file matching ignore array - cold replace with file in future
-	var ignore = []string{"/.terraform/", "/example/" /*"/.vscode/",*/, "/test/"}
+	// Ignore any folder or file matching ignore array - could replace with file in future which user can specify
+	var ignore = []string{"/.terraform/", "/example/", "/.vscode/", "/test/"}
 
 	var files []string
 	for _, file := range allFiles {
@@ -61,7 +61,6 @@ func (vcm ValidateCmd) Run() error {
 
 		if !contains {
 			files = append(files, file)
-			fmt.Fprintf(os.Stderr, file, "\n")
 		}
 	}
 
@@ -112,7 +111,7 @@ func (vcm ValidateCmd) Run() error {
 
 func printValidationSummary(summary validators.Summary, docFilename string) {
 	for _, missingDef := range summary.MissingDefinition {
-		fmt.Fprintf(os.Stderr, "Missing %s definition: %q is not defined in .tf files.\n", summary.Type, missingDef)
+		fmt.Fprintf(os.Stderr, "Missing %s definition: %q is not defined in .tf files\n", summary.Type, missingDef)
 	}
 
 	for _, missingDoc := range summary.MissingDocumentation {

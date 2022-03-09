@@ -124,11 +124,11 @@ func splitOutputMessages(t *testing.T, output []byte) validationResult {
 
 	for _, oo := range outputStrings {
 		switch {
-		case strings.Contains(oo, "Missing variable definition:"):
+		case strings.HasPrefix(oo, "Missing variable definition:"):
 			result.missingDefinition = append(result.missingDefinition, oo)
-		case strings.Contains(oo, "Missing variable documentation:"):
+		case strings.HasPrefix(oo, "Missing variable documentation:"):
 			result.missingDocumentation = append(result.missingDocumentation, oo)
-		case strings.Contains(oo, "Type mismatch for variable:"):
+		case strings.HasPrefix(oo, "Type mismatch for variable:"):
 			result.typeMismatch = append(result.typeMismatch, oo)
 		}
 	}
@@ -172,7 +172,7 @@ func assertHasMissingDefinition(t *testing.T, filename string, got, want []strin
 	for _, wantStr := range want {
 		found := false
 
-		completeWantString := fmt.Sprintf("Missing variable definition: %q is not defined in %q", wantStr, filename)
+		completeWantString := fmt.Sprintf("Missing variable definition: %q is not defined in .tf files", wantStr)
 		for _, msg := range got {
 			if msg == completeWantString {
 				found = true
@@ -197,7 +197,7 @@ func assertHasTypeMismatch(t *testing.T, docFilename, defFilename string, want [
 	for _, tm := range want {
 		found := false
 
-		completeWantString := fmt.Sprintf("Type mismatch for variable: %q is documented as %q in %q but defined as %q in %q", tm.Name, tm.DocumentedType, docFilename, tm.DefinedType, defFilename)
+		completeWantString := fmt.Sprintf("Type mismatch for variable: %q is documented as %q in %q but defined as %q in .tf files", tm.Name, tm.DocumentedType, docFilename, tm.DefinedType)
 
 		for _, msg := range got {
 			if msg == completeWantString {

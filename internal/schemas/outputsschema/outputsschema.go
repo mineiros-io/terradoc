@@ -9,6 +9,26 @@ func RootSchema() *hcl.BodySchema {
 				Type:       "output",
 				LabelNames: []string{"name"},
 			},
+			{
+				Type:       "module",
+				LabelNames: []string{"name"},
+			},
+			{
+				Type:       "locals",
+				LabelNames: []string{},
+			},
+			{
+				Type:       "resource",
+				LabelNames: []string{"source", "name"},
+			},
+			{
+				Type:       "output",
+				LabelNames: []string{"name"},
+			},
+			{
+				Type:       "terraform",
+				LabelNames: []string{},
+			},
 		},
 	}
 }
