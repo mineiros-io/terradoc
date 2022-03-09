@@ -91,7 +91,8 @@ func TestValidateVariables(t *testing.T) {
 			_, err = variablesFile.Write(variables)
 			assert.NoError(t, err)
 
-			os.Chdir(filepath.Dir(variablesFile.Name()))
+			err = os.Chdir(filepath.Dir(variablesFile.Name()))
+			assert.NoError(t, err)
 
 			cmd := exec.Command(terradocBinPath, "validate", docFile.Name(), "-v")
 
