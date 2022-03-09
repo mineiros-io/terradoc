@@ -86,13 +86,18 @@ func TestValidateVariables(t *testing.T) {
 			assert.NoError(t, err)
 
 			variables := test.ReadFixture(t, tt.variables)
-			variablesFile, err := ioutil.TempFile(t.TempDir(), "terradoc-validate-variables-*.tf")
-			assert.NoError(t, err)
-			_, err = variablesFile.Write(variables)
-			assert.NoError(t, err)
 
-			err = os.Chdir(filepath.Dir(variablesFile.Name()))
-			assert.NoError(t, err)
+			// Break variables up into multiple files
+
+			for _, v := range strings.Split(string(variables[:]), "\n\n") {
+				variablesFile, err := ioutil.TempFile(t.TempDir(), "terradoc-validate-variables-*.tf")
+				assert.NoError(t, err)
+				_, err = variablesFile.Write([]byte(v))
+				assert.NoError(t, err)
+
+				err = os.Chdir(filepath.Dir(filepath.Dir(variablesFile.Name())))
+				assert.NoError(t, err)
+			}
 
 			cmd := exec.Command(terradocBinPath, "validate", docFile.Name(), "-v")
 
@@ -104,8 +109,8 @@ func TestValidateVariables(t *testing.T) {
 				assert.Error(t, err)
 
 				assertHasMissingDocumentation(t, docFile.Name(), gotResult.missingDocumentation, tt.wantMissingDocumentation)
-				assertHasMissingDefinition(t, variablesFile.Name(), gotResult.missingDefinition, tt.wantMissingDefinition)
-				assertHasTypeMismatch(t, docFile.Name(), variablesFile.Name(), tt.wantTypeMismatch, gotResult.typeMismatch)
+				assertHasMissingDefinition(t, gotResult.missingDefinition, tt.wantMissingDefinition)
+				assertHasTypeMismatch(t, docFile.Name(), tt.wantTypeMismatch, gotResult.typeMismatch)
 			} else {
 				assert.NoError(t, err)
 			}
@@ -163,7 +168,7 @@ func assertHasMissingDocumentation(t *testing.T, filename string, got, want []st
 	}
 }
 
-func assertHasMissingDefinition(t *testing.T, filename string, got, want []string) {
+func assertHasMissingDefinition(t *testing.T, got, want []string) {
 	t.Helper()
 
 	if len(got) != len(want) {
@@ -188,7 +193,7 @@ func assertHasMissingDefinition(t *testing.T, filename string, got, want []strin
 	}
 }
 
-func assertHasTypeMismatch(t *testing.T, docFilename, defFilename string, want []validators.TypeMismatchResult, got []string) {
+func assertHasTypeMismatch(t *testing.T, docFilename string, want []validators.TypeMismatchResult, got []string) {
 	t.Helper()
 
 	if len(got) != len(want) {
