@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -90,7 +91,7 @@ func TestValidateVariables(t *testing.T) {
 			_, err = variablesFile.Write(variables)
 			assert.NoError(t, err)
 
-			os.Chdir(os.TempDir())
+			os.Chdir(filepath.Dir(variablesFile.Name()))
 
 			cmd := exec.Command(terradocBinPath, "validate", docFile.Name(), "-v")
 
@@ -123,11 +124,11 @@ func splitOutputMessages(t *testing.T, output []byte) validationResult {
 
 	for _, oo := range outputStrings {
 		switch {
-		case strings.HasPrefix(oo, "Missing variable definition:"):
+		case strings.Contains(oo, "Missing variable definition:"):
 			result.missingDefinition = append(result.missingDefinition, oo)
-		case strings.HasPrefix(oo, "Missing variable documentation:"):
+		case strings.Contains(oo, "Missing variable documentation:"):
 			result.missingDocumentation = append(result.missingDocumentation, oo)
-		case strings.HasPrefix(oo, "Type mismatch for variable:"):
+		case strings.Contains(oo, "Type mismatch for variable:"):
 			result.typeMismatch = append(result.typeMismatch, oo)
 		}
 	}
