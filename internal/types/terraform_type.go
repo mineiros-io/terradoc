@@ -16,6 +16,7 @@ const (
 	TerraformTuple                          // tuple
 	TerraformAny                            // any
 	TerraformResource                       // resource
+	TerraformModule                         // module
 )
 
 func TerraformTypes(typename string) (TerraformType, bool) {
