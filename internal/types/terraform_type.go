@@ -19,6 +19,20 @@ const (
 	TerraformModule                         // module
 )
 
+var SupportedTerraformTypes = []TerraformType{
+	TerraformBool,
+	TerraformString,
+	TerraformNumber,
+	TerraformList,
+	TerraformSet,
+	TerraformMap,
+	TerraformObject,
+	TerraformTuple,
+	TerraformAny,
+	TerraformResource,
+	TerraformModule,
+}
+
 func TerraformTypes(typename string) (TerraformType, bool) {
 	switch typename {
 	case TerraformBool.String():
@@ -43,4 +57,14 @@ func TerraformTypes(typename string) (TerraformType, bool) {
 	}
 
 	return TerraformEmptyType, false
+}
+
+func (t TerraformType) IsComplex() bool {
+	return (t != TerraformEmptyType) &&
+		((t == TerraformList) ||
+			(t == TerraformSet) ||
+			(t == TerraformMap) ||
+			(t == TerraformObject) ||
+			(t == TerraformResource) ||
+			(t == TerraformModule))
 }

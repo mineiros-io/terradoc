@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/ext/customdecode"
+	"github.com/hashicorp/hcl/v2/hclsyntax"
 	"github.com/hashicorp/hcl/v2/hcltest"
 	"github.com/madlambda/spells/assert"
 	"github.com/mineiros-io/terradoc/internal/types"
@@ -110,8 +111,12 @@ func TestAttributeToJSONValue(t *testing.T) {
 	} {
 		t.Run(tt.desc, func(t *testing.T) {
 			// test that the returned value is not an escaped json string
-			expr := hcltest.MockExprLiteral(cty.StringVal(tt.value))
-			attr := &HCLAttribute{&hcl.Attribute{Expr: expr}}
+			hclExpr, parseDiags := hclsyntax.ParseExpression([]byte(tt.value), "", hcl.Pos{Line: 1, Column: 1, Byte: 0})
+			if parseDiags.HasErrors() {
+				t.Fatalf("Error parsing expression: %v", parseDiags.Errs())
+			}
+			// expr := hcltest.MockExprLiteral(cty.StringVal(tt.value))
+			attr := &HCLAttribute{&hcl.Attribute{Expr: hclExpr}}
 
 			res, err := attr.RawJSON()
 			assert.NoError(t, err)
@@ -186,6 +191,11 @@ func TestAttributeToTypeInvalidTypes(t *testing.T) {
 			expectedErrorMSG: "type \"object\" needs an argument",
 		},
 		{
+			desc:             "when type is object and has more than one argument",
+			exprValue:        "object(foo, bar)",
+			expectedErrorMSG: "type \"object\" needs an argument",
+		},
+		{
 			desc:             "when type is a tuple without definition",
 			exprValue:        "tuple",
 			expectedErrorMSG: "type \"tuple\" needs an argument",
@@ -203,7 +213,7 @@ func TestAttributeToTypeInvalidTypes(t *testing.T) {
 			assert.Error(t, err)
 
 			if !strings.Contains(err.Error(), tt.expectedErrorMSG) {
-				t.Errorf("Expected error to contain %q. Got %q instead", tt.expectedErrorMSG, err.Error())
+				t.Errorf("[%s] Expected error to contain %q. Got %q instead", tt.exprValue, tt.expectedErrorMSG, err.Error())
 			}
 
 			assert.EqualInts(t, int(types.TerraformEmptyType), int(res.TFType))
@@ -214,10 +224,6 @@ func TestAttributeToTypeInvalidTypes(t *testing.T) {
 			}
 		})
 	}
-}
-
-func TestAttributeToTerraformTypeValidComplexType(t *testing.T) {
-	t.Skip("I'm not sure how tf I'll test this")
 }
 
 type fakeHCLExpression struct {
