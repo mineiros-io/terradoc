@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"strings"
 	"testing"
 
@@ -88,16 +87,17 @@ func TestValidateVariables(t *testing.T) {
 			variables := test.ReadFixture(t, tt.variables)
 
 			// Break variables up into multiple files
+			variablesDir := t.TempDir()
 
 			for _, v := range strings.Split(string(variables[:]), "\n\n") {
-				variablesFile, err := ioutil.TempFile(t.TempDir(), "terradoc-validate-variables-*.tf")
+				variablesFile, err := ioutil.TempFile(variablesDir, "terradoc-validate-variables-*.tf")
 				assert.NoError(t, err)
 				_, err = variablesFile.Write([]byte(v))
 				assert.NoError(t, err)
-
-				err = os.Chdir(filepath.Dir(filepath.Dir(variablesFile.Name())))
-				assert.NoError(t, err)
 			}
+
+			err = os.Chdir(variablesDir)
+			assert.NoError(t, err)
 
 			cmd := exec.Command(terradocBinPath, "validate", docFile.Name(), "-v")
 

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/mineiros-io/terradoc/internal/entities"
 	"github.com/mineiros-io/terradoc/internal/parsers/docparser"
@@ -40,28 +39,9 @@ func (vcm ValidateCmd) Run() error {
 		return err
 	}
 
-	allFiles, err := WalkMatch(path, "*.tf")
+	files, err := WalkMatch(path, "*.tf")
 	if err != nil {
 		return err
-	}
-
-	// Ignore any folder or file matching ignore array - could replace with file in future which user can specify
-	var ignore = []string{"/.terraform/", "/example/", "/.vscode/", "/test/"}
-
-	var files []string
-	for _, file := range allFiles {
-		contains := false
-
-		for _, ignoreString := range ignore {
-			if strings.Contains(file, ignoreString) {
-				contains = true
-				break
-			}
-		}
-
-		if !contains {
-			files = append(files, file)
-		}
 	}
 
 	hasVarsErrors = false
@@ -130,8 +110,9 @@ func WalkMatch(root, pattern string) ([]string, error) {
 		if err != nil {
 			return err
 		}
-		if info.IsDir() {
-			return nil
+
+		if info.IsDir() && path != root {
+			return filepath.SkipDir
 		}
 		if matched, err := filepath.Match(pattern, filepath.Base(path)); err != nil {
 			return err
