@@ -6,4 +6,8 @@ section {
   variable "number" {
     type = number
   }
+
+  variable "cars" {
+    type = list(car)
+  }
 }

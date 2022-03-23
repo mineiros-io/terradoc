@@ -5,3 +5,7 @@ variable "person" {
 variable "number" {
   type = number
 }
+
+variable "cars" {
+  type = any
+}

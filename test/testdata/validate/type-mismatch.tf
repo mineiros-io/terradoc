@@ -9,3 +9,7 @@ variable "beer" {
 variable "number" {
   type = list(string)
 }
+
+variable "cars" {
+  type = any
+}

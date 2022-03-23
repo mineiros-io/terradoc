@@ -44,6 +44,20 @@ func (vcm ValidateCmd) Run() error {
 		return err
 	}
 
+	varsEnabled := false
+	if vcm.VariablesEnabled {
+		varsEnabled = true
+	} else {
+		varsEnabled = !vcm.VariablesEnabled && !vcm.OutputsEnabled
+	}
+
+	outputsEnabled := false
+	if vcm.OutputsEnabled {
+		outputsEnabled = true
+	} else {
+		outputsEnabled = !vcm.VariablesEnabled && !vcm.OutputsEnabled
+	}
+
 	hasVarsErrors = false
 	hasOutputsErrors = false
 
@@ -56,7 +70,7 @@ func (vcm ValidateCmd) Run() error {
 		}
 		defer vCloser()
 
-		content, err := validationparser.Parse(f, f.Name(), vcm.VariablesEnabled, vcm.OutputsEnabled)
+		content, err := validationparser.Parse(f, f.Name(), varsEnabled, outputsEnabled)
 		if err != nil {
 			return err
 		}
