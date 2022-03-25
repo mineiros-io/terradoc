@@ -144,6 +144,12 @@ func createOutputFromHCLAttributes(attrs hcl.Attributes, name string) (entities.
 	var err error
 	output := entities.Output{Name: name}
 
+	// type definition
+	output.Type, err = hclparser.GetAttribute(attrs, "type").OutputType()
+	if err != nil {
+		return entities.Output{}, err
+	}
+
 	// description
 	output.Description, err = hclparser.GetAttribute(attrs, "description").String()
 	if err != nil {

@@ -26,6 +26,15 @@ func Validate(doc entities.Doc, outputsFile entities.ValidationContents) validat
 			summary.MissingDefinition = append(summary.MissingDefinition, outputName)
 		case check.documented.Name == "":
 			summary.MissingDocumentation = append(summary.MissingDocumentation, outputName)
+		case !validators.TypesMatch(&check.defined.Type, &check.documented.Type):
+			summary.TypeMismatch = append(
+				summary.TypeMismatch,
+				validators.TypeMismatchResult{
+					Name:           outputName,
+					DefinedType:    check.defined.Type.AsString(),
+					DocumentedType: check.documented.Type.AsString(),
+				},
+			)
 		}
 	}
 

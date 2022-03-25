@@ -76,24 +76,29 @@ func (vcm ValidateCmd) Run() error {
 		}
 
 		tfContent.Variables = append(tfContent.Variables, content.Variables...)
+		tfContent.Outputs = append(tfContent.Outputs, content.Outputs...)
 	}
 
 	// VARIABLES
-	varsSummary := varsvalidator.Validate(doc, tfContent)
+	if varsEnabled {
+		varsSummary := varsvalidator.Validate(doc, tfContent)
 
-	printValidationSummary(varsSummary, t.Name())
+		printValidationSummary(varsSummary, t.Name())
 
-	if !varsSummary.Success() {
-		hasVarsErrors = !varsSummary.Success()
+		if !varsSummary.Success() {
+			hasVarsErrors = !varsSummary.Success()
+		}
 	}
 
 	// OUTPUTS
-	outputsSummary := outputsvalidator.Validate(doc, tfContent)
+	if outputsEnabled {
+		outputsSummary := outputsvalidator.Validate(doc, tfContent)
 
-	printValidationSummary(outputsSummary, t.Name())
+		printValidationSummary(outputsSummary, t.Name())
 
-	if !outputsSummary.Success() {
-		hasOutputsErrors = !outputsSummary.Success()
+		if !outputsSummary.Success() {
+			hasOutputsErrors = !outputsSummary.Success()
+		}
 	}
 
 	if hasVarsErrors || hasOutputsErrors {
