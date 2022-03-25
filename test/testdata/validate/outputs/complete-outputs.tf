@@ -1,15 +1,15 @@
 output "person" {
-  type = any
+  value = var.person
 }
 
 output "cars" {
-  type = any
+  value = var.cars
 }
 
 output "beer" {
-  type = string
+  value = var.beer
 }
 
 output "number" {
-  type = number
+  value = var.number
 }

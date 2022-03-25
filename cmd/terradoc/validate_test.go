@@ -149,36 +149,6 @@ func TestValidateOutputs(t *testing.T) {
 			wantMissingDefinition:    []string{},
 			wantError:                true,
 		},
-		{
-			desc:                     "when `outputs.tf` has type mismatch",
-			doc:                      "validate/outputs/complete.tfdoc.hcl",
-			outputs:                  "validate/outputs/type-mismatch.tf",
-			wantMissingDocumentation: []string{},
-			wantMissingDefinition:    []string{},
-			wantTypeMismatch: []validators.TypeMismatchResult{
-				{
-					Name:           "number",
-					DefinedType:    "list(string)",
-					DocumentedType: "number",
-				},
-			},
-			wantError: true,
-		},
-		{
-			desc:                     "when `outputs.tf` has type mismatch and missing outputs",
-			doc:                      "validate/outputs/complete.tfdoc.hcl",
-			outputs:                  "validate/outputs/type-mismatch-with-missing.tf",
-			wantMissingDocumentation: []string{},
-			wantMissingDefinition:    []string{"beer"},
-			wantTypeMismatch: []validators.TypeMismatchResult{
-				{
-					Name:           "person",
-					DefinedType:    "string",
-					DocumentedType: "object(person)",
-				},
-			},
-			wantError: true,
-		},
 	}
 
 	for _, tt := range tests {
@@ -268,7 +238,7 @@ func assertHasMissingDocumentation(t *testing.T, filename string, got, want []st
 		}
 
 		if !found {
-			t.Errorf("wanted output to have missing documentation for %q but didn't find it", wantStr)
+			t.Errorf("wanted %s to have missing documentation for %q but didn't find it", validationType, wantStr)
 		}
 	}
 }
@@ -293,7 +263,7 @@ func assertHasMissingDefinition(t *testing.T, got, want []string, validationType
 		}
 
 		if !found {
-			t.Errorf("wanted output to have missing definition %q but didn't find it", wantStr)
+			t.Errorf("wanted %s to have missing definition %q but didn't find it", validationType, wantStr)
 		}
 	}
 }
@@ -319,7 +289,7 @@ func assertHasTypeMismatch(t *testing.T, docFilename string, want []validators.T
 		}
 
 		if !found {
-			t.Errorf("wanted output to have type mismatch for %q but didn't find it", tm.Name)
+			t.Errorf("wanted %s to have type mismatch for %q but didn't find it", validationType, tm.Name)
 		}
 	}
 }

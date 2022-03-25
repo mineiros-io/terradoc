@@ -37,7 +37,7 @@ func OutputSchema() *hcl.BodySchema {
 	return &hcl.BodySchema{
 		Attributes: []hcl.AttributeSchema{
 			{
-				Name:     "type",
+				Name:     "value",
 				Required: true,
 			},
 			{
