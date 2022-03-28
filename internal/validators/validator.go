@@ -25,12 +25,14 @@ func (vs Summary) Success() bool {
 }
 
 func TypesMatch(typeA, typeB *entities.Type) bool {
+	// TODO: refactor
 	if typeA == nil && typeB == nil {
 		return true
 	}
 
-	// TODO: terraform accepts `any` for object so we don't take the label into consideration here
-	if typeA.TFType == types.TerraformObject && typeB.TFType == types.TerraformObject {
+	//terraform accepts `any` for object so we don't take the label into consideration here
+	if (typeA.TFType == types.TerraformObject && typeB.TFType == types.TerraformAny) ||
+		(typeB.TFType == types.TerraformObject && typeA.TFType == types.TerraformAny) {
 		return true
 	}
 

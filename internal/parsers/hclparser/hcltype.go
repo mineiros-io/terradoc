@@ -10,6 +10,7 @@ import (
 	"github.com/mineiros-io/terradoc/internal/types"
 )
 
+// TODO: the next 2 functions are the same
 func GetVarTypeFromExpression(expr hcl.Expression) (entities.Type, error) {
 	return processType(expr, types.TerraformEmptyType)
 }
@@ -58,11 +59,11 @@ func processType(expr hcl.Expression, parentType types.TerraformType) (entities.
 
 	switch call.Name {
 	case "bool", "string", "number", "any":
-		return entities.Type{}, fmt.Errorf("%q does not accept any argument", call.Name)
+		return entities.Type{}, fmt.Errorf("type %q does not accept any argument", call.Name)
 	}
 
 	if len(call.Arguments) != 1 {
-		return entities.Type{}, fmt.Errorf("%q accepts only 1 argument", call.Name)
+		return entities.Type{}, fmt.Errorf("type %q accepts only 1 argument", call.Name)
 	}
 
 	switch call.Name {

@@ -111,12 +111,8 @@ func TestAttributeToJSONValue(t *testing.T) {
 	} {
 		t.Run(tt.desc, func(t *testing.T) {
 			// test that the returned value is not an escaped json string
-			hclExpr, parseDiags := hclsyntax.ParseExpression([]byte(tt.value), "", hcl.Pos{Line: 1, Column: 1, Byte: 0})
-			if parseDiags.HasErrors() {
-				t.Fatalf("Error parsing expression: %v", parseDiags.Errs())
-			}
-			// expr := hcltest.MockExprLiteral(cty.StringVal(tt.value))
-			attr := &HCLAttribute{&hcl.Attribute{Expr: hclExpr}}
+			expr := hcltest.MockExprLiteral(cty.StringVal(tt.value))
+			attr := &HCLAttribute{&hcl.Attribute{Expr: expr}}
 
 			res, err := attr.RawJSON()
 			assert.NoError(t, err)
@@ -193,12 +189,7 @@ func TestAttributeToTypeInvalidTypes(t *testing.T) {
 		{
 			desc:             "when type is object and has more than one argument",
 			exprValue:        "object(foo, bar)",
-			expectedErrorMSG: "type \"object\" needs an argument",
-		},
-		{
-			desc:             "when type is a tuple without definition",
-			exprValue:        "tuple",
-			expectedErrorMSG: "type \"tuple\" needs an argument",
+			expectedErrorMSG: "type \"object\" accepts only 1 argument",
 		},
 		{
 			desc:             "when type is a map without definition",
@@ -207,8 +198,12 @@ func TestAttributeToTypeInvalidTypes(t *testing.T) {
 		},
 	} {
 		t.Run(tt.desc, func(t *testing.T) {
-			attr := newTypeAttribute(tt.exprValue, tt.exprValue)
+			hclExpr, parseDiags := hclsyntax.ParseExpression([]byte(tt.exprValue), "", hcl.Pos{Line: 1, Column: 1, Byte: 0})
+			if parseDiags.HasErrors() {
+				t.Fatalf("ERRRRRROR: %v", parseDiags.Errs())
+			}
 
+			attr := &HCLAttribute{&hcl.Attribute{Name: tt.exprValue, Expr: hclExpr}}
 			res, err := attr.VarType()
 			assert.Error(t, err)
 

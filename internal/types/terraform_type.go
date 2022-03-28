@@ -46,8 +46,9 @@ func TerraformTypes(typename string) (TerraformType, bool) {
 	case TerraformMap.String():
 		return TerraformMap, true
 	case TerraformObject.String():
-	case "any": // TODO: check if this make sense as it was included for enabling type checking validation
 		return TerraformObject, true
+	case TerraformAny.String():
+		return TerraformAny, true
 	case TerraformResource.String():
 		return TerraformResource, true
 	}
