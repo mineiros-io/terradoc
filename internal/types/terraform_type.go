@@ -13,7 +13,6 @@ const (
 	TerraformSet                            // set
 	TerraformMap                            // map
 	TerraformObject                         // object
-	TerraformTuple                          // tuple
 	TerraformAny                            // any
 	TerraformResource                       // resource
 	TerraformModule                         // module
@@ -27,7 +26,6 @@ var SupportedTerraformTypes = []TerraformType{
 	TerraformSet,
 	TerraformMap,
 	TerraformObject,
-	TerraformTuple,
 	TerraformAny,
 	TerraformResource,
 	TerraformModule,
@@ -50,8 +48,6 @@ func TerraformTypes(typename string) (TerraformType, bool) {
 	case TerraformObject.String():
 	case "any": // TODO: check if this make sense as it was included for enabling type checking validation
 		return TerraformObject, true
-	case TerraformTuple.String():
-		return TerraformTuple, true
 	case TerraformResource.String():
 		return TerraformResource, true
 	}
