@@ -73,9 +73,7 @@ func processType(expr hcl.Expression, parentType types.TerraformType) (entities.
 		return entities.Type{TFType: tfType}, nil
 	}
 
-	if kw != "" {
-		if !isComplexTypeExpression(kw) {
-			// TODO: no nested ifs, man!
+	if kw != "" && !isComplexTypeExpression(kw) {
 			if parentType.IsComplex() {
 				// this is needed so we interpret stuff like list(my_object_label) as list(object(my_object_label))
 				return entities.Type{TFType: types.TerraformObject, Label: kw}, nil
