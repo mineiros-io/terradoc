@@ -200,7 +200,7 @@ func TestAttributeToTypeInvalidTypes(t *testing.T) {
 		t.Run(tt.desc, func(t *testing.T) {
 			hclExpr, parseDiags := hclsyntax.ParseExpression([]byte(tt.exprValue), "", hcl.Pos{Line: 1, Column: 1, Byte: 0})
 			if parseDiags.HasErrors() {
-				t.Fatalf("ERRRRRROR: %v", parseDiags.Errs())
+				t.Fatal(parseDiags.Errs())
 			}
 
 			attr := &HCLAttribute{&hcl.Attribute{Name: tt.exprValue, Expr: hclExpr}}
