@@ -110,7 +110,7 @@ func (vcm ValidateCmd) Run() error {
 
 func printValidationSummary(summary validators.Summary, docFilename string) {
 	for _, missingDef := range summary.MissingDefinition {
-		fmt.Fprintf(os.Stderr, "Missing %s definition: %q is not defined in .tf files\n", summary.Type, missingDef)
+		fmt.Fprintf(os.Stderr, "Unknown %s documented: %q is not defined in any .tf files\n", summary.Type, missingDef)
 	}
 
 	for _, missingDoc := range summary.MissingDocumentation {
