@@ -205,7 +205,7 @@ func splitOutputMessages(t *testing.T, output []byte, validationType string) val
 
 	for _, oo := range outputStrings {
 		switch {
-		case strings.HasPrefix(oo, fmt.Sprintf("Missing %s definition:", validationType)):
+		case strings.HasPrefix(oo, fmt.Sprintf("Unknown %s documented:", validationType)):
 			result.missingDefinition = append(result.missingDefinition, oo)
 		case strings.HasPrefix(oo, fmt.Sprintf("Missing %s documentation:", validationType)):
 			result.missingDocumentation = append(result.missingDocumentation, oo)
@@ -253,7 +253,7 @@ func assertHasMissingDefinition(t *testing.T, got, want []string, validationType
 	for _, wantStr := range want {
 		found := false
 
-		completeWantString := fmt.Sprintf("Missing %s definition: %q is not defined in .tf files", validationType, wantStr)
+		completeWantString := fmt.Sprintf("Unknown %s documented: %q is not defined in any .tf files", validationType, wantStr)
 		for _, msg := range got {
 			if msg == completeWantString {
 				found = true
