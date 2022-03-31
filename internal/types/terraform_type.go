@@ -18,6 +18,31 @@ const (
 	TerraformModule                         // module
 )
 
+// TODO: do we need to keep these lists?
+var VariableTypes = []TerraformType{
+	TerraformAny,
+	TerraformBool,
+	TerraformString,
+	TerraformNumber,
+	TerraformList,
+	TerraformSet,
+	TerraformMap,
+	TerraformObject,
+}
+
+var OutputTypes = []TerraformType{
+	TerraformAny,
+	TerraformBool,
+	TerraformString,
+	TerraformNumber,
+	TerraformList,
+	TerraformSet,
+	TerraformMap,
+	TerraformObject,
+	TerraformModule,
+	TerraformResource,
+}
+
 var SupportedTerraformTypes = []TerraformType{
 	TerraformBool,
 	TerraformString,

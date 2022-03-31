@@ -10,13 +10,45 @@ import (
 	"github.com/mineiros-io/terradoc/internal/types"
 )
 
-// TODO: the next 2 functions are the same
+// TODO: refactor - the next two functions are identical apart from the types slice that they use
 func GetVarTypeFromExpression(expr hcl.Expression) (entities.Type, error) {
-	return processType(expr, types.TerraformEmptyType)
+	t, err := processType(expr, types.TerraformEmptyType)
+	if err != nil {
+		return entities.Type{}, err
+	}
+
+	found := false
+	for _, tt := range types.VariableTypes {
+		if t.TFType == tt {
+			found = true
+		}
+	}
+
+	if !found {
+		return entities.Type{}, fmt.Errorf("%q is not a valid variable type", t.TFType)
+	}
+
+	return t, nil
 }
 
 func GetOutputTypeFromExpression(expr hcl.Expression) (entities.Type, error) {
-	return processType(expr, types.TerraformEmptyType)
+	t, err := processType(expr, types.TerraformEmptyType)
+	if err != nil {
+		return entities.Type{}, err
+	}
+
+	found := false
+	for _, tt := range types.OutputTypes {
+		if t.TFType == tt {
+			found = true
+		}
+	}
+
+	if !found {
+		return entities.Type{}, fmt.Errorf("%q is not a valid output type", t.TFType)
+	}
+
+	return t, nil
 }
 
 // TODO: remove once we're sure we don't need `readme_example` attributes anymore
