@@ -7,7 +7,12 @@ variable "cars" {
 }
 
 variable "beer" {
-  type = string
+  type      = string
+  sensitive = true
+}
+
+resource "something" {
+  name = "name"
 }
 
 variable "number" {

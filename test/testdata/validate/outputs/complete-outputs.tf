@@ -7,7 +7,12 @@ output "cars" {
 }
 
 output "beer" {
-  value = var.beer
+  value     = var.beer
+  sensitive = true
+}
+
+resource "something" {
+  name = "name"
 }
 
 output "number" {

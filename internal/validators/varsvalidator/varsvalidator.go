@@ -21,7 +21,6 @@ func Validate(doc entities.Doc, varsFile entities.ValidationContents) validators
 
 	for varName, check := range validationResult {
 		switch {
-		// TODO: using missing name as indicator of missing output
 		case check.defined.Name == "":
 			summary.MissingDefinition = append(summary.MissingDefinition, varName)
 		case check.documented.Name == "":
