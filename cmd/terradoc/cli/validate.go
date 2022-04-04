@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/mineiros-io/terradoc/internal/entities"
 	"github.com/mineiros-io/terradoc/internal/parsers/docparser"
@@ -15,31 +16,46 @@ import (
 )
 
 type ValidateCmd struct {
-	DocFile          string `arg:"" help:"Input file." type:"existingfile"`
+	DocFile          string `arg:"" help:"Input file." default:""`
 	VariablesEnabled bool   `name:"variables" optional:"" short:"v" help:"Whether to validate variables."`
 	OutputsEnabled   bool   `name:"outputs" short:"o" optional:"" help:"Whether to validate outputs."`
 }
 
 func (vcm ValidateCmd) Run() error {
-	var hasVarsErrors, hasOutputsErrors bool
+	var hasVarsErrors, hasOutputsErrors, inputPathIsRelative bool
+	var docFileName, tfFilesDir string
+
 	// DOC
+	if vcm.DocFile == "" {
+		return errors.New("No input file provided")
+	}
+
 	t, tCloser, err := openInput(vcm.DocFile)
 	if err != nil {
 		return err
 	}
 	defer tCloser()
 
+	inputPathIsRelative = !strings.HasPrefix(vcm.DocFile, "/")
+
 	doc, err := docparser.Parse(t, t.Name())
 	if err != nil {
 		return err
 	}
 
-	path, err := os.Getwd()
+	wd, err := os.Getwd()
 	if err != nil {
 		return err
 	}
 
-	files, err := WalkMatch(path, "*.tf")
+	abs, err := filepath.Abs(t.Name())
+	if err != nil {
+		return err
+	}
+
+	tfFilesDir = filepath.Dir(abs)
+
+	files, err := WalkMatch(tfFilesDir, "*.tf")
 	if err != nil {
 		return err
 	}
@@ -79,11 +95,21 @@ func (vcm ValidateCmd) Run() error {
 		tfContent.Outputs = append(tfContent.Outputs, content.Outputs...)
 	}
 
+	docFileName = t.Name()
+
+	if inputPathIsRelative {
+		docFileName = strings.Trim(t.Name(), wd)
+
+		if !strings.HasPrefix(docFileName, "./") {
+			docFileName = "./" + docFileName
+		}
+	}
+
 	// VARIABLES
 	if varsEnabled {
 		varsSummary := varsvalidator.Validate(doc, tfContent)
 
-		printValidationSummary(varsSummary, t.Name())
+		printValidationSummary(varsSummary, docFileName)
 
 		if !varsSummary.Success() {
 			hasVarsErrors = !varsSummary.Success()
@@ -94,7 +120,7 @@ func (vcm ValidateCmd) Run() error {
 	if outputsEnabled {
 		outputsSummary := outputsvalidator.Validate(doc, tfContent)
 
-		printValidationSummary(outputsSummary, t.Name())
+		printValidationSummary(outputsSummary, docFileName)
 
 		if !outputsSummary.Success() {
 			hasOutputsErrors = !outputsSummary.Success()
