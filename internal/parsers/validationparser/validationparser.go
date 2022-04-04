@@ -29,7 +29,22 @@ func parseContentHCL(src []byte, filename string, variablesEnabled bool, outputs
 
 	f, diags := p.ParseHCL(src, filename)
 	if diags.HasErrors() {
-		return entities.ValidationContents{}, fmt.Errorf("parsing HCL: %v", diags.Errs())
+		// Only return errors relevant to parsing of variables or outputs
+		var errors []error
+		for _, e := range diags.Errs() {
+			if variablesEnabled && strings.Contains(e.Error(), "variable") {
+				errors = append(errors, e)
+			}
+
+			if outputsEnabled && strings.Contains(e.Error(), "output") {
+				errors = append(errors, e)
+			}
+		}
+
+		if len(errors) > 0 {
+			return entities.ValidationContents{}, fmt.Errorf("parsing HCL: %v", errors)
+		}
+
 	}
 
 	// Ignore errors, only focus on content to ignore non outputs/variables
@@ -74,11 +89,16 @@ func parseVariable(variableBlock *hcl.Block) (entities.Variable, error) {
 
 	variableContent, diags := variableBlock.Body.Content(varsschema.VariableSchema())
 	if diags.HasErrors() && len(variableContent.Attributes) != 1 {
+		var errors []error
 		for _, e := range diags.Errs() {
 			// Only return if parsing error is relevant to `type`
 			if strings.Contains(e.Error(), "type") {
-				return entities.Variable{}, fmt.Errorf("parsing variable: %v", e)
+				errors = append(errors, e)
 			}
+		}
+
+		if len(errors) > 0 {
+			return entities.Variable{}, fmt.Errorf("parsing variable: %v", errors)
 		}
 	}
 
