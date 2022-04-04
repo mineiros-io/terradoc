@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -87,16 +88,16 @@ func TestValidateVariables(t *testing.T) {
 			variables := test.ReadFixture(t, tt.variables)
 
 			// Break variables up into multiple files
-			variablesDir := t.TempDir()
+			docFileDir := filepath.Dir(docFile.Name())
 
 			for _, v := range strings.Split(string(variables[:]), "\n\n") {
-				variablesFile, err := ioutil.TempFile(variablesDir, "terradoc-validate-variables-*.tf")
+				variablesFile, err := ioutil.TempFile(docFileDir, "terradoc-validate-variables-*.tf")
 				assert.NoError(t, err)
 				_, err = variablesFile.Write([]byte(v))
 				assert.NoError(t, err)
 			}
 
-			err = os.Chdir(variablesDir)
+			err = os.Chdir(docFileDir)
 			assert.NoError(t, err)
 
 			cmd := exec.Command(terradocBinPath, "validate", docFile.Name(), "-v")
@@ -162,16 +163,16 @@ func TestValidateOutputs(t *testing.T) {
 			outputs := test.ReadFixture(t, tt.outputs)
 
 			// Break outputs up into multiple files
-			outputsDir := t.TempDir()
+			docFileDir := filepath.Dir(docFile.Name())
 
 			for _, v := range strings.Split(string(outputs[:]), "\n\n") {
-				outputsFile, err := ioutil.TempFile(outputsDir, "terradoc-validate-outputs-*.tf")
+				outputsFile, err := ioutil.TempFile(docFileDir, "terradoc-validate-outputs-*.tf")
 				assert.NoError(t, err)
 				_, err = outputsFile.Write([]byte(v))
 				assert.NoError(t, err)
 			}
 
-			err = os.Chdir(outputsDir)
+			err = os.Chdir(docFileDir)
 			assert.NoError(t, err)
 
 			cmd := exec.Command(terradocBinPath, "validate", docFile.Name(), "-o")
