@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/mineiros-io/terradoc/internal/entities"
 	"github.com/mineiros-io/terradoc/internal/parsers/docparser"
@@ -22,7 +21,7 @@ type ValidateCmd struct {
 }
 
 func (vcm ValidateCmd) Run() error {
-	var hasVarsErrors, hasOutputsErrors, inputPathIsRelative bool
+	var hasVarsErrors, hasOutputsErrors bool
 	var docFileName, tfFilesDir string
 
 	// DOC
@@ -36,14 +35,7 @@ func (vcm ValidateCmd) Run() error {
 	}
 	defer tCloser()
 
-	inputPathIsRelative = !strings.HasPrefix(vcm.DocFile, "/")
-
 	doc, err := docparser.Parse(t, t.Name())
-	if err != nil {
-		return err
-	}
-
-	wd, err := os.Getwd()
 	if err != nil {
 		return err
 	}
@@ -96,14 +88,6 @@ func (vcm ValidateCmd) Run() error {
 	}
 
 	docFileName = t.Name()
-
-	if inputPathIsRelative {
-		docFileName = strings.Trim(t.Name(), wd)
-
-		if !strings.HasPrefix(docFileName, "./") {
-			docFileName = "./" + docFileName
-		}
-	}
 
 	// VARIABLES
 	if varsEnabled {
