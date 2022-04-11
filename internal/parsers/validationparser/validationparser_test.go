@@ -1,4 +1,4 @@
-package outputsparser_test
+package validationparser_test
 
 import "testing"
 

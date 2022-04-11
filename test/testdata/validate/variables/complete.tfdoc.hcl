@@ -3,6 +3,10 @@ section {
     variable "person" {
       type = object(person)
     }
+
+    variable "cars" {
+      type = list(car)
+    }
   }
 
   variable "beer" {

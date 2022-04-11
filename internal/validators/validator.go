@@ -29,7 +29,20 @@ func TypesMatch(typeA, typeB *entities.Type) bool {
 		return true
 	}
 
-	// TODO: terraform accepts `any` for object so we don't take the label into consideration here
+	if typeA.TFType == types.TerraformAny || typeB.TFType == types.TerraformAny {
+		if typeA.TFType == types.TerraformObject || typeB.TFType == types.TerraformObject {
+			return true
+		}
+
+		if typeA.HasNestedType() {
+			return TypesMatch(typeA.Nested, typeB)
+		}
+
+		if typeB.HasNestedType() {
+			return TypesMatch(typeA, typeB.Nested)
+		}
+	}
+
 	if typeA.TFType == types.TerraformObject && typeB.TFType == types.TerraformObject {
 		return true
 	}

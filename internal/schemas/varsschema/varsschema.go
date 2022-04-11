@@ -20,13 +20,11 @@ func VariableSchema() *hcl.BodySchema {
 				Name:     "type",
 				Required: true,
 			},
+		},
+		Blocks: []hcl.BlockHeaderSchema{
 			{
-				Name:     "description",
-				Required: false,
-			},
-			{
-				Name:     "default",
-				Required: false,
+				Type:       "validation",
+				LabelNames: []string{},
 			},
 		},
 	}

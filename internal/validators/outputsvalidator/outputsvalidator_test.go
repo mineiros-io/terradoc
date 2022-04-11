@@ -84,6 +84,6 @@ func definitionFromOutputs(outputs entities.OutputCollection) entities.Doc {
 	return entities.Doc{Sections: []entities.Section{section}}
 }
 
-func outputFileFromOutputs(outputs entities.OutputCollection) entities.OutputsFile {
-	return entities.OutputsFile{Outputs: outputs}
+func outputFileFromOutputs(outputs entities.OutputCollection) entities.ValidationContents {
+	return entities.ValidationContents{Outputs: outputs}
 }

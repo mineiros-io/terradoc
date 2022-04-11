@@ -4,24 +4,31 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 
+	"github.com/mineiros-io/terradoc/internal/entities"
 	"github.com/mineiros-io/terradoc/internal/parsers/docparser"
-	"github.com/mineiros-io/terradoc/internal/parsers/outputsparser"
-	"github.com/mineiros-io/terradoc/internal/parsers/varsparser"
+	"github.com/mineiros-io/terradoc/internal/parsers/validationparser"
 	"github.com/mineiros-io/terradoc/internal/validators"
 	"github.com/mineiros-io/terradoc/internal/validators/outputsvalidator"
 	"github.com/mineiros-io/terradoc/internal/validators/varsvalidator"
 )
 
 type ValidateCmd struct {
-	DocFile       string `arg:"" help:"Input file." type:"existingfile"`
-	VariablesFile string `name:"variables" optional:"" short:"v" help:"Variables file" type:"existingfile"`
-	OutputsFile   string `name:"outputs" short:"o" optional:"" help:"Outputs file" type:"existingfile"`
+	DocFile          string `arg:"" help:"Input file." default:""`
+	VariablesEnabled bool   `name:"variables" optional:"" short:"v" help:"Whether to validate variables."`
+	OutputsEnabled   bool   `name:"outputs" short:"o" optional:"" help:"Whether to validate outputs."`
 }
 
 func (vcm ValidateCmd) Run() error {
 	var hasVarsErrors, hasOutputsErrors bool
+	var docFileName, tfFilesDir string
+
 	// DOC
+	if vcm.DocFile == "" {
+		return errors.New("No input file provided")
+	}
+
 	t, tCloser, err := openInput(vcm.DocFile)
 	if err != nil {
 		return err
@@ -33,44 +40,75 @@ func (vcm ValidateCmd) Run() error {
 		return err
 	}
 
-	// VARIABLES
-	if vcm.VariablesFile != "" {
-		v, vCloser, err := openInput(vcm.VariablesFile)
+	abs, err := filepath.Abs(t.Name())
+	if err != nil {
+		return err
+	}
+
+	tfFilesDir = filepath.Dir(abs)
+
+	files, err := WalkMatch(tfFilesDir, "*.tf")
+	if err != nil {
+		return err
+	}
+
+	varsEnabled := false
+	if vcm.VariablesEnabled {
+		varsEnabled = true
+	} else {
+		varsEnabled = !vcm.VariablesEnabled && !vcm.OutputsEnabled
+	}
+
+	outputsEnabled := false
+	if vcm.OutputsEnabled {
+		outputsEnabled = true
+	} else {
+		outputsEnabled = !vcm.VariablesEnabled && !vcm.OutputsEnabled
+	}
+
+	hasVarsErrors = false
+	hasOutputsErrors = false
+
+	tfContent := entities.ValidationContents{}
+
+	for _, file := range files {
+		f, vCloser, err := openInput(file)
 		if err != nil {
 			return err
 		}
 		defer vCloser()
 
-		tfvars, err := varsparser.Parse(v, v.Name())
+		content, err := validationparser.Parse(f, f.Name(), varsEnabled, outputsEnabled)
 		if err != nil {
 			return err
 		}
 
-		varsSummary := varsvalidator.Validate(doc, tfvars)
+		tfContent.Variables = append(tfContent.Variables, content.Variables...)
+		tfContent.Outputs = append(tfContent.Outputs, content.Outputs...)
+	}
 
-		printValidationSummary(varsSummary, t.Name(), v.Name())
+	docFileName = t.Name()
 
-		hasVarsErrors = !varsSummary.Success()
+	// VARIABLES
+	if varsEnabled {
+		varsSummary := varsvalidator.Validate(doc, tfContent)
+
+		printValidationSummary(varsSummary, docFileName)
+
+		if !varsSummary.Success() {
+			hasVarsErrors = !varsSummary.Success()
+		}
 	}
 
 	// OUTPUTS
-	if vcm.OutputsFile != "" {
-		o, oCloser, err := openInput(vcm.OutputsFile)
-		if err != nil {
-			return err
+	if outputsEnabled {
+		outputsSummary := outputsvalidator.Validate(doc, tfContent)
+
+		printValidationSummary(outputsSummary, docFileName)
+
+		if !outputsSummary.Success() {
+			hasOutputsErrors = !outputsSummary.Success()
 		}
-		defer oCloser()
-
-		tfoutputs, err := outputsparser.Parse(o, o.Name())
-		if err != nil {
-			return err
-		}
-
-		outputsSummary := outputsvalidator.Validate(doc, tfoutputs)
-
-		printValidationSummary(outputsSummary, t.Name(), o.Name())
-
-		hasOutputsErrors = !outputsSummary.Success()
 	}
 
 	if hasVarsErrors || hasOutputsErrors {
@@ -80,9 +118,9 @@ func (vcm ValidateCmd) Run() error {
 	return nil
 }
 
-func printValidationSummary(summary validators.Summary, docFilename, defFilename string) {
+func printValidationSummary(summary validators.Summary, docFilename string) {
 	for _, missingDef := range summary.MissingDefinition {
-		fmt.Fprintf(os.Stderr, "Missing %s definition: %q is not defined in %q\n", summary.Type, missingDef, defFilename)
+		fmt.Fprintf(os.Stderr, "Unknown %s documented: %q is not defined in any .tf files\n", summary.Type, missingDef)
 	}
 
 	for _, missingDoc := range summary.MissingDocumentation {
@@ -90,7 +128,30 @@ func printValidationSummary(summary validators.Summary, docFilename, defFilename
 	}
 
 	for _, tMismatch := range summary.TypeMismatch {
-		fmt.Fprintf(os.Stderr, "Type mismatch for %s: %q is documented as %q in %q but defined as %q in %q\n", summary.Type, tMismatch.Name, tMismatch.DocumentedType, docFilename, tMismatch.DefinedType, defFilename)
+		fmt.Fprintf(os.Stderr, "Type mismatch for %s: %q is documented as %q in %q but defined as %q in .tf files\n", summary.Type, tMismatch.Name, tMismatch.DocumentedType, docFilename, tMismatch.DefinedType)
 	}
 
+}
+
+func WalkMatch(root, pattern string) ([]string, error) {
+	var matches []string
+	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if info.IsDir() && path != root {
+			return filepath.SkipDir
+		}
+		if matched, err := filepath.Match(pattern, filepath.Base(path)); err != nil {
+			return err
+		} else if matched {
+			matches = append(matches, path)
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return matches, nil
 }

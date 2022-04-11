@@ -14,14 +14,13 @@ type outputValidation struct {
 	documented entities.Output
 }
 
-func Validate(doc entities.Doc, outputsFile entities.OutputsFile) validators.Summary {
+func Validate(doc entities.Doc, outputsFile entities.ValidationContents) validators.Summary {
 	summary := validators.Summary{Type: CheckType}
 
 	validationResult := validateOutputs(doc.AllOutputs(), outputsFile.Outputs)
 
 	for outputName, check := range validationResult {
 		switch {
-		// TODO: using missing name as indicator of missing output
 		case check.defined.Name == "":
 			summary.MissingDefinition = append(summary.MissingDefinition, outputName)
 		case check.documented.Name == "":

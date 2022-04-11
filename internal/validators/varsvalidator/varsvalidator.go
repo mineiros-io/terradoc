@@ -14,14 +14,13 @@ type variableValidation struct {
 	documented entities.Variable
 }
 
-func Validate(doc entities.Doc, varsFile entities.VariablesFile) validators.Summary {
+func Validate(doc entities.Doc, varsFile entities.ValidationContents) validators.Summary {
 	summary := validators.Summary{Type: CheckType}
 
 	validationResult := validateVariables(doc.AllVariables(), varsFile.Variables)
 
 	for varName, check := range validationResult {
 		switch {
-		// TODO: using missing name as indicator of missing output
 		case check.defined.Name == "":
 			summary.MissingDefinition = append(summary.MissingDefinition, varName)
 		case check.documented.Name == "":
