@@ -22,8 +22,7 @@ test:
 ## Build terradoc into bin directory
 .PHONY: build
 build:
-	echo "TODO: cmd not added yet"
-	#go build -o bin/terradoc ./cmd/terradoc
+	go build -o bin/terradoc ./cmd/terradoc
 
 ## remove build artifacts
 .PHONY: clean

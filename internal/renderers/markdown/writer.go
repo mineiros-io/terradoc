@@ -85,6 +85,11 @@ func (mw *markdownWriter) writeSection(section entities.Section) error {
 		return err
 	}
 
+	_, err := mw.writer.Write([]byte("\n"))
+	if err != nil {
+		return fmt.Errorf("failed to add newline: %w", err)
+	}
+
 	if section.TOC {
 		if err := mw.writeTOC(section.SubSections); err != nil {
 			return err
