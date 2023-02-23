@@ -391,10 +391,9 @@ func assertMarkdownHasSection(t *testing.T, buf *bytes.Buffer, md mdSection) {
 	want := md.heading + lineBreak
 
 	if md.description != "" {
-		want += lineBreak + md.description + lineBreak
+		want += lineBreak + md.description
+		want += lineBreak
 	}
-
-	want += lineBreak
 
 	if diff := cmp.Diff(want, buf.String()); diff != "" {
 		t.Errorf("Expected section markdown to match (-want +got):\n%s", diff)
